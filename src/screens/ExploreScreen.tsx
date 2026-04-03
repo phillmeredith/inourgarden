@@ -60,11 +60,11 @@ function BirdVirtualGrid({
     return () => observer.disconnect()
   }, [])
 
-  // Column count: 1 (very narrow) / 2 (phone) / 3 (tablet portrait) / 4 (tablet landscape+)
+  // Column count: 1 (phone) / 2 (large phone landscape / small tablet) / 3 (tablet portrait) / 4 (tablet landscape+)
   const colCount = useMemo(() => {
     if (gridWidth >= 1024) return 4
     if (gridWidth >= 768) return 3
-    if (gridWidth >= 340) return 2
+    if (gridWidth >= 500) return 2
     return 1
   }, [gridWidth])
 
@@ -247,7 +247,7 @@ export function ExploreScreen() {
     const birdIndex = letterFirstIndex.get(letter)
     if (birdIndex == null) return
     const containerWidth = scrollContainerRef.current?.offsetWidth ?? 0
-    const colCount = containerWidth >= 1024 ? 4 : containerWidth >= 768 ? 3 : containerWidth >= 340 ? 2 : 1
+    const colCount = containerWidth >= 1024 ? 4 : containerWidth >= 768 ? 3 : containerWidth >= 500 ? 2 : 1
     const rowIndex = Math.floor(birdIndex / colCount)
     virtualizerRef.current?.scrollToIndex(rowIndex, { align: 'start' })
   }
