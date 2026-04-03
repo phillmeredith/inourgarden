@@ -1,12 +1,8 @@
-// useBirdRecon — on-device AI bird identification using TensorFlow.js
-// Uses MobileNet (ImageNet) to classify bird photos, then maps to UK catalogue
-// No API key required — runs entirely in the browser
+// useBirdRecon — on-device AI bird identification using Transformers.js
+// Uses dima806/bird_species_image_detection (ViT, 525 species)
+// Runs entirely in the browser via Web Worker — no API key required
 
-import { useState, useCallback, useRef, useEffect } from 'react'
-import '@tensorflow/tfjs-backend-webgl'
-import '@tensorflow/tfjs-backend-cpu'
-import * as tf from '@tensorflow/tfjs'
-import * as mobilenet from '@tensorflow-models/mobilenet'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { BIRDS } from '../data/birds'
 import type { BirdSpecies } from '../data/birds'
 
@@ -26,182 +22,135 @@ export interface ReconResult {
 
 type ReconStatus = 'idle' | 'loading' | 'analysing' | 'done' | 'error'
 
-// ─── ImageNet bird class → UK catalogue mapping ────────────────────────────
-// Maps ImageNet class names (lowercase) to catalogue bird IDs
-// MobileNet/ImageNet has ~60 bird classes; we map all that overlap with UK species
+// ─── 525-species label → UK catalogue mapping ──────────────────────────────
+// Maps model labels (UPPERCASE) to catalogue bird IDs
+// Only maps species that have a plausible UK equivalent
 
-const IMAGENET_TO_CATALOGUE: Record<string, string[]> = {
-  // Direct species matches
-  'robin': ['robin'],
-  'european robin': ['robin'],
-  'robin, american robin': ['robin'],
-  'magpie': ['magpie'],
-  'jay': ['jay'],
-  'goldfinch': ['goldfinch'],
-  'european goldfinch': ['goldfinch'],
-  'house finch': ['goldfinch', 'linnet', 'bullfinch'],
-  'brambling': ['brambling'],
-  'junco': ['dunnock'],
-  'indigo bunting': ['blue-tit', 'kingfisher'],
-  'bulbul': ['blackbird', 'starling'],
-  'chickadee': ['blue-tit', 'great-tit', 'coal-tit'],
-  'water ouzel': ['dipper'],
-  'dipper': ['dipper'],
-  'hummingbird': ['kingfisher'],
-  'bee eater': ['kingfisher'],
-  'hornbill': ['kingfisher'],
-  'kingfisher': ['kingfisher'],
-  'jacamar': ['kingfisher'],
-  'toucan': ['puffin'],
-  'drake': ['mallard'],
-  'red-breasted merganser': ['goosander', 'mallard'],
-  'goose': ['canada-goose', 'greylag-goose'],
-  'swan': ['mute-swan'],
-  'black swan': ['mute-swan'],
-  'black stork': ['heron'],
-  'white stork': ['heron'],
-  'crane': ['heron', 'grey-heron'],
-  'heron': ['grey-heron'],
-  'spoonbill': ['grey-heron'],
-  'flamingo': ['grey-heron'],
-  'little blue heron': ['grey-heron'],
-  'bittern': ['bittern'],
-  'american egret': ['little-egret', 'grey-heron'],
-  'pelican': ['cormorant'],
-  'albatross': ['gannet', 'fulmar'],
-  'king penguin': ['puffin', 'guillemot', 'razorbill'],
-  'coucal': ['pheasant'],
-  'cock': ['pheasant'],
-  'hen': ['pheasant'],
-  'peacock': ['pheasant'],
-  'partridge': ['red-legged-partridge', 'grey-partridge'],
-  'quail': ['grey-partridge', 'red-legged-partridge'],
-  'prairie chicken': ['red-grouse', 'grey-partridge'],
-  'ptarmigan': ['ptarmigan'],
-  'ruffed grouse': ['red-grouse'],
-  'black grouse': ['black-grouse'],
-  'vulture': ['red-kite', 'buzzard'],
-  'bald eagle': ['white-tailed-eagle', 'golden-eagle'],
-  'kite': ['red-kite'],
-  'red-tailed hawk': ['buzzard', 'red-kite'],
-  'hawk': ['sparrowhawk', 'buzzard'],
-  'osprey': ['osprey'],
-  'owl': ['tawny-owl', 'barn-owl'],
-  'great grey owl': ['tawny-owl'],
-  'barn owl': ['barn-owl'],
-  'eagle': ['golden-eagle'],
-  'limpkin': ['curlew'],
-  'coot': ['coot'],
-  'bustard': ['curlew'],
-  'american coot': ['coot', 'moorhen'],
-  'oystercatcher': ['oystercatcher'],
-  'redshank': ['redshank'],
-  'dowitcher': ['snipe', 'redshank'],
-  'woodpecker': ['great-spotted-woodpecker', 'green-woodpecker'],
-  'red-backed sandpiper': ['dunlin'],
-  'dunlin': ['dunlin'],
-  'sandpiper': ['dunlin', 'common-sandpiper'],
-  'red-breasted sandpiper': ['dunlin', 'knot'],
-  'african grey': ['woodpigeon', 'stock-dove'],
-  'macaw': ['jay', 'kingfisher'],
-  'lorikeet': ['greenfinch', 'goldfinch'],
-  'sulphur-crested cockatoo': ['woodpigeon'],
-  'wren': ['wren'],
-  'house wren': ['wren'],
-  'warbler': ['chiffchaff', 'willow-warbler', 'blackcap'],
-  'water thrush': ['dipper', 'grey-wagtail'],
-  'wagtail': ['pied-wagtail', 'grey-wagtail'],
-  'pipit': ['meadow-pipit'],
-  'swallow': ['swallow', 'house-martin'],
-  'barn swallow': ['swallow'],
-  'swift': ['swift'],
-  'nightjar': ['nightjar'],
-  'whippoorwill': ['nightjar'],
-  'plover': ['lapwing', 'ringed-plover'],
-  'lapwing': ['lapwing'],
-  'avocet': ['avocet'],
-  'cormorant': ['cormorant'],
-  'shag': ['shag'],
-  'gull': ['herring-gull', 'black-headed-gull'],
-  'herring gull': ['herring-gull'],
-  'tern': ['common-tern', 'arctic-tern'],
-  'skua': ['great-skua'],
-  'puffin': ['puffin'],
-  'guillemot': ['guillemot'],
-  'razorbill': ['razorbill'],
-  'starling': ['starling'],
-  'crow': ['carrion-crow'],
-  'raven': ['raven'],
-  'rook': ['rook'],
-  'jackdaw': ['jackdaw'],
-  'blackbird': ['blackbird'],
-  'thrush': ['song-thrush', 'mistle-thrush'],
-  'robin redbreast': ['robin'],
-  'sparrow': ['house-sparrow', 'tree-sparrow'],
-  'house sparrow': ['house-sparrow'],
-  'tree sparrow': ['tree-sparrow'],
-  'chaffinch': ['chaffinch'],
-  'siskin': ['siskin'],
-  'linnet': ['linnet'],
-  'nuthatch': ['nuthatch'],
-  'treecreeper': ['treecreeper'],
-  'long-tailed tit': ['long-tailed-tit'],
-  'blue tit': ['blue-tit'],
-  'great tit': ['great-tit'],
-  'coal tit': ['coal-tit'],
-  'pigeon': ['woodpigeon', 'feral-pigeon'],
-  'dove': ['collared-dove', 'stock-dove'],
-  'cuckoo': ['cuckoo'],
-}
-
-// ─── Family-level fallback mapping (ImageNet label keywords → families) ─────
-
-const FAMILY_KEYWORDS: Record<string, string[]> = {
-  'finch': ['goldfinch', 'chaffinch', 'greenfinch', 'bullfinch', 'siskin', 'linnet'],
-  'tit': ['blue-tit', 'great-tit', 'coal-tit', 'long-tailed-tit'],
-  'thrush': ['blackbird', 'song-thrush', 'mistle-thrush', 'fieldfare', 'redwing'],
-  'warbler': ['chiffchaff', 'willow-warbler', 'blackcap', 'garden-warbler'],
-  'wader': ['lapwing', 'curlew', 'oystercatcher', 'redshank', 'dunlin'],
-  'raptor': ['buzzard', 'sparrowhawk', 'kestrel', 'red-kite', 'peregrine'],
-  'gull': ['herring-gull', 'black-headed-gull', 'lesser-black-backed-gull'],
-  'duck': ['mallard', 'teal', 'tufted-duck', 'wigeon', 'pochard'],
-  'goose': ['canada-goose', 'greylag-goose', 'brent-goose'],
-  'pigeon': ['woodpigeon', 'feral-pigeon', 'stock-dove', 'collared-dove'],
-  'crow': ['carrion-crow', 'rook', 'jackdaw', 'magpie', 'jay', 'raven'],
-  'owl': ['tawny-owl', 'barn-owl', 'little-owl', 'short-eared-owl'],
-  'woodpecker': ['great-spotted-woodpecker', 'green-woodpecker'],
-  'heron': ['grey-heron', 'little-egret'],
-  'swallow': ['swallow', 'house-martin', 'sand-martin'],
-  'bird of prey': ['buzzard', 'sparrowhawk', 'kestrel', 'red-kite', 'peregrine'],
-}
-
-// ─── Model singleton ───────────────────────────────────────────────────────
-
-let modelPromise: Promise<mobilenet.MobileNet> | null = null
-let modelReady = false
-
-function getModel(): Promise<mobilenet.MobileNet> {
-  if (!modelPromise) {
-    modelPromise = tf.ready().then(() =>
-      mobilenet.load({ version: 2, alpha: 1.0 })
-    ).then(m => {
-      modelReady = true
-      return m
-    })
-  }
-  return modelPromise
-}
-
-// ─── Load image as HTMLImageElement ─────────────────────────────────────────
-
-function loadImage(base64: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => resolve(img)
-    img.onerror = reject
-    img.src = base64
-  })
+const LABEL_TO_CATALOGUE: Record<string, string[]> = {
+  // Direct UK species matches
+  'AMERICAN ROBIN': ['robin'],
+  'EUROPEAN GOLDFINCH': ['goldfinch'],
+  'EURASIAN MAGPIE': ['magpie'],
+  'EURASIAN BULLFINCH': ['bullfinch'],
+  'EURASIAN GOLDEN ORIOLE': ['golden-oriole'],
+  'EUROPEAN TURTLE DOVE': ['turtle-dove'],
+  'COMMON STARLING': ['starling'],
+  'COMMON HOUSE MARTIN': ['house-martin'],
+  'COMMON FIRECREST': ['firecrest'],
+  'BARN OWL': ['barn-owl'],
+  'BARN SWALLOW': ['swallow'],
+  'HOUSE SPARROW': ['house-sparrow'],
+  'HOUSE FINCH': ['linnet', 'greenfinch'],
+  'MALLARD DUCK': ['mallard'],
+  'MANDRIN DUCK': ['mandarin-duck'],
+  'DUNLIN': ['dunlin'],
+  'PUFFIN': ['puffin'],
+  'RAZORBILL': ['razorbill'],
+  'OSPREY': ['osprey'],
+  'PEREGRINE FALCON': ['peregrine'],
+  'MERLIN': ['merlin'],
+  'GOLDEN EAGLE': ['golden-eagle'],
+  'BALD EAGLE': ['white-tailed-eagle'],
+  'HAWFINCH': ['hawfinch'],
+  'PARUS MAJOR': ['great-tit'],
+  'AZURE TIT': ['blue-tit'],
+  'CROW': ['carrion-crow'],
+  'ROCK DOVE': ['feral-pigeon', 'stock-dove'],
+  'GREY PLOVER': ['grey-plover'],
+  'GRAY PARTRIDGE': ['grey-partridge'],
+  'BAR-TAILED GODWIT': ['bar-tailed-godwit'],
+  'BEARDED REEDLING': ['bearded-tit'],
+  'BLACK-NECKED GREBE': ['slavonian-grebe'],
+  'LONG-EARED OWL': ['long-eared-owl'],
+  'SAND MARTIN': ['sand-martin'],
+  'NORTHERN GANNET': ['gannet'],
+  'NORTHERN FULMAR': ['fulmar'],
+  'NORTHERN GOSHAWK': ['goshawk'],
+  'NORTHERN SHOVELER': ['shoveler'],
+  'RING-NECKED PHEASANT': ['pheasant'],
+  'RED CROSSBILL': ['crossbill'],
+  'RED KNOT': ['knot'],
+  'WHIMBREL': ['whimbrel'],
+  'JACK SNIPE': ['snipe'],
+  'RUDDY SHELDUCK': ['shelduck'],
+  'GREAT GRAY OWL': ['tawny-owl'],
+  'SNOWY OWL': ['barn-owl'],
+  'ALPINE CHOUGH': ['chough'],
+  'CASPIAN TERN': ['common-tern'],
+  'WILLOW PTARMIGAN': ['ptarmigan'],
+  'BLUE GROUSE': ['black-grouse'],
+  'BLOOD PHEASANT': ['pheasant'],
+  'RED TAILED HAWK': ['buzzard'],
+  'ROUGH LEG BUZZARD': ['buzzard'],
+  'HARLEQUIN DUCK': ['teal', 'tufted-duck'],
+  'BAIKAL TEAL': ['teal'],
+  'TEAL DUCK': ['teal'],
+  'MOURNING DOVE': ['collared-dove'],
+  'SQUACCO HERON': ['grey-heron'],
+  'BLUE HERON': ['grey-heron'],
+  'GLOSSY IBIS': ['little-egret'],
+  'OYSTER CATCHER': ['oystercatcher'],
+  'MASKED LAPWING': ['lapwing'],
+  'ANDEAN LAPWING': ['lapwing'],
+  'AMERICAN AVOCET': ['avocet'],
+  'AMERICAN COOT': ['coot'],
+  'AMERICAN DIPPER': ['dipper'],
+  'AMERICAN KESTREL': ['kestrel'],
+  'AMERICAN PIPIT': ['meadow-pipit'],
+  'AMERICAN WIGEON': ['wigeon'],
+  'CRAB PLOVER': ['ringed-plover'],
+  'SNOWY PLOVER': ['ringed-plover'],
+  'FOREST WAGTAIL': ['pied-wagtail', 'grey-wagtail'],
+  'DARK EYED JUNCO': ['dunnock'],
+  'CHIPPING SPARROW': ['tree-sparrow'],
+  'BLACK-THROATED SPARROW': ['house-sparrow'],
+  'JAPANESE ROBIN': ['robin'],
+  'DUSKY ROBIN': ['robin'],
+  'PINK ROBIN': ['robin'],
+  'EASTERN YELLOW ROBIN': ['robin'],
+  'DAURIAN REDSTART': ['redstart'],
+  'AMERICAN REDSTART': ['redstart'],
+  'SPLENDID WREN': ['wren'],
+  'CACTUS WREN': ['wren'],
+  'FASCIATED WREN': ['wren'],
+  'BROWN CREPPER': ['treecreeper'],
+  'WALL CREAPER': ['treecreeper'],
+  'CRESTED NUTHATCH': ['nuthatch'],
+  'RED HEADED WOODPECKER': ['great-spotted-woodpecker'],
+  'DOWNY WOODPECKER': ['great-spotted-woodpecker', 'lesser-spotted-woodpecker'],
+  'GILA WOODPECKER': ['green-woodpecker'],
+  'CANARY': ['yellowhammer', 'siskin'],
+  'ANDEAN SISKIN': ['siskin'],
+  'CEDAR WAXWING': ['waxwing'],
+  'SURF SCOTER': ['eider'],
+  'KING EIDER': ['eider'],
+  'SNOW GOOSE': ['greylag-goose'],
+  'EGYPTIAN GOOSE': ['canada-goose'],
+  'HAWAIIAN GOOSE': ['canada-goose'],
+  'BLACK SWAN': ['mute-swan'],
+  'TRUMPTER SWAN': ['mute-swan'],
+  'HOOPOES': ['hoopoe'],
+  'LITTLE AUK': ['guillemot'],
+  'LAUGHING GULL': ['black-headed-gull'],
+  'CALIFORNIA GULL': ['herring-gull'],
+  'IVORY GULL': ['herring-gull'],
+  'FAIRY TERN': ['common-tern'],
+  'INCA TERN': ['arctic-tern'],
+  'LIMPKIN': ['curlew'],
+  'SUPERB STARLING': ['starling'],
+  'CAPE GLOSSY STARLING': ['starling'],
+  'BALI STARLING': ['starling'],
+  'PURPLE MARTIN': ['house-martin', 'sand-martin'],
+  'TREE SWALLOW': ['swallow'],
+  'STRIPPED SWALLOW': ['swallow'],
+  'SCARLET TANAGER': ['crossbill'],
+  'NORTHERN CARDINAL': ['bullfinch'],
+  'DOUBLE BRESTED CORMARANT': ['cormorant'],
+  'BRANDT CORMARANT': ['cormorant'],
+  'RED FACED CORMORANT': ['shag'],
+  'GYRFALCON': ['peregrine'],
+  'GREY HEADED FISH EAGLE': ['osprey'],
+  'SHORT BILLED DOWITCHER': ['snipe', 'redshank'],
 }
 
 // ─── Resize for efficient classification ────────────────────────────────────
@@ -227,79 +176,71 @@ function resizeImage(base64: string, maxDim = 512): Promise<string> {
   })
 }
 
-// ─── Map MobileNet predictions to UK bird catalogue ────────────────────────
+// ─── Map model predictions to UK bird catalogue ────────────────────────────
 
 function mapToCatalogue(
-  predictions: { className: string; probability: number }[],
+  predictions: { label: string; score: number }[],
 ): ReconMatch[] {
   const seen = new Set<string>()
   const matches: ReconMatch[] = []
 
+  console.log('[BirdRecon] Model predictions:', predictions.map(p =>
+    `${p.label} (${(p.score * 100).toFixed(1)}%)`
+  ))
+
   for (const pred of predictions) {
-    // MobileNet returns comma-separated labels (e.g. "magpie" or "cock, rooster")
-    const labels = pred.className.toLowerCase().split(',').map(s => s.trim())
+    const label = pred.label.toUpperCase().trim()
 
-    for (const label of labels) {
-      // Direct mapping
-      const directIds = IMAGENET_TO_CATALOGUE[label]
-      if (directIds) {
-        for (const id of directIds) {
-          if (seen.has(id)) continue
-          const bird = BIRDS.find(b => b.id === id)
-          if (!bird) continue
-          seen.add(id)
-          matches.push({
-            bird,
-            confidence: Math.round(pred.probability * 100),
-            reasoning: `Detected as "${pred.className}" — matches ${bird.name}`,
-          })
-        }
-        continue
+    // ── Step 1: Direct label mapping ──────────────────────────────
+    const directIds = LABEL_TO_CATALOGUE[label]
+    if (directIds) {
+      for (const id of directIds) {
+        if (seen.has(id)) continue
+        const bird = BIRDS.find(b => b.id === id)
+        if (!bird) continue
+        seen.add(id)
+        matches.push({
+          bird,
+          confidence: Math.round(pred.score * 100),
+          reasoning: `Identified as ${pred.label} — matches ${bird.name}`,
+        })
       }
+    }
 
-      // Family keyword fallback
-      for (const [keyword, birdIds] of Object.entries(FAMILY_KEYWORDS)) {
-        if (label.includes(keyword)) {
-          for (const id of birdIds.slice(0, 2)) {
-            if (seen.has(id)) continue
-            const bird = BIRDS.find(b => b.id === id)
-            if (!bird) continue
-            seen.add(id)
-            matches.push({
-              bird,
-              confidence: Math.round(pred.probability * 70), // Lower confidence for family match
-              reasoning: `Detected "${pred.className}" — could be ${bird.name} (${bird.family})`,
-            })
-          }
-        }
+    // ── Step 2: Fuzzy name matching against catalogue ─────────────
+    // Try matching prediction label words against bird names/families
+    const predWords = label.toLowerCase().split(/\s+/)
+    for (const bird of BIRDS) {
+      if (seen.has(bird.id)) continue
+      const birdNameLower = bird.name.toLowerCase()
+      const birdWords = birdNameLower.split(/[\s-]+/)
+
+      // Check if a significant word from the prediction matches the bird name
+      const significantMatch = predWords.some(pw =>
+        pw.length >= 4 && (
+          birdNameLower.includes(pw) ||
+          birdWords.some(bw => bw === pw)
+        )
+      )
+
+      if (significantMatch) {
+        seen.add(bird.id)
+        matches.push({
+          bird,
+          confidence: Math.round(pred.score * 85), // Slightly lower for fuzzy
+          reasoning: `Identified as ${pred.label} — similar to ${bird.name}`,
+        })
       }
     }
   }
 
-  // Sort by confidence descending, cap at 5
+  console.log('[BirdRecon] Matched UK birds:', matches.map(m =>
+    `${m.bird.name} (${m.confidence}%)`
+  ))
+
   return matches
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 5)
-}
-
-// ─── Check if any prediction looks bird-related ────────────────────────────
-
-const BIRD_INDICATORS = [
-  'bird', 'robin', 'finch', 'sparrow', 'hawk', 'eagle', 'owl', 'heron',
-  'duck', 'goose', 'swan', 'gull', 'pigeon', 'dove', 'crow', 'jay',
-  'magpie', 'starling', 'thrush', 'warbler', 'wren', 'tit', 'woodpecker',
-  'kingfisher', 'swallow', 'martin', 'swift', 'cuckoo', 'grouse', 'pheasant',
-  'partridge', 'quail', 'plover', 'sandpiper', 'tern', 'puffin', 'cormorant',
-  'pelican', 'crane', 'stork', 'flamingo', 'vulture', 'kite', 'osprey',
-  'falcon', 'hen', 'cock', 'drake', 'chickadee', 'bulbul', 'toucan',
-  'macaw', 'parrot', 'cockatoo', 'lorikeet', 'albatross', 'penguin',
-  'bittern', 'egret', 'avocet', 'lapwing', 'coot', 'moorhen',
-  'nightjar', 'dipper', 'wagtail', 'pipit', 'brambling',
-]
-
-function isBirdRelated(className: string): boolean {
-  const lower = className.toLowerCase()
-  return BIRD_INDICATORS.some(kw => lower.includes(kw))
 }
 
 // ─── Hook ───────────────────────────────────────────────────────────────────
@@ -309,13 +250,52 @@ export function useBirdRecon() {
   const [photo, setPhoto] = useState<string | null>(null)
   const [result, setResult] = useState<ReconResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [modelLoaded, setModelLoaded] = useState(modelReady)
+  const [modelLoaded, setModelLoaded] = useState(false)
+  const workerRef = useRef<Worker | null>(null)
 
-  // Pre-load model on mount
+  // Spin up Web Worker on mount
   useEffect(() => {
-    if (!modelReady) {
-      getModel().then(() => setModelLoaded(true)).catch(() => {})
+    const worker = new Worker(
+      new URL('../workers/birdRecon.worker.ts', import.meta.url),
+      { type: 'module' },
+    )
+
+    worker.onmessage = (e: MessageEvent) => {
+      const { type, status: workerStatus, predictions, message } = e.data
+
+      if (type === 'model-ready') {
+        setModelLoaded(true)
+      } else if (type === 'status') {
+        console.log(`[BirdRecon] Worker status: ${workerStatus}`)
+      } else if (type === 'result') {
+        console.log('[BirdRecon] Worker returned predictions')
+        const mapped = mapToCatalogue(predictions)
+        const topPred = predictions[0]
+        const description = mapped.length > 0
+          ? `Identified as ${topPred.label} (${Math.round(topPred.score * 100)}% confidence). Best UK match: ${mapped[0].bird.name}.`
+          : `Identified as ${topPred.label} (${Math.round(topPred.score * 100)}% confidence). No direct UK species match found — try the manual filters below.`
+
+        setResult({
+          matches: mapped,
+          rawDescription: description,
+          timestamp: new Date(),
+        })
+        setStatus('done')
+      } else if (type === 'error') {
+        console.error('[BirdRecon] Worker error:', message)
+        setError(message)
+        setStatus('error')
+      }
     }
+
+    worker.onerror = (e) => {
+      console.error('[BirdRecon] Worker crashed:', e)
+      setError('Bird identification engine failed to start')
+      setStatus('error')
+    }
+
+    workerRef.current = worker
+    return () => worker.terminate()
   }, [])
 
   const analyse = useCallback(async (base64Image: string) => {
@@ -323,42 +303,16 @@ export function useBirdRecon() {
       setStatus('loading')
       setError(null)
 
-      // Resize the image
+      console.log('[BirdRecon] Resizing image...')
       const resized = await resizeImage(base64Image)
       setPhoto(resized)
 
-      // Load model (may already be cached)
       setStatus('analysing')
-      const model = await getModel()
-      setModelLoaded(true)
-
-      // Classify the image
-      const imgElement = await loadImage(resized)
-      const predictions = await model.classify(imgElement, 10) // top 10 predictions
-
-      // Check if anything bird-related was detected
-      const birdPredictions = predictions.filter(p => isBirdRelated(p.className))
-      const allPredictions = birdPredictions.length > 0 ? birdPredictions : predictions
-
-      // Map to UK catalogue
-      const matches = mapToCatalogue(allPredictions)
-
-      // Build description
-      const topLabels = predictions.slice(0, 3).map(p =>
-        `${p.className} (${Math.round(p.probability * 100)}%)`
-      ).join(', ')
-
-      const hasBird = birdPredictions.length > 0
-      const description = hasBird
-        ? `Bird detected: ${birdPredictions[0].className}. ${matches.length > 0 ? `Best UK match: ${matches[0].bird.name}.` : 'No UK species match found.'}`
-        : `No bird clearly detected. Top predictions: ${topLabels}. Try a clearer photo with the bird more visible.`
-
-      setResult({
-        matches,
-        rawDescription: description,
-        timestamp: new Date(),
+      console.log('[BirdRecon] Sending to worker...')
+      workerRef.current?.postMessage({
+        type: 'analyse',
+        payload: { imageDataUrl: resized },
       })
-      setStatus('done')
     } catch (err) {
       console.error('[BirdRecon] analysis failed:', err)
       setError(err instanceof Error ? err.message : 'Analysis failed')

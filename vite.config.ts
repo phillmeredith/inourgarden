@@ -1,9 +1,34 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import fs from 'node:fs'
+import path from 'node:path'
+
+// Plugin: return real 404s for /models/ requests instead of SPA fallback HTML.
+// Transformers.js probes for optional files (tokenizer.json, model_quantized.onnx, etc.)
+// and needs proper 404s to skip them gracefully.
+function modelsNoFallback() {
+  return {
+    name: 'models-no-fallback',
+    configureServer(server: any) {
+      server.middlewares.use((req: any, res: any, next: any) => {
+        if (req.url?.startsWith('/models/')) {
+          const filePath = path.join(process.cwd(), 'public', req.url)
+          if (!fs.existsSync(filePath)) {
+            res.statusCode = 404
+            res.end('Not found')
+            return
+          }
+        }
+        next()
+      })
+    },
+  }
+}
 
 export default defineConfig({
   plugins: [
+    modelsNoFallback(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
