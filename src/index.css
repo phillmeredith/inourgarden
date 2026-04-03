@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  height: -webkit-fill-available;
+  height: 100dvh;
+  width: 100%;
+  background-color: #0D0D11;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body,
+#root {
+  height: 100%;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
+  width: 100%;
+  background-color: #0D0D11;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+:root {
+  --bg: #0D0D11;
+  --card: #18181D;
+  --elev: #23262F;
+  --border: #353945;
+  --border-s: #2C2F3A;
+
+  --blue: #3772FF;
+  --blue-h: #2B5FD9;
+  --blue-sub: rgba(55,114,255,.12);
+  --blue-t: #6E9BFF;
+
+  --pink: #E8247C;
+  --pink-h: #C91E6A;
+  --pink-sub: rgba(232,36,124,.12);
+  --pink-t: #F06EAB;
+
+  --green: #45B26B;
+  --green-sub: rgba(69,178,107,.12);
+  --green-t: #7DD69B;
+
+  --amber: #F5A623;
+  --amber-sub: rgba(245,166,35,.12);
+  --amber-t: #FCC76E;
+
+  --red: #EF466F;
+  --red-sub: rgba(239,70,111,.12);
+  --red-t: #F5899E;
+
+  --purple: #9757D7;
+  --purple-sub: rgba(151,87,215,.12);
+  --purple-t: #BA8DE9;
+
+  --t1: #FCFCFD;
+  --t2: #B1B5C4;
+  --t3: #777E91;
+  --t4: #52566A;
+
+  --grad-hero: linear-gradient(135deg, #E8247C, #3772FF);
+  --grad-warm: linear-gradient(135deg, #F5A623, #E8247C);
+  --grad-cool: linear-gradient(135deg, #3772FF, #9757D7);
+  --grad-mint: linear-gradient(135deg, #45B26B, #3772FF);
+  --grad-aurora: linear-gradient(135deg, #9757D7, #3772FF 50%, #45B26B);
+
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-pill: 100px;
+
+  --sh-card: 0 4px 24px rgba(0,0,0,.25);
+  --sh-elevated: 0 8px 40px rgba(0,0,0,.35);
+  --glow-blue: 0 0 24px rgba(55,114,255,.25);
+  --glow-pink: 0 0 24px rgba(232,36,124,.25);
+
+  --font: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --font-body: 'DM Sans', 'Inter', system-ui, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  touch-action: pan-y;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent scroll chaining on inner scroll containers */
+.overflow-y-auto,
+.overflow-y-scroll {
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar utility (used by horizontal pill rows) */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Scrollable containers */
+.scroll-y {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Gradient overlays */
+.grad-hero { background: var(--grad-hero); }
+.grad-warm { background: var(--grad-warm); }
+.grad-cool { background: var(--grad-cool); }
+.grad-mint { background: var(--grad-mint); }
+.grad-aurora { background: var(--grad-aurora); }
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--amber-sub) 25%, rgba(245,166,35,.3) 50%, var(--amber-sub) 75%);
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Safe area support for iPad */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

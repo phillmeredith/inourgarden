@@ -1,0 +1,204 @@
+// Modal — centred dialog with glass treatment
+// Renders via createPortal to escape stacking context traps from Framer Motion ancestors.
+// Glass: rgba(13,13,17,.80) + backdrop-filter blur(24px) + border
+// Backdrop: bg-black/10
+
+import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { X } from 'lucide-react'
+import { cn } from '../../lib/utils'
+
+// ─── Backdrop ──────────────────────────────────────────────────────────────────
+
+function Backdrop({ onClick }: { onClick: () => void }) {
+  return (
+    <motion.div
+      className="fixed inset-0 bg-black/10"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClick}
+    />
+  )
+}
+
+// ─── Modal ─────────────────────────────────────────────────────────────────────
+
+interface ModalProps {
+  open: boolean
+  onClose: () => void
+  title?: string
+  children: React.ReactNode
+  className?: string
+  maxWidth?: string
+}
+
+// ─── Full-screen Modal ────────────────────────────────────────────────────────
+// Used for detail views that take over the entire viewport.
+// Scrollable. Glass-free (uses --bg solid background). Portal-mounted.
+
+interface FullScreenModalProps {
+  open: boolean
+  onClose: () => void
+  children: React.ReactNode
+  className?: string
+}
+
+export function FullScreenModal({
+  open,
+  onClose,
+  children,
+  className,
+}: FullScreenModalProps) {
+  // Scroll lock
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    const count = Number(document.body.dataset.scrollLockCount ?? '0') + 1
+    document.body.dataset.scrollLockCount = String(count)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      const next = count - 1
+      document.body.dataset.scrollLockCount = String(next)
+      if (next <= 0) {
+        document.body.style.overflow = prev
+        delete document.body.dataset.scrollLockCount
+      }
+    }
+  }, [open])
+
+  // Escape key dismiss
+  useEffect(() => {
+    if (!open) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [open, onClose])
+
+  const content = (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className={cn('fixed inset-0 z-[1000] overflow-y-auto', className)}
+          style={{ background: 'var(--bg)' }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+
+  return createPortal(content, document.body)
+}
+
+// ─── Centred Modal ────────────────────────────────────────────────────────────
+
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  className,
+  maxWidth = 'max-w-[420px]',
+}: ModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  // Scroll lock — simple ref-counted approach via effect cleanup
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    const count = Number(document.body.dataset.scrollLockCount ?? '0') + 1
+    document.body.dataset.scrollLockCount = String(count)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      const next = count - 1
+      document.body.dataset.scrollLockCount = String(next)
+      if (next <= 0) {
+        document.body.style.overflow = prev
+        delete document.body.dataset.scrollLockCount
+      }
+    }
+  }, [open])
+
+  // Focus trap
+  useEffect(() => {
+    if (!open) return
+    const el = dialogRef.current
+    if (!el) return
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    first?.focus()
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onClose(); return }
+      if (e.key !== 'Tab') return
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus() }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus() }
+      }
+    }
+    el.addEventListener('keydown', handleKeyDown)
+    return () => el.removeEventListener('keydown', handleKeyDown)
+  }, [open, onClose])
+
+  const content = (
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <Backdrop onClick={onClose} />
+          <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={title ? 'modal-title' : undefined}
+            className={cn(
+              'relative rounded-2xl p-7 shadow-lg w-full',
+              maxWidth,
+              className,
+            )}
+            style={{
+              background: 'rgba(13,13,17,.80)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,.06)',
+            }}
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--elev)] text-[var(--t3)] hover:bg-[var(--border)] hover:text-[var(--t1)] transition-colors flex items-center justify-center"
+              aria-label="Close"
+            >
+              <X size={14} />
+            </button>
+
+            {title && (
+              <h2 id="modal-title" className="text-[22px] font-bold text-[var(--t1)] mb-4 pr-8">
+                {title}
+              </h2>
+            )}
+            {children}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  )
+
+  return createPortal(content, document.body)
+}
