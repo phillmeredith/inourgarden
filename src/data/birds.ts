@@ -60,6 +60,11 @@ import { BIRDS_BATCH3 } from './birds_batch3'
 import { BIRDS_BATCH4 } from './birds_batch4'
 import { BIRDS_BATCH5 } from './birds_batch5'
 import { BIRDS_BATCH6 } from './birds_batch6'
+import { BIRDS_BATCH7 } from './birds_batch7'
+import { BIRDS_BATCH9 } from './birds_batch9'
+import { BIRDS_BATCH10 } from './birds_batch10'
+import { BIRDS_BATCH11 } from './birds_batch11'
+import { BIRDS_BATCH12 } from './birds_batch12'
 
 // ─── Static catalogue ─────────────────────────────────────────────────────────
 
@@ -845,6 +850,11 @@ export const BIRDS: BirdSpecies[] = dedup([
   ...BIRDS_BATCH4,
   ...BIRDS_BATCH5,
   ...BIRDS_BATCH6,
+  ...BIRDS_BATCH7,
+  ...BIRDS_BATCH9,
+  ...BIRDS_BATCH10,
+  ...BIRDS_BATCH11,
+  ...BIRDS_BATCH12,
 ])
 
 // ─── Derived constants ────────────────────────────────────────────────────────

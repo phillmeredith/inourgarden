@@ -417,7 +417,7 @@ export const BIRDS_BATCH1: BirdSpecies[] = [
     size: 'Medium (58cm)',
     length: '56-61cm',
     wingspan: '110-120cm',
-    imageUrl: null,
+    imageUrl: '/birds/avocet.jpg',
     soundUrl: null,
     sounds: [],
     description: 'A small, dark goose that winters on UK estuaries and coasts. Two subspecies visit: the dark-bellied form from Russia on the east coast, and the pale-bellied form from Canada and Svalbard on the north and west coasts.',
