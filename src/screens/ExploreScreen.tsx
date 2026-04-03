@@ -60,11 +60,12 @@ function BirdVirtualGrid({
     return () => observer.disconnect()
   }, [])
 
-  // Column count: 2 (phone) / 3 (tablet portrait) / 4 (tablet landscape+)
+  // Column count: 1 (very narrow) / 2 (phone) / 3 (tablet portrait) / 4 (tablet landscape+)
   const colCount = useMemo(() => {
     if (gridWidth >= 1024) return 4
     if (gridWidth >= 768) return 3
-    return 2
+    if (gridWidth >= 340) return 2
+    return 1
   }, [gridWidth])
 
   const gap = 12 // gap-3 = 12px
@@ -246,7 +247,7 @@ export function ExploreScreen() {
     const birdIndex = letterFirstIndex.get(letter)
     if (birdIndex == null) return
     const containerWidth = scrollContainerRef.current?.offsetWidth ?? 0
-    const colCount = containerWidth >= 1024 ? 4 : containerWidth >= 768 ? 3 : 2
+    const colCount = containerWidth >= 1024 ? 4 : containerWidth >= 768 ? 3 : containerWidth >= 340 ? 2 : 1
     const rowIndex = Math.floor(birdIndex / colCount)
     virtualizerRef.current?.scrollToIndex(rowIndex, { align: 'start' })
   }
@@ -265,7 +266,7 @@ export function ExploreScreen() {
                   onClick={() => setActiveTab(tab)}
                   aria-pressed={activeTab === tab}
                   className={[
-                    'h-9 px-5 text-[13px] font-semibold transition-colors duration-150 capitalize',
+                    'h-9 px-3.5 text-[13px] font-semibold transition-colors duration-150 capitalize',
                     activeTab === tab
                       ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
                       : 'text-[var(--t2)] hover:text-[var(--t1)]',

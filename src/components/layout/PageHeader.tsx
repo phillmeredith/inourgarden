@@ -22,13 +22,13 @@ export function PageHeader({ title, centre, below, rightAction, className = '' }
       }}
     >
       <div
-        className="grid items-center pt-3 pb-4"
-        style={{ gridTemplateColumns: '1fr auto 1fr' }}
+        className="grid items-center gap-2 pt-3 pb-4"
+        style={{ gridTemplateColumns: 'auto minmax(0, 1fr) auto' }}
       >
-        <h1 className="text-2xl font-bold text-[var(--t1)] leading-tight tracking-tight">
+        <h1 className="text-2xl font-bold text-[var(--t1)] leading-tight tracking-tight whitespace-nowrap">
           {title}
         </h1>
-        <div className="flex justify-center">{centre}</div>
+        <div className="flex justify-center min-w-0">{centre}</div>
         <div className="flex justify-end">{rightAction}</div>
       </div>
       {below && (

@@ -12,7 +12,7 @@ interface ConservationPillsProps {
 const STATUSES = [
   {
     value: 'Red' as const,
-    label: 'High concern',
+    label: 'Red',
     activeBg: 'bg-[var(--red-sub)]',
     activeBorder: 'border-[var(--red)]',
     activeText: 'text-[var(--red-t)]',
@@ -20,7 +20,7 @@ const STATUSES = [
   },
   {
     value: 'Amber' as const,
-    label: 'Declining',
+    label: 'Amber',
     activeBg: 'bg-[var(--amber-sub)]',
     activeBorder: 'border-[var(--amber)]',
     activeText: 'text-[var(--amber-t)]',
@@ -28,7 +28,7 @@ const STATUSES = [
   },
   {
     value: 'Green' as const,
-    label: 'Least concern',
+    label: 'Green',
     activeBg: 'bg-[var(--green-sub)]',
     activeBorder: 'border-[var(--green)]',
     activeText: 'text-[var(--green-t)]',

@@ -1,239 +1,104 @@
 #!/usr/bin/env node
+// fetch-bird-sounds.mjs — Download bird sounds from xeno-canto
+// Uses xeno-canto API v2: https://xeno-canto.org/explore/api
+import { writeFile, readdir, readFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 
-/**
- * fetch-bird-sounds.mjs
- *
- * Downloads free bird sound recordings from Wikimedia Commons
- * (sourced from xeno-canto CC-licensed recordings uploaded there)
- * for each bird in the app that has a non-null soundUrl.
- *
- * Usage: node scripts/fetch-bird-sounds.mjs
- *
- * Note: xeno-canto API v2 was retired and v3 requires an API key.
- * Wikimedia Commons hosts many of the same xeno-canto recordings
- * under CC licences, accessible without authentication.
- */
+const SOUNDS_DIR = path.resolve('public/sounds')
+const ALL_BIRDS = JSON.parse(await readFile('/tmp/bou_all_birds.json', 'utf-8'))
 
-import { mkdirSync, existsSync } from 'node:fs';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import path from 'node:path';
+const existingSounds = new Set(
+  (await readdir(SOUNDS_DIR)).filter(f => f.endsWith('.mp3')).map(f => f.replace('.mp3', ''))
+)
 
-const execFileAsync = promisify(execFile);
+// Check which birds need sounds (any bird that doesn't have at least a song or call)
+const needSounds = ALL_BIRDS.filter(b => {
+  const hasSound = existingSounds.has(`${b.id}-song`) || existingSounds.has(`${b.id}-call`)
+  return !hasSound
+})
 
-// ── Bird data: name, scientific name, target filename, and preferred type ────
+console.log(`Total birds: ${ALL_BIRDS.length}`)
+console.log(`Already have sounds: ${ALL_BIRDS.length - needSounds.length}`)
+console.log(`Need sounds: ${needSounds.length}`)
 
-const BIRDS = [
-  { name: 'Robin', scientificName: 'Erithacus rubecula', soundUrl: '/sounds/robin-song.mp3', type: 'song' },
-  { name: 'Blue Tit', scientificName: 'Cyanistes caeruleus', soundUrl: '/sounds/blue-tit-song.mp3', type: 'song' },
-  { name: 'Great Tit', scientificName: 'Parus major', soundUrl: '/sounds/great-tit-song.mp3', type: 'song' },
-  { name: 'Blackbird', scientificName: 'Turdus merula', soundUrl: '/sounds/blackbird-song.mp3', type: 'song' },
-  { name: 'House Sparrow', scientificName: 'Passer domesticus', soundUrl: '/sounds/house-sparrow-call.mp3', type: 'call' },
-  { name: 'Goldfinch', scientificName: 'Carduelis carduelis', soundUrl: '/sounds/goldfinch-song.mp3', type: 'song' },
-  { name: 'Woodpigeon', scientificName: 'Columba palumbus', soundUrl: '/sounds/woodpigeon-song.mp3', type: 'song' },
-  { name: 'Wren', scientificName: 'Troglodytes troglodytes', soundUrl: '/sounds/wren-song.mp3', type: 'song' },
-  { name: 'Song Thrush', scientificName: 'Turdus philomelos', soundUrl: '/sounds/song-thrush-song.mp3', type: 'song' },
-  { name: 'Long-tailed Tit', scientificName: 'Aegithalos caudatus', soundUrl: '/sounds/long-tailed-tit-call.mp3', type: 'call' },
-  { name: 'Swift', scientificName: 'Apus apus', soundUrl: '/sounds/swift-call.mp3', type: 'call' },
-  { name: 'Kingfisher', scientificName: 'Alcedo atthis', soundUrl: '/sounds/kingfisher-call.mp3', type: 'call' },
-  { name: 'Curlew', scientificName: 'Numenius arquata', soundUrl: '/sounds/curlew-call.mp3', type: 'call' },
-  { name: 'Oystercatcher', scientificName: 'Haematopus ostralegus', soundUrl: '/sounds/oystercatcher-call.mp3', type: 'call' },
-  { name: 'Skylark', scientificName: 'Alauda arvensis', soundUrl: '/sounds/skylark-song.mp3', type: 'song' },
-  { name: 'Nuthatch', scientificName: 'Sitta europaea', soundUrl: '/sounds/nuthatch-call.mp3', type: 'call' },
-  { name: 'Barn Owl', scientificName: 'Tyto alba', soundUrl: '/sounds/barn-owl-call.mp3', type: 'call' },
-  { name: 'Greenfinch', scientificName: 'Chloris chloris', soundUrl: '/sounds/greenfinch-song.mp3', type: 'song' },
-  { name: 'Lapwing', scientificName: 'Vanellus vanellus', soundUrl: '/sounds/lapwing-call.mp3', type: 'call' },
-];
+const sleep = ms => new Promise(r => setTimeout(r, ms))
 
-// ── Config ───────────────────────────────────────────────────────────────────
-
-const PROJECT_ROOT = path.resolve(import.meta.dirname, '..');
-const SOUNDS_DIR = path.join(PROJECT_ROOT, 'public', 'sounds');
-const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
-const DELAY_MS = 3000;        // 3 seconds between birds to respect rate limits
-const MAX_RETRIES = 3;        // retry downloads up to 3 times on 429
-const RETRY_BASE_MS = 10000;  // start with 10s backoff, doubles each retry
-
-// Wikimedia upload CDN blocks generic bot User-Agents on media files.
-// Use a browser-like UA for downloads, and the polite bot UA for API calls.
-const API_UA = 'InOurGarden-BirdApp/1.0 (phillm@example.com; bird sound downloader)';
-const DOWNLOAD_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Search Wikimedia Commons for an audio file of the given species.
- * Tries multiple search strategies in order of preference.
- */
-async function findAudioFile(scientificName, preferredType) {
-  const searchStrategies = [
-    `${scientificName} ${preferredType}`,           // e.g. "Erithacus rubecula song"
-    `${scientificName} XC`,                          // xeno-canto uploads on Commons
-    `${scientificName} bird sound`,                  // broader search
-    scientificName,                                  // just the scientific name
-  ];
-
-  for (const query of searchStrategies) {
-    const searchUrl = `${COMMONS_API}?action=query&list=search` +
-      `&srsearch=${encodeURIComponent(query)}` +
-      `&srnamespace=6&format=json&srlimit=10`;
-
-    const res = await fetch(searchUrl, {
-      headers: { 'User-Agent': API_UA },
-    });
-
-    if (!res.ok) {
-      console.warn(`  [WARN] Commons search returned ${res.status} for: ${query}`);
-      continue;
-    }
-
-    const data = await res.json();
-    const results = data.query?.search || [];
-
-    // Filter for audio files (.mp3, .ogg, .wav)
-    const audioResults = results.filter((r) =>
-      /\.(mp3|ogg|wav|flac)$/i.test(r.title)
-    );
-
-    if (audioResults.length > 0) {
-      // Prefer mp3 files
-      const mp3 = audioResults.find((r) => /\.mp3$/i.test(r.title));
-      const chosen = mp3 || audioResults[0];
-      console.log(`  Found: ${chosen.title} (via query: "${query}")`);
-      return chosen.title;
-    }
+async function fetchXenoCanto(scientificName) {
+  try {
+    // Search xeno-canto for recordings of this species, sorted by quality
+    const url = `https://xeno-canto.org/api/2/recordings?query=${encodeURIComponent(scientificName)}+q:A&page=1`
+    const resp = await fetch(url, {
+      headers: { 'User-Agent': 'InOurGarden/1.0 (educational birdwatching PWA)' }
+    })
+    if (!resp.ok) return []
+    const data = await resp.json()
+    return data.recordings || []
+  } catch (e) {
+    return []
   }
-
-  return null;
 }
 
-/**
- * Given a Wikimedia Commons file title, get the direct download URL.
- */
-async function getFileUrl(fileTitle) {
-  const url = `${COMMONS_API}?action=query` +
-    `&titles=${encodeURIComponent(fileTitle)}` +
-    `&prop=imageinfo&iiprop=url&format=json`;
-
-  const res = await fetch(url, {
-    headers: { 'User-Agent': API_UA },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to get file URL: ${res.status}`);
-  }
-
-  const data = await res.json();
-  const pages = data.query?.pages || {};
-  const page = Object.values(pages)[0];
-
-  if (page && page.imageinfo && page.imageinfo[0]) {
-    return page.imageinfo[0].url;
-  }
-
-  throw new Error(`No imageinfo found for ${fileTitle}`);
+async function downloadSound(url, filepath) {
+  // xeno-canto URLs use // prefix, need https:
+  const fullUrl = url.startsWith('//') ? `https:${url}` : url
+  const resp = await fetch(fullUrl, {
+    headers: { 'User-Agent': 'InOurGarden/1.0' }
+  })
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+  const buffer = Buffer.from(await resp.arrayBuffer())
+  if (buffer.length < 1000) throw new Error('Too small')
+  await writeFile(filepath, buffer)
+  return buffer.length
 }
 
-/**
- * Download a file from the given URL and save it to disk using curl.
- * Node's fetch triggers Wikimedia rate limiting more aggressively than curl.
- */
-async function downloadFile(url, destPath) {
-  await execFileAsync('curl', [
-    '-sS',
-    '-L',                                   // follow redirects
-    '-o', destPath,
-    '-H', `User-Agent: ${DOWNLOAD_UA}`,
-    '-H', 'Accept: */*',
-    '-H', 'Referer: https://commons.wikimedia.org/',
-    '--fail',                               // fail on HTTP errors
-    '--retry', String(MAX_RETRIES),
-    '--retry-delay', '10',
-    '--retry-all-errors',
-    url,
-  ], { timeout: 120_000 });
-}
+let ok = 0, fail = 0
 
-// ── Main ─────────────────────────────────────────────────────────────────────
-
-async function main() {
-  console.log('=== Fetching bird sounds from Wikimedia Commons ===');
-  console.log('    (xeno-canto recordings uploaded under CC licences)\n');
-
-  // Ensure output directory exists
-  mkdirSync(SOUNDS_DIR, { recursive: true });
-  console.log(`Output directory: ${SOUNDS_DIR}\n`);
-
-  const results = { success: [], skipped: [], failed: [] };
-
-  for (let i = 0; i < BIRDS.length; i++) {
-    const bird = BIRDS[i];
-    const filename = path.basename(bird.soundUrl);
-    const destPath = path.join(SOUNDS_DIR, filename);
-
-    console.log(`[${i + 1}/${BIRDS.length}] ${bird.name} (${bird.scientificName})`);
-    console.log(`  Target: ${filename}`);
-
-    // Skip if file already exists
-    if (existsSync(destPath)) {
-      console.log('  SKIPPED — file already exists\n');
-      results.skipped.push(bird.name);
-      continue;
+for (let i = 0; i < needSounds.length; i++) {
+  const bird = needSounds[i]
+  
+  try {
+    const recordings = await fetchXenoCanto(bird.scientificName)
+    
+    if (recordings.length === 0) {
+      console.log(`[${i+1}/${needSounds.length}] MISS ${bird.name} (${bird.scientificName})`)
+      fail++
+      await sleep(1000)
+      continue
     }
-
-    try {
-      // Step 1: Find an audio file on Commons
-      const fileTitle = await findAudioFile(bird.scientificName, bird.type);
-
-      if (!fileTitle) {
-        console.log('  FAILED — no audio file found on Wikimedia Commons\n');
-        results.failed.push(bird.name);
-        await sleep(DELAY_MS);
-        continue;
+    
+    // Find best song and best call
+    const songs = recordings.filter(r => r.type?.toLowerCase().includes('song'))
+    const calls = recordings.filter(r => r.type?.toLowerCase().includes('call'))
+    
+    // Download best song
+    const bestSong = songs[0] || recordings[0]
+    if (bestSong?.file) {
+      const type = bestSong.type?.toLowerCase().includes('song') ? 'song' : 'call'
+      const fp = path.join(SOUNDS_DIR, `${bird.id}-${type}.mp3`)
+      if (!existsSync(fp)) {
+        const size = await downloadSound(bestSong.file, fp)
+        ok++
       }
-
-      // Step 2: Get the direct download URL
-      const downloadUrl = await getFileUrl(fileTitle);
-      console.log(`  Downloading: ${downloadUrl}`);
-
-      // Step 3: Download and save
-      await downloadFile(downloadUrl, destPath);
-      console.log(`  SAVED: ${destPath}\n`);
-      results.success.push(bird.name);
-    } catch (err) {
-      console.error(`  ERROR: ${err.message}\n`);
-      results.failed.push(bird.name);
     }
-
-    // Rate-limit: wait between requests
-    if (i < BIRDS.length - 1) {
-      await sleep(DELAY_MS);
+    
+    // Download best call if different from song
+    if (calls.length > 0 && calls[0].id !== (songs[0]?.id || recordings[0]?.id)) {
+      const fp = path.join(SOUNDS_DIR, `${bird.id}-call.mp3`)
+      if (!existsSync(fp)) {
+        const size = await downloadSound(calls[0].file, fp)
+        ok++
+      }
     }
+    
+    if (ok % 20 === 0 && ok > 0) console.log(`[${i+1}/${needSounds.length}] Downloaded ${ok} sounds so far...`)
+  } catch (e) {
+    console.log(`[${i+1}/${needSounds.length}] FAIL ${bird.name}: ${e.message}`)
+    fail++
+    if (e.message.includes('429')) await sleep(5000)
   }
-
-  // ── Summary ──────────────────────────────────────────────────────────────
-
-  console.log('\n=== Summary ===');
-  console.log(`  Downloaded: ${results.success.length} — ${results.success.join(', ') || 'none'}`);
-  console.log(`  Skipped:    ${results.skipped.length} — ${results.skipped.join(', ') || 'none'}`);
-  console.log(`  Failed:     ${results.failed.length} — ${results.failed.join(', ') || 'none'}`);
-
-  if (results.failed.length > 0) {
-    console.log('\n  Birds without sounds may need manual sourcing.');
-  }
-
-  console.log('\nDone.');
-
-  if (results.failed.length > 0) {
-    process.exit(1);
-  }
+  
+  await sleep(1500) // 1.5s between requests to be polite to xeno-canto
 }
 
-main().catch((err) => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+console.log(`\nDone! Sounds downloaded: ${ok}, Failed species: ${fail}`)
