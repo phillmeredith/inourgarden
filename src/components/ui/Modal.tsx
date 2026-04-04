@@ -10,8 +10,26 @@ import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 // ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
+// Sets data-modal-open on <html> while mounted so the PageHeader drops its
+// opaque background, allowing backdrop-filter to sample through to content
+// (including the safe-area zone at the top).
 
 function Backdrop({ onClick }: { onClick: () => void }) {
+  useEffect(() => {
+    const el = document.documentElement
+    const count = Number(el.dataset.modalCount ?? '0') + 1
+    el.dataset.modalCount = String(count)
+    el.setAttribute('data-modal-open', '')
+    return () => {
+      const next = count - 1
+      el.dataset.modalCount = String(next)
+      if (next <= 0) {
+        el.removeAttribute('data-modal-open')
+        delete el.dataset.modalCount
+      }
+    }
+  }, [])
+
   return (
     <motion.div
       className="fixed inset-0"
@@ -38,6 +56,41 @@ interface ModalProps {
   children: React.ReactNode
   className?: string
   maxWidth?: string
+}
+
+// ─── FullScreenBackdrop ───────────────────────────────────────────────────────
+// Separate component so useEffect fires correctly inside AnimatePresence.
+
+function FullScreenBackdrop() {
+  useEffect(() => {
+    const el = document.documentElement
+    const count = Number(el.dataset.modalCount ?? '0') + 1
+    el.dataset.modalCount = String(count)
+    el.setAttribute('data-modal-open', '')
+    return () => {
+      const next = count - 1
+      el.dataset.modalCount = String(next)
+      if (next <= 0) {
+        el.removeAttribute('data-modal-open')
+        delete el.dataset.modalCount
+      }
+    }
+  }, [])
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[999]"
+      style={{
+        background: 'rgba(0,0,0,0.4)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+    />
+  )
 }
 
 // ─── Full-screen Modal ────────────────────────────────────────────────────────
@@ -88,19 +141,8 @@ export function FullScreenModal({
     <AnimatePresence>
       {open && (
         <>
-          {/* Frosted glass backdrop fades in first */}
-          <motion.div
-            className="fixed inset-0 z-[999]"
-            style={{
-              background: 'rgba(0,0,0,0.4)',
-              backdropFilter: 'blur(14px)',
-              WebkitBackdropFilter: 'blur(14px)',
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-          />
+          {/* Frosted glass backdrop fades in first — also sets data-modal-open */}
+          <FullScreenBackdrop />
           {/* Modal slides up over the blurred backdrop */}
           <motion.div
             className={cn('fixed inset-0 z-[1000] overflow-y-auto', className)}
