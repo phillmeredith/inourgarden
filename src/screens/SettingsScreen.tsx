@@ -298,7 +298,10 @@ export function SettingsScreen() {
     <div className="flex flex-col h-full bg-[var(--bg)] overflow-y-auto">
       <PageHeader title="Settings" />
 
-      <div className="px-6 pt-6 pb-24 max-w-3xl mx-auto w-full flex flex-col gap-6">
+      <div
+        className="px-6 pt-6 max-w-3xl mx-auto w-full flex flex-col gap-6"
+        style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}
+      >
         {/* ── Appearance ─────────────────────────────────────────────────── */}
         <Section title="Appearance">
           {/* Theme picker — full width, above the divider rows */}
