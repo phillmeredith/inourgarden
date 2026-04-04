@@ -366,18 +366,19 @@ export function SettingsScreen() {
             {/* Raccoon Developments branding row */}
             <div className="flex items-center gap-4">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
-                style={{ background: '#1a1c14' }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: 'var(--elev)' }}
               >
                 <img
                   src="/raccoon.png"
-                  alt="Raccoon Developments"
-                  className="w-10 h-10 object-cover"
+                  alt="Raccoon Ltd"
+                  className="w-7 h-7 object-contain"
+                  style={{ mixBlendMode: 'screen' }}
                 />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[15px] font-semibold text-[var(--t1)]">
-                  Raccoon Developments
+                  Raccoon Ltd
                 </div>
                 <div className="text-[12px] text-[var(--t3)] mt-0.5">v1.0.0</div>
               </div>
