@@ -41,9 +41,13 @@ export function usePreferences() {
   // Also updates theme-color meta so the iOS status bar matches the nav
   useEffect(() => {
     const theme = VALID_THEMES.includes(prefs.theme) ? prefs.theme : 'midnight'
+    const navColour = THEME_NAV_COLOR[theme]
     document.documentElement.setAttribute('data-theme', theme)
+    // Set html background to solid nav colour so iOS safe-area/status-bar
+    // shows the header colour rather than the page background colour
+    document.documentElement.style.backgroundColor = navColour
     const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', THEME_NAV_COLOR[theme])
+    if (meta) meta.setAttribute('content', navColour)
   }, [prefs.theme])
 
   // Apply text size

@@ -119,7 +119,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (45cm)',
     length: '42-49cm',
     wingspan: '113-134cm',
-    imageUrl: '/birds/booted-eagle.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/booted-eagle.jpg', soundUrl: '/sounds/spotted-eagle-song.ogg', sounds: [{ label: 'Song', url: '/sounds/spotted-eagle-song.ogg' }],
     description: 'The smallest European eagle, occurring in pale and dark morphs. A rare but increasing vagrant to Britain, mainly in autumn.',
     identification: {
       male: 'Pale morph: white underparts with dark flight feathers. Dark morph: uniform dark brown. Both have feathered tarsi (the "boots").',
@@ -153,7 +153,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (44cm)',
     length: '40-48cm',
     wingspan: '95-120cm',
-    imageUrl: '/birds/pallid-harrier.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/pallid-harrier.jpg', soundUrl: '/sounds/pallid-harrier-song.ogg', sounds: [{ label: 'Song', url: '/sounds/pallid-harrier-song.ogg' }],
     description: 'An elegant, pale harrier from the Asian steppes that has become an increasingly regular vagrant to Britain, particularly in autumn.',
     identification: {
       male: 'Very pale grey above, white below. Black wedge on outer primaries. No dark trailing edge to wing.',
@@ -254,7 +254,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Large (55cm)',
     length: '48-58cm',
     wingspan: '130-155cm',
-    imageUrl: '/birds/black-kite.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/black-kite.jpg', soundUrl: '/sounds/montagu-harrier-song.wav', sounds: [{ label: 'Song', url: '/sounds/montagu-harrier-song.wav' }],
     description: 'One of the world\'s most abundant raptors, but only a scarce visitor to Britain, mainly in spring. Darker and with a less forked tail than the Red Kite.',
     identification: {
       male: 'Dark brown plumage overall, slightly paler on the head. Shallow forked tail, appearing almost square when spread.',
@@ -288,7 +288,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Large (85cm)',
     length: '70-90cm',
     wingspan: '200-240cm',
-    imageUrl: '/birds/white-tailed-eagle.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/white-tailed-eagle.jpg', soundUrl: '/sounds/white-tailed-eagle-song.ogg', sounds: [{ label: 'Song', url: '/sounds/white-tailed-eagle-song.ogg' }],
     description: 'Britain\'s largest bird of prey, reintroduced to Scotland and now expanding. Nicknamed the "flying barn door" for its vast wingspan of up to 2.4 metres.',
     identification: {
       male: 'Huge brown raptor with broad, plank-like wings. Pale head, massive yellow bill, short white wedge-shaped tail.',
@@ -322,7 +322,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Large (55cm)',
     length: '50-60cm',
     wingspan: '120-150cm',
-    imageUrl: '/birds/rough-legged-buzzard.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/rough-legged-buzzard.jpg', soundUrl: '/sounds/rough-legged-buzzard-song.ogg', sounds: [{ label: 'Song', url: '/sounds/rough-legged-buzzard-song.ogg' }],
     description: 'An Arctic buzzard that visits Britain in small numbers each winter, favouring open coastal areas in eastern England and Scotland.',
     identification: {
       male: 'Pale head and breast, dark belly patch, dark carpal patches on underwing. White tail with dark terminal band.',
@@ -355,7 +355,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Large (58cm)',
     length: '50-65cm',
     wingspan: '126-155cm',
-    imageUrl: '/birds/long-legged-buzzard.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/long-legged-buzzard.jpg', soundUrl: '/sounds/long-legged-buzzard-song.ogg', sounds: [{ label: 'Song', url: '/sounds/long-legged-buzzard-song.ogg' }],
     description: 'A large, rufous-toned buzzard of steppe and semi-desert, very rare as a vagrant to Britain with only a handful of accepted records.',
     identification: {
       male: 'Variable. Typically rufous-brown with pale head, unbarred rufous tail, and dark belly patch. Pale underwing with dark carpal patches.',
@@ -391,7 +391,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (31cm)',
     length: '29-32cm',
     wingspan: '52-58cm',
-    imageUrl: '/birds/roller.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/roller.jpg', soundUrl: '/sounds/roller-song.ogg', sounds: [{ label: 'Song', url: '/sounds/roller-song.ogg' }],
     description: 'A stunning, jay-sized bird with electric-blue and chestnut plumage. A rare but annual vagrant to Britain, mainly in late spring and early summer.',
     identification: {
       male: 'Turquoise-blue head, breast, and tail. Chestnut-brown back. Blue wings with darker flight feathers.',
@@ -424,7 +424,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (28cm)',
     length: '25-29cm',
     wingspan: '36-40cm',
-    imageUrl: '/birds/bee-eater.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/bee-eater.jpg', soundUrl: '/sounds/bee-eater-song.mp3', sounds: [{ label: 'Song', url: '/sounds/bee-eater-song.mp3' }],
     description: 'One of Europe\'s most colourful birds, with rainbow plumage. An increasingly regular visitor to Britain, with occasional breeding attempts.',
     identification: {
       male: 'Chestnut and golden-brown back, turquoise underparts, yellow throat bordered by black gorget. Long central tail streamers.',
@@ -458,7 +458,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (30cm)',
     length: '27-33cm',
     wingspan: '36-40cm',
-    imageUrl: '/birds/blue-cheeked-bee-eater.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/blue-cheeked-bee-eater.jpg', soundUrl: '/sounds/blue-cheeked-bee-eater-song.ogg', sounds: [{ label: 'Song', url: '/sounds/blue-cheeked-bee-eater-song.ogg' }],
     description: 'A large, elegant bee-eater with predominantly green plumage and blue cheeks. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Mostly green with blue cheeks and forehead, rusty-orange throat, and very long central tail streamers.',
@@ -491,7 +491,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (33cm)',
     length: '28-35cm',
     wingspan: '48-58cm',
-    imageUrl: '/birds/belted-kingfisher.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/belted-kingfisher.jpg', soundUrl: '/sounds/belted-kingfisher-song.ogg', sounds: [{ label: 'Song', url: '/sounds/belted-kingfisher-song.ogg' }],
     description: 'A large, shaggy-crested kingfisher from North America. An extremely rare transatlantic vagrant to Britain and Ireland.',
     identification: {
       male: 'Blue-grey above, white below with a single blue-grey breast band. Large shaggy crest. Heavy, dagger-like bill.',
@@ -526,7 +526,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (20cm)',
     length: '18-22cm',
     wingspan: '34-40cm',
-    imageUrl: '/birds/yellow-bellied-sapsucker.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/yellow-bellied-sapsucker.jpg', soundUrl: '/sounds/yellow-bellied-sapsucker-song.ogg', sounds: [{ label: 'Song', url: '/sounds/yellow-bellied-sapsucker-song.ogg' }],
     description: 'A distinctively marked North American woodpecker that drills neat rows of sap wells in trees. An extremely rare transatlantic vagrant.',
     identification: {
       male: 'Black and white barred back, red forehead and throat. Pale yellowish belly. Bold white wing stripe.',
@@ -559,7 +559,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small-medium (23cm)',
     length: '22-23cm',
     wingspan: '34-39cm',
-    imageUrl: '/birds/great-spotted-woodpecker.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/great-spotted-woodpecker.jpg', soundUrl: '/sounds/great-spotted-woodpecker-song.ogg', sounds: [{ label: 'Song', url: '/sounds/great-spotted-woodpecker-song.ogg' }],
     description: 'Britain\'s most common and widespread woodpecker, a bold black-and-white bird with vivid crimson undertail coverts, frequently visiting garden feeders.',
     identification: {
       male: 'Black and white plumage with large white shoulder patches. Red nape patch and crimson undertail.',
@@ -595,7 +595,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (30cm)',
     length: '27-33cm',
     wingspan: '63-72cm',
-    imageUrl: '/birds/lesser-kestrel.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/lesser-kestrel.jpg', soundUrl: '/sounds/lesser-kestrel-song.ogg', sounds: [{ label: 'Song', url: '/sounds/lesser-kestrel-song.ogg' }],
     description: 'A small, gregarious falcon of Mediterranean and steppe regions, slightly smaller and slimmer than the Common Kestrel. A rare vagrant to Britain.',
     identification: {
       male: 'Unspotted chestnut-red back (unlike spotted Kestrel), blue-grey head and tail. Pale underwing without dark trailing edge.',
@@ -628,7 +628,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (20cm)',
     length: '19-21cm',
     wingspan: '50-61cm',
-    imageUrl: '/birds/american-kestrel.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/american-kestrel.jpg', soundUrl: '/sounds/american-kestrel-song.ogg', sounds: [{ label: 'Song', url: '/sounds/american-kestrel-song.ogg' }],
     description: 'North America\'s smallest and most colourful falcon, only marginally larger than a Mistle Thrush. An extremely rare transatlantic vagrant to Britain.',
     identification: {
       male: 'Rufous back and tail, blue-grey wings, rufous crown with bold black facial marks ("moustache" and sideburns).',
@@ -661,7 +661,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (30cm)',
     length: '28-31cm',
     wingspan: '65-76cm',
-    imageUrl: '/birds/red-footed-falcon.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/red-footed-falcon.jpg', soundUrl: '/sounds/red-footed-falcon-song.ogg', sounds: [{ label: 'Song', url: '/sounds/red-footed-falcon-song.ogg' }],
     description: 'A small, elegant falcon with stunning plumage. A scarce but regular spring and autumn vagrant to Britain, often lingering for several days.',
     identification: {
       male: 'Dark slate-grey all over with vivid red-orange feet, legs, eye-ring, and vent.',
@@ -695,7 +695,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (29cm)',
     length: '26-30cm',
     wingspan: '63-71cm',
-    imageUrl: '/birds/amur-falcon.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/amur-falcon.jpg', soundUrl: '/sounds/amur-falcon-song.ogg', sounds: [{ label: 'Song', url: '/sounds/amur-falcon-song.ogg' }],
     description: 'An eastern counterpart of the Red-footed Falcon that undertakes one of the longest migrations of any raptor. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Dark grey above and below with white underwing coverts — diagnostic feature visible in flight. Red-orange feet and eye-ring.',
@@ -762,7 +762,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Large (56cm)',
     length: '48-61cm',
     wingspan: '105-131cm',
-    imageUrl: '/birds/gyr-falcon.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/gyr-falcon.jpg', soundUrl: '/sounds/eleonora-falcon-song.ogg', sounds: [{ label: 'Song', url: '/sounds/eleonora-falcon-song.ogg' }],
     description: 'The world\'s largest falcon, a magnificent Arctic predator. A very rare winter vagrant to northern Britain, occurring in white, grey, and dark morphs.',
     identification: {
       male: 'Variable. White morph: mostly white with dark spots. Grey morph: blue-grey above, barred below. Dark morph: dark grey-brown all over.',
@@ -798,7 +798,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (20cm)',
     length: '19-23cm',
     wingspan: '33-38cm',
-    imageUrl: '/birds/eastern-kingbird.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/eastern-kingbird.jpg', soundUrl: '/sounds/eastern-kingbird-song.mp3', sounds: [{ label: 'Song', url: '/sounds/eastern-kingbird-song.mp3' }],
     description: 'A bold, aggressive North American flycatcher that fearlessly attacks much larger birds. An extremely rare transatlantic vagrant to Britain.',
     identification: {
       male: 'Dark grey-black above, white below. White-tipped tail is the key feature. Concealed orange-red crown patch.',
@@ -831,7 +831,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (17cm)',
     length: '14-17cm',
     wingspan: '26-28cm',
-    imageUrl: '/birds/eastern-phoebe.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/eastern-phoebe.jpg', soundUrl: '/sounds/eastern-phoebe-song.mp3', sounds: [{ label: 'Song', url: '/sounds/eastern-phoebe-song.mp3' }],
     description: 'A plain, tail-pumping North American flycatcher. An extremely rare vagrant to Britain with very few accepted records.',
     identification: {
       male: 'Grey-brown above, whitish below with faint yellowish wash on belly. Dark head. No wing bars or eye-ring.',
@@ -864,7 +864,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (15cm)',
     length: '13-15cm',
     wingspan: '22-24cm',
-    imageUrl: '/birds/acadian-flycatcher.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/acadian-flycatcher.jpg', soundUrl: '/sounds/acadian-flycatcher-song.mp3', sounds: [{ label: 'Song', url: '/sounds/acadian-flycatcher-song.mp3' }],
     description: 'A small, greenish Empidonax flycatcher of eastern North American forests. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Olive-green above, pale below with yellowish wash on flanks. Prominent white eye-ring and two whitish wing bars.',
@@ -897,7 +897,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (15cm)',
     length: '13-15cm',
     wingspan: '22-25cm',
-    imageUrl: '/birds/alder-flycatcher.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/alder-flycatcher.jpg', soundUrl: '/sounds/alder-flycatcher-song.mp3', sounds: [{ label: 'Song', url: '/sounds/alder-flycatcher-song.mp3' }],
     description: 'A small, nondescript Empidonax flycatcher virtually identical to the Willow Flycatcher. Extremely rare vagrant to Britain, only identifiable by voice.',
     identification: {
       male: 'Olive-brown above, whitish below with greenish wash on flanks. White eye-ring, two whitish wing bars.',
@@ -930,7 +930,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (14cm)',
     length: '12-14cm',
     wingspan: '20-23cm',
-    imageUrl: '/birds/yellow-bellied-flycatcher.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/yellow-bellied-flycatcher.jpg', soundUrl: '/sounds/yellow-bellied-flycatcher-song.ogg', sounds: [{ label: 'Song', url: '/sounds/yellow-bellied-flycatcher-song.ogg' }],
     description: 'The most distinctly coloured Empidonax flycatcher, with obvious yellow underparts. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Olive-green above, distinctly yellow below including throat. Bold yellowish eye-ring and two pale wing bars.',
@@ -963,7 +963,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '11-13cm',
     wingspan: '19-21cm',
-    imageUrl: '/birds/philadelphia-vireo.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/philadelphia-vireo.jpg', soundUrl: '/sounds/philadelphia-vireo-song.ogg', sounds: [{ label: 'Song', url: '/sounds/philadelphia-vireo-song.ogg' }],
     description: 'A small, warbler-like vireo with yellowish underparts. An extremely rare transatlantic vagrant to Britain.',
     identification: {
       male: 'Olive-green above, yellow below. Dark loral stripe from bill to eye. Pale supercilium. Stout bill with hooked tip.',
@@ -996,7 +996,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (15cm)',
     length: '13-15cm',
     wingspan: '23-25cm',
-    imageUrl: '/birds/red-eyed-vireo.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/red-eyed-vireo.jpg', soundUrl: '/sounds/red-eyed-vireo-song.mp3', sounds: [{ label: 'Song', url: '/sounds/red-eyed-vireo-song.mp3' }],
     description: 'One of the most common songbirds in North American forests, and the most frequently recorded vireo in Britain as a rare autumn vagrant.',
     identification: {
       male: 'Olive-green above, white below. Bold white supercilium bordered above by black line. Grey crown. Red eye (dark in juveniles).',
@@ -1029,7 +1029,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (14cm)',
     length: '13-15cm',
     wingspan: '22-24cm',
-    imageUrl: '/birds/yellow-throated-vireo.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/yellow-throated-vireo.jpg', soundUrl: '/sounds/yellow-throated-vireo-song.wav', sounds: [{ label: 'Song', url: '/sounds/yellow-throated-vireo-song.wav' }],
     description: 'The most colourful of the vireos, with bright yellow throat and spectacles. An extremely rare transatlantic vagrant to Britain.',
     identification: {
       male: 'Olive-green above, bright yellow throat and breast, white belly. Bold yellow spectacles. Two white wing bars.',
@@ -1064,7 +1064,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (24cm)',
     length: '22-25cm',
     wingspan: '44-47cm',
-    imageUrl: '/birds/golden-oriole.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/golden-oriole.jpg', soundUrl: '/sounds/golden-oriole-song.ogg', sounds: [{ label: 'Song', url: '/sounds/golden-oriole-song.ogg' }],
     description: 'A stunningly beautiful but elusive bird with a fluting song. Once bred regularly in East Anglia, now mainly a scarce passage migrant to southern England.',
     identification: {
       male: 'Brilliant golden-yellow body with black wings and tail. Black lores. Red bill.',
@@ -1099,7 +1099,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (18cm)',
     length: '17-18cm',
     wingspan: '24-27cm',
-    imageUrl: '/birds/masked-shrike.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/masked-shrike.jpg', soundUrl: '/sounds/masked-shrike-song.ogg', sounds: [{ label: 'Song', url: '/sounds/masked-shrike-song.ogg' }],
     description: 'The smallest and most dainty of the shrikes, with a distinctive black-and-white plumage and orange flanks. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Black crown, mask, and back. White forehead, supercilium, and scapulars. Orange-rufous flanks. Long tail.',
@@ -1165,7 +1165,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (18cm)',
     length: '17-19cm',
     wingspan: '26-28cm',
-    imageUrl: '/birds/woodchat-shrike.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/woodchat-shrike.jpg', soundUrl: '/sounds/lesser-grey-shrike-song.ogg', sounds: [{ label: 'Song', url: '/sounds/lesser-grey-shrike-song.ogg' }],
     description: 'A boldly patterned shrike with a rich rufous crown and nape, and black-and-white body. A scarce but fairly regular spring vagrant to southern Britain.',
     identification: {
       male: 'Rich rufous-chestnut crown and nape. Black mask and back, white scapulars and rump. White underparts.',
@@ -1198,7 +1198,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (18cm)',
     length: '17-19cm',
     wingspan: '26-28cm',
-    imageUrl: '/birds/daurian-shrike.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/daurian-shrike.jpg', soundUrl: '/sounds/daurian-shrike-song.ogg', sounds: [{ label: 'Song', url: '/sounds/daurian-shrike-song.ogg' }],
     description: 'A warm-toned, sandy shrike from Central Asia, now recognised as a separate species from the Isabelline Shrike. A rare autumn vagrant to Britain.',
     identification: {
       male: 'Sandy-brown above, pale below. Black mask. Rufous tail. Pale patch at base of primaries.',
@@ -1232,7 +1232,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (17cm)',
     length: '16-18cm',
     wingspan: '24-27cm',
-    imageUrl: '/birds/red-backed-shrike.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/red-backed-shrike.jpg', soundUrl: '/sounds/red-backed-shrike-song.ogg', sounds: [{ label: 'Song', url: '/sounds/red-backed-shrike-song.ogg' }],
     description: 'Once a widespread breeder known as the "butcher bird", now a rare passage migrant to Britain. The male is one of our most handsome small birds.',
     identification: {
       male: 'Blue-grey head, black mask, rich chestnut-red back, pinkish underparts. Black tail with white sides.',
@@ -1266,7 +1266,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (18cm)',
     length: '17-19cm',
     wingspan: '26-28cm',
-    imageUrl: '/birds/turkestan-shrike.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/turkestan-shrike.jpg', soundUrl: '/sounds/turkestan-shrike-song.ogg', sounds: [{ label: 'Song', url: '/sounds/turkestan-shrike-song.ogg' }],
     description: 'A warm-toned shrike from Central Asia, recently split from the Isabelline Shrike complex. A rare autumn vagrant to Britain, mostly to the east coast.',
     identification: {
       male: 'Grey crown, warm rufous-brown back and bright rufous tail. Black mask. Pale underparts.',
@@ -1368,7 +1368,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (33cm)',
     length: '32-35cm',
     wingspan: '52-58cm',
-    imageUrl: '/birds/nutcracker.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/nutcracker.jpg', soundUrl: '/sounds/brown-shrike-song.ogg', sounds: [{ label: 'Song', url: '/sounds/brown-shrike-song.ogg' }],
     description: 'A chunky, dark brown crow covered in white spots, normally resident in Scandinavian and Siberian conifer forests but erupting westward in some years.',
     identification: {
       male: 'Dark chocolate-brown plumage densely covered with white spots. White undertail coverts. Long, dagger-like bill.',
@@ -1403,7 +1403,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Tiny (11cm)',
     length: '10-11cm',
     wingspan: '16-17cm',
-    imageUrl: '/birds/penduline-tit.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/penduline-tit.jpg', soundUrl: '/sounds/penduline-tit-song.ogg', sounds: [{ label: 'Song', url: '/sounds/penduline-tit-song.ogg' }],
     description: 'A tiny, striking bird with a bold black mask, known for its extraordinary woven nest. A rare but increasing visitor to Britain, mainly in autumn.',
     identification: {
       male: 'Grey head with broad black mask. Chestnut-brown back. Pale underparts. Fine, pointed bill.',
@@ -1436,7 +1436,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Tiny (11cm)',
     length: '11-12cm',
     wingspan: '17-21cm',
-    imageUrl: '/birds/coal-tit.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/coal-tit.jpg', soundUrl: '/sounds/coal-tit-song.ogg', sounds: [{ label: 'Song', url: '/sounds/coal-tit-song.ogg' }],
     description: 'A small, neat tit with a distinctive white nape stripe, common in conifer woodland and a regular visitor to garden feeders, especially in winter.',
     identification: {
       male: 'Black head with white cheeks and a diagnostic white nape stripe. Grey-buff above, pale below. Two white wing bars.',
@@ -1471,7 +1471,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Tiny (11cm)',
     length: '11-12cm',
     wingspan: '17-20cm',
-    imageUrl: '/birds/crested-tit.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/crested-tit.jpg', soundUrl: '/sounds/crested-tit-song.mp3', sounds: [{ label: 'Song', url: '/sounds/crested-tit-song.mp3' }],
     description: 'Britain\'s only crested tit, restricted to the ancient Caledonian pine forests of the Scottish Highlands, where its trilling call is characteristic.',
     identification: {
       male: 'Distinctive black-and-white pointed crest. Brown upperparts, pale underparts. Black bib and eye stripe.',
@@ -1506,7 +1506,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (18cm)',
     length: '17-19cm',
     wingspan: '32-38cm',
-    imageUrl: '/birds/white-winged-lark.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/white-winged-lark.jpg', soundUrl: '/sounds/white-winged-lark-song.ogg', sounds: [{ label: 'Song', url: '/sounds/white-winged-lark-song.ogg' }],
     description: 'A large, striking lark from the Central Asian steppes with prominent white wing patches. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Streaked brown above, whitish below. Rufous crown and wing coverts. Broad white trailing edge to wing.',
@@ -1539,7 +1539,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (17cm)',
     length: '17-19cm',
     wingspan: '29-38cm',
-    imageUrl: '/birds/crested-lark.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/crested-lark.jpg', soundUrl: '/sounds/crested-lark-song.ogg', sounds: [{ label: 'Song', url: '/sounds/crested-lark-song.ogg' }],
     description: 'A stocky, pale lark with a prominent pointed crest, common on the nearby continent but a very rare vagrant to Britain.',
     identification: {
       male: 'Sandy-brown above, pale below. Prominent pointed crest always visible. Short tail with orange-buff outer feathers.',
@@ -1573,7 +1573,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (17cm)',
     length: '14-17cm',
     wingspan: '30-35cm',
-    imageUrl: '/birds/shore-lark.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/shore-lark.jpg', soundUrl: '/sounds/shore-lark-song.ogg', sounds: [{ label: 'Song', url: '/sounds/shore-lark-song.ogg' }],
     description: 'A beautiful lark with a striking yellow and black face pattern and small horn-like feather tufts. A scarce winter visitor to eastern English coasts.',
     identification: {
       male: 'Yellow face with black mask, breast band, and small black "horns" (feather tufts). Sandy-brown above, pale below.',
@@ -1606,7 +1606,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (14cm)',
     length: '13-14cm',
     wingspan: '26-32cm',
-    imageUrl: '/birds/short-toed-lark.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/short-toed-lark.jpg', soundUrl: '/sounds/short-toed-lark-song.mp3', sounds: [{ label: 'Song', url: '/sounds/short-toed-lark-song.mp3' }],
     description: 'A small, pale, rather featureless lark with a characteristic dark neck patch. A scarce but regular passage migrant to Britain, mainly in autumn.',
     identification: {
       male: 'Sandy-brown above, white below. Dark neck patch on sides of breast. Pale supercilium. Plain face.',
@@ -1740,7 +1740,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Tiny (10cm)',
     length: '10-11cm',
     wingspan: '14-15cm',
-    imageUrl: '/birds/zitting-cisticola.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/zitting-cisticola.jpg', soundUrl: '/sounds/calandra-lark-song.ogg', sounds: [{ label: 'Song', url: '/sounds/calandra-lark-song.ogg' }],
     description: 'A tiny, streaked warbler with a distinctive bouncing song flight giving repeated "zit-zit-zit" calls. A very rare vagrant to Britain from southern Europe.',
     identification: {
       male: 'Heavily streaked brown above, plain buff below. Short, rounded tail with black-and-white tips. Rufous rump.',
@@ -1773,7 +1773,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '12-13cm',
     wingspan: '20-24cm',
-    imageUrl: '/birds/icterine-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/icterine-warbler.jpg', soundUrl: '/sounds/icterine-warbler-song.mp3', sounds: [{ label: 'Song', url: '/sounds/icterine-warbler-song.mp3' }],
     description: 'A large, bright warbler with a loud, complex song incorporating mimicry. A scarce but regular passage migrant to Britain, mainly in autumn.',
     identification: {
       male: 'Greenish-grey above, bright yellow below. Long, broad-based, orange bill. Long primary projection. Pale wing panel.',
@@ -1806,7 +1806,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '12-13cm',
     wingspan: '18-20cm',
-    imageUrl: '/birds/melodious-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/melodious-warbler.jpg', soundUrl: '/sounds/melodious-warbler-song.ogg', sounds: [{ label: 'Song', url: '/sounds/melodious-warbler-song.ogg' }],
     description: 'The southwestern counterpart of the Icterine Warbler, with a faster, more musical song. A scarce but regular autumn migrant to southern Britain.',
     identification: {
       male: 'Greenish above, yellow below. Round head, broad-based bill. Short primary projection. No wing panel.',
@@ -1839,7 +1839,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (16cm)',
     length: '15-17cm',
     wingspan: '24-28cm',
-    imageUrl: '/birds/olive-tree-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/olive-tree-warbler.jpg', soundUrl: '/sounds/olive-tree-warbler-song.ogg', sounds: [{ label: 'Song', url: '/sounds/olive-tree-warbler-song.ogg' }],
     description: 'The largest Hippolais warbler, a grey-toned bird of Mediterranean olive groves. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Grey-brown above, whitish below. Long, heavy bill. Long primary projection. Pale wing panel. Pale eye-ring.',
@@ -1939,7 +1939,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Tiny (12cm)',
     length: '11-12cm',
     wingspan: '17-19cm',
-    imageUrl: '/birds/sykes-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/sykes-warbler.jpg', soundUrl: '/sounds/booted-warbler-song.mp3', sounds: [{ label: 'Song', url: '/sounds/booted-warbler-song.mp3' }],
     description: 'A pale, slim warbler from Central Asia, very similar to the Booted Warbler and only recently recognised as a separate species. A rare vagrant to Britain.',
     identification: {
       male: 'Very pale sandy-grey above, whitish below. Longer bill than Booted Warbler. Longer primary projection. Pale lores.',
@@ -2038,7 +2038,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '12-13cm',
     wingspan: '17-19cm',
-    imageUrl: '/birds/aquatic-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/aquatic-warbler.jpg', soundUrl: '/sounds/western-olivaceous-warbler-song.ogg', sounds: [{ label: 'Song', url: '/sounds/western-olivaceous-warbler-song.ogg' }],
     description: 'Europe\'s rarest migratory songbird, a heavily streaked warbler of sedge marshes. A scarce but regular autumn passage migrant to southern Britain.',
     identification: {
       male: 'Bold creamy central crown stripe flanked by dark lateral stripes. Heavily streaked above. Streaked rump (unlike Sedge Warbler).',
@@ -2071,7 +2071,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '12-14cm',
     wingspan: '16-19cm',
-    imageUrl: '/birds/paddyfield-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/paddyfield-warbler.jpg', soundUrl: '/sounds/paddyfield-warbler-song.ogg', sounds: [{ label: 'Song', url: '/sounds/paddyfield-warbler-song.ogg' }],
     description: 'A small, warm-brown reed warbler with a prominent supercilium. A rare but increasingly recorded autumn vagrant to Britain.',
     identification: {
       male: 'Warm brown above with rufous rump. Pale below. Bold, well-defined whitish supercilium with dark border above.',
@@ -2105,7 +2105,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '12-14cm',
     wingspan: '17-19cm',
-    imageUrl: '/birds/blyth-reed-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/blyth-reed-warbler.jpg', soundUrl: '/sounds/blyth-reed-warbler-song.mp3', sounds: [{ label: 'Song', url: '/sounds/blyth-reed-warbler-song.mp3' }],
     description: 'A plain, olive-toned reed warbler that prefers dry habitats to reedbeds. An increasingly regular autumn vagrant to Britain, especially on the Northern Isles.',
     identification: {
       male: 'Olive-brown above, pale below. Short, distinct supercilium. Long primary projection. Round head, fine bill.',
@@ -2139,7 +2139,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '12-14cm',
     wingspan: '18-21cm',
-    imageUrl: '/birds/marsh-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/marsh-warbler.jpg', soundUrl: '/sounds/marsh-warbler-song.mp3', sounds: [{ label: 'Song', url: '/sounds/marsh-warbler-song.mp3' }],
     description: 'A superb mimic whose song incorporates songs of African and European birds. Once a scarce British breeder, now mainly a rare passage migrant.',
     identification: {
       male: 'Olive-brown above, pale below. Very similar to Reed Warbler but slightly shorter billed, rounder headed, and with paler legs.',
@@ -2172,7 +2172,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (19cm)',
     length: '16-20cm',
     wingspan: '25-30cm',
-    imageUrl: '/birds/great-reed-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/great-reed-warbler.jpg', soundUrl: '/sounds/great-reed-warbler-song.wav', sounds: [{ label: 'Song', url: '/sounds/great-reed-warbler-song.wav' }],
     description: 'The largest European reed warbler, almost thrush-sized, with a harsh, loud song. A scarce but regular spring migrant to southern Britain.',
     identification: {
       male: 'Large, warm brown above, pale below. Strong, bold supercilium. Heavy bill. Round head.',
@@ -2205,7 +2205,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (13cm)',
     length: '12-14cm',
     wingspan: '16-18cm',
-    imageUrl: '/birds/pallas-grasshopper-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/pallas-grasshopper-warbler.jpg', soundUrl: '/sounds/pallas-grasshopper-warbler-song.ogg', sounds: [{ label: 'Song', url: '/sounds/pallas-grasshopper-warbler-song.ogg' }],
     description: 'A heavily streaked, skulking warbler from Central and East Asia. A rare autumn vagrant to Britain, mostly found on Fair Isle and Shetland.',
     identification: {
       male: 'Heavily streaked brown above. Grey-brown rump with dark streaking. Diagnostic dark-tipped tail feathers with pale tips. Faint supercilium.',
@@ -2271,7 +2271,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (15cm)',
     length: '14-16cm',
     wingspan: '19-22cm',
-    imageUrl: '/birds/river-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/river-warbler.jpg', soundUrl: '/sounds/lanceolated-warbler-song.ogg', sounds: [{ label: 'Song', url: '/sounds/lanceolated-warbler-song.ogg' }],
     description: 'A large, dark, unstreaked Locustella warbler with a distinctive mechanical song recalling a sewing machine. A rare vagrant to Britain.',
     identification: {
       male: 'Dark olive-brown above, unstreaked. Whitish below with faint brown streaking on the breast. Broad, rounded tail.',
@@ -2304,7 +2304,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (14cm)',
     length: '13-15cm',
     wingspan: '18-21cm',
-    imageUrl: '/birds/savi-warbler.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/savi-warbler.jpg', soundUrl: '/sounds/savi-warbler-song.ogg', sounds: [{ label: 'Song', url: '/sounds/savi-warbler-song.ogg' }],
     description: 'A large, plain, warm-brown warbler with a buzzing, insect-like song, found in extensive reedbeds. A rare summer visitor and scarce breeder in Britain.',
     identification: {
       male: 'Plain warm rufous-brown above, pale buff below. Long, broad, rounded tail. Faint supercilium.',
@@ -2340,7 +2340,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (14cm)',
     length: '12-15cm',
     wingspan: '30-35cm',
-    imageUrl: '/birds/tree-swallow.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/tree-swallow.jpg', soundUrl: '/sounds/tree-swallow-song.mp3', sounds: [{ label: 'Song', url: '/sounds/tree-swallow-song.mp3' }],
     description: 'A beautiful, iridescent green-blue and white swallow from North America. An extremely rare transatlantic vagrant to Britain.',
     identification: {
       male: 'Iridescent blue-green above, pure white below. Slightly notched tail. No breast band.',
@@ -2373,7 +2373,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (20cm)',
     length: '19-20cm',
     wingspan: '39-41cm',
-    imageUrl: '/birds/purple-martin.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/purple-martin.jpg', soundUrl: '/sounds/purple-martin-song.mp3', sounds: [{ label: 'Song', url: '/sounds/purple-martin-song.mp3' }],
     description: 'North America\'s largest swallow, the male gleaming dark purple all over. An extremely rare transatlantic vagrant to Britain.',
     identification: {
       male: 'Entirely glossy dark purple-blue, appearing black at distance. Forked tail.',
@@ -2406,7 +2406,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (14cm)',
     length: '14-15cm',
     wingspan: '32-35cm',
-    imageUrl: '/birds/crag-martin.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/crag-martin.jpg', soundUrl: '/sounds/crag-martin-song.ogg', sounds: [{ label: 'Song', url: '/sounds/crag-martin-song.ogg' }],
     description: 'A stocky, dusky brown martin of mountain cliffs and gorges. A rare vagrant to Britain from southern Europe.',
     identification: {
       male: 'Dusky brown above, paler below with a brownish wash on the breast. Square tail with white spots visible when spread.',
@@ -2439,7 +2439,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (17cm)',
     length: '14-19cm',
     wingspan: '30-35cm',
-    imageUrl: '/birds/red-rumped-swallow.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/red-rumped-swallow.jpg', soundUrl: '/sounds/red-rumped-swallow-song.mp3', sounds: [{ label: 'Song', url: '/sounds/red-rumped-swallow-song.mp3' }],
     description: 'A distinctive swallow with a pale rufous rump and streaked underparts. A scarce but increasingly regular spring and autumn vagrant to Britain.',
     identification: {
       male: 'Dark blue-black above with a conspicuous pale rufous rump and rufous nape collar. Pale, finely streaked underparts. Long tail streamers.',
@@ -2472,7 +2472,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (18cm)',
     length: '15-19cm',
     wingspan: '30-35cm',
-    imageUrl: '/birds/eastern-red-rumped-swallow.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/eastern-red-rumped-swallow.jpg', soundUrl: '/sounds/eastern-red-rumped-swallow-song.mp3', sounds: [{ label: 'Song', url: '/sounds/eastern-red-rumped-swallow-song.mp3' }],
     description: 'The eastern form of the Red-rumped Swallow complex, sometimes treated as a separate species, with a deeper rufous rump. An extremely rare vagrant to Britain.',
     identification: {
       male: 'Similar to western Red-rumped Swallow but with a deeper rufous rump, heavier streaking below, and darker nape.',
@@ -2505,7 +2505,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Small (14cm)',
     length: '13-15cm',
     wingspan: '28-30cm',
-    imageUrl: '/birds/american-cliff-swallow.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/american-cliff-swallow.jpg', soundUrl: '/sounds/american-cliff-swallow-song.mp3', sounds: [{ label: 'Song', url: '/sounds/american-cliff-swallow-song.mp3' }],
     description: 'A stocky, square-tailed North American swallow with a distinctive pale forehead and rufous rump. An extremely rare transatlantic vagrant to Britain.',
     identification: {
       male: 'Dark blue-black above with pale forehead, rufous cheeks and rump. Pale, streaked underparts. Square tail.',
