@@ -917,5 +917,4 @@ export const BIRDS_BATCH6: BirdSpecies[] = [
       { name: 'Lesser Black-backed Gull', tip: 'Lesser black-backed gull has a darker (slate-grey) mantle and yellow legs, but the mantle contrast is greater.' },
     ],
     gardenLikelihood: 1,
-  },
-]
+  }]

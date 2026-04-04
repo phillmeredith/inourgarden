@@ -60,7 +60,7 @@ export function InlineAudioPlayer({ birdId, soundUrl }: InlineAudioPlayerProps) 
       className={cn(
         'flex items-center gap-1.5 px-2 py-1.5',
         'bg-[var(--elev)]',
-        'rounded-b-[var(--r-lg)]',
+        'rounded-none',
       )}
       // Prevent card navigation when interacting with the player
       onClick={(e) => e.stopPropagation()}

@@ -1255,5 +1255,4 @@ export const BIRDS_BATCH2: BirdSpecies[] = [
       { name: 'Common Tern', tip: 'Common tern has a thinner red bill with a black tip, a more deeply forked tail, and regularly plunge-dives.' },
     ],
     gardenLikelihood: 1,
-  },
-]
+  }]

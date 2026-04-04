@@ -1137,5 +1137,4 @@ export const BIRDS_BATCH1: BirdSpecies[] = [
       { name: 'Bar-tailed Godwit', tip: 'Bar-tailed godwit has a slightly upturned (not downcurved) bill and a shorter, more compact body.' },
     ],
     gardenLikelihood: 1,
-  },
-]
+  }]

@@ -923,5 +923,4 @@ export const BIRDS_BATCH3: BirdSpecies[] = [
       { name: 'Tawny Owl', tip: 'Tawny owl is rounder-headed with no ear tufts, has dark brown eyes, and a different call (hoot rather than long moan).' },
     ],
     gardenLikelihood: 1,
-  },
-]
+  }]

@@ -882,5 +882,4 @@ export const BIRDS_BATCH4: BirdSpecies[] = [
       { name: 'Guillemot', tip: 'Guillemot is slimmer with a thin pointed bill and no colourful face markings.' },
     ],
     gardenLikelihood: 1,
-  },
-]
+  }]
