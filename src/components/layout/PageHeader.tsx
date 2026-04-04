@@ -12,13 +12,11 @@ interface PageHeaderProps {
 export function PageHeader({ title, centre, below, rightAction, className = '' }: PageHeaderProps) {
   return (
     <div
-      data-page-header=""
       className={`sticky top-0 z-[100] shrink-0 px-6 ${className}`}
       style={{
         paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
         background: 'var(--nav-solid)',
         borderBottom: '1px solid var(--border-s)',
-        transition: 'background 0.2s ease',
       }}
     >
       <div

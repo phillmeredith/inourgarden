@@ -10,25 +10,8 @@ import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 // ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
-// Sets data-modal-open on <html> while mounted so the PageHeader drops its
-// opaque background, allowing backdrop-filter to sample through to content
-// (including the safe-area zone at the top).
 
 function Backdrop({ onClick }: { onClick: () => void }) {
-  useEffect(() => {
-    const el = document.documentElement
-    const count = Number(el.dataset.modalCount ?? '0') + 1
-    el.dataset.modalCount = String(count)
-    el.setAttribute('data-modal-open', '')
-    return () => {
-      const next = count - 1
-      el.dataset.modalCount = String(next)
-      if (next <= 0) {
-        el.removeAttribute('data-modal-open')
-        delete el.dataset.modalCount
-      }
-    }
-  }, [])
 
   return (
     <motion.div
@@ -59,24 +42,8 @@ interface ModalProps {
 }
 
 // ─── FullScreenBackdrop ───────────────────────────────────────────────────────
-// Separate component so useEffect fires correctly inside AnimatePresence.
 
 function FullScreenBackdrop() {
-  useEffect(() => {
-    const el = document.documentElement
-    const count = Number(el.dataset.modalCount ?? '0') + 1
-    el.dataset.modalCount = String(count)
-    el.setAttribute('data-modal-open', '')
-    return () => {
-      const next = count - 1
-      el.dataset.modalCount = String(next)
-      if (next <= 0) {
-        el.removeAttribute('data-modal-open')
-        delete el.dataset.modalCount
-      }
-    }
-  }, [])
-
   return (
     <motion.div
       className="fixed inset-0 z-[999]"

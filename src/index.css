@@ -252,12 +252,3 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ── Modal open: drop PageHeader bg so backdrop-filter blurs through it ──── */
-/* The frosted-glass backdrop (fixed inset-0) uses backdrop-filter: blur().   */
-/* backdrop-filter samples layers below the element. If the PageHeader has a  */
-/* solid background, the safe-area zone only blurs that solid colour.         */
-/* Making the PageHeader transparent lets the blur sample the bird grid,      */
-/* so the safe area matches the blurred content below it.                     */
-[data-modal-open] [data-page-header] {
-  background: transparent !important;
-}
