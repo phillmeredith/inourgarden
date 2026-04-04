@@ -1,8 +1,8 @@
-// useBirdRecon — on-device AI bird identification using Transformers.js
-// Uses dima806/bird_species_image_detection (ViT, 525 species)
-// Runs entirely in the browser via Web Worker — no API key required
+// useBirdRecon — bird identification via Google Gemini Vision API
+// Free tier: gemini-2.0-flash, 1500 req/day, no cost
+// Works on all devices including iPhone (no ONNX/WASM required)
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { BIRDS } from '../data/birds'
 import type { BirdSpecies } from '../data/birds'
 
@@ -11,151 +11,45 @@ import type { BirdSpecies } from '../data/birds'
 export interface ReconMatch {
   bird: BirdSpecies
   confidence: number        // 0-100
-  reasoning: string         // Why this bird was matched
+  reasoning: string
 }
 
 export interface ReconResult {
   matches: ReconMatch[]
-  rawDescription: string    // Summary of what the model detected
+  rawDescription: string
   timestamp: Date
 }
 
-type ReconStatus = 'idle' | 'loading' | 'analysing' | 'done' | 'error'
+type ReconStatus = 'idle' | 'analysing' | 'done' | 'error'
 
-// ─── 525-species label → UK catalogue mapping ──────────────────────────────
-// Maps model labels (UPPERCASE) to catalogue bird IDs
-// Only maps species that have a plausible UK equivalent
+// ─── Config ─────────────────────────────────────────────────────────────────
 
-const LABEL_TO_CATALOGUE: Record<string, string[]> = {
-  // Direct UK species matches
-  'AMERICAN ROBIN': ['robin'],
-  'EUROPEAN GOLDFINCH': ['goldfinch'],
-  'EURASIAN MAGPIE': ['magpie'],
-  'EURASIAN BULLFINCH': ['bullfinch'],
-  'EURASIAN GOLDEN ORIOLE': ['golden-oriole'],
-  'EUROPEAN TURTLE DOVE': ['turtle-dove'],
-  'COMMON STARLING': ['starling'],
-  'COMMON HOUSE MARTIN': ['house-martin'],
-  'COMMON FIRECREST': ['firecrest'],
-  'BARN OWL': ['barn-owl'],
-  'BARN SWALLOW': ['swallow'],
-  'HOUSE SPARROW': ['house-sparrow'],
-  'HOUSE FINCH': ['linnet', 'greenfinch'],
-  'MALLARD DUCK': ['mallard'],
-  'MANDRIN DUCK': ['mandarin-duck'],
-  'DUNLIN': ['dunlin'],
-  'PUFFIN': ['puffin'],
-  'RAZORBILL': ['razorbill'],
-  'OSPREY': ['osprey'],
-  'PEREGRINE FALCON': ['peregrine'],
-  'MERLIN': ['merlin'],
-  'GOLDEN EAGLE': ['golden-eagle'],
-  'BALD EAGLE': ['white-tailed-eagle'],
-  'HAWFINCH': ['hawfinch'],
-  'PARUS MAJOR': ['great-tit'],
-  'AZURE TIT': ['blue-tit'],
-  'CROW': ['carrion-crow'],
-  'ROCK DOVE': ['feral-pigeon', 'stock-dove'],
-  'GREY PLOVER': ['grey-plover'],
-  'GRAY PARTRIDGE': ['grey-partridge'],
-  'BAR-TAILED GODWIT': ['bar-tailed-godwit'],
-  'BEARDED REEDLING': ['bearded-tit'],
-  'BLACK-NECKED GREBE': ['slavonian-grebe'],
-  'LONG-EARED OWL': ['long-eared-owl'],
-  'SAND MARTIN': ['sand-martin'],
-  'NORTHERN GANNET': ['gannet'],
-  'NORTHERN FULMAR': ['fulmar'],
-  'NORTHERN GOSHAWK': ['goshawk'],
-  'NORTHERN SHOVELER': ['shoveler'],
-  'RING-NECKED PHEASANT': ['pheasant'],
-  'RED CROSSBILL': ['crossbill'],
-  'RED KNOT': ['knot'],
-  'WHIMBREL': ['whimbrel'],
-  'JACK SNIPE': ['snipe'],
-  'RUDDY SHELDUCK': ['shelduck'],
-  'GREAT GRAY OWL': ['tawny-owl'],
-  'SNOWY OWL': ['barn-owl'],
-  'ALPINE CHOUGH': ['chough'],
-  'CASPIAN TERN': ['common-tern'],
-  'WILLOW PTARMIGAN': ['ptarmigan'],
-  'BLUE GROUSE': ['black-grouse'],
-  'BLOOD PHEASANT': ['pheasant'],
-  'RED TAILED HAWK': ['buzzard'],
-  'ROUGH LEG BUZZARD': ['buzzard'],
-  'HARLEQUIN DUCK': ['teal', 'tufted-duck'],
-  'BAIKAL TEAL': ['teal'],
-  'TEAL DUCK': ['teal'],
-  'MOURNING DOVE': ['collared-dove'],
-  'SQUACCO HERON': ['grey-heron'],
-  'BLUE HERON': ['grey-heron'],
-  'GLOSSY IBIS': ['little-egret'],
-  'OYSTER CATCHER': ['oystercatcher'],
-  'MASKED LAPWING': ['lapwing'],
-  'ANDEAN LAPWING': ['lapwing'],
-  'AMERICAN AVOCET': ['avocet'],
-  'AMERICAN COOT': ['coot'],
-  'AMERICAN DIPPER': ['dipper'],
-  'AMERICAN KESTREL': ['kestrel'],
-  'AMERICAN PIPIT': ['meadow-pipit'],
-  'AMERICAN WIGEON': ['wigeon'],
-  'CRAB PLOVER': ['ringed-plover'],
-  'SNOWY PLOVER': ['ringed-plover'],
-  'FOREST WAGTAIL': ['pied-wagtail', 'grey-wagtail'],
-  'DARK EYED JUNCO': ['dunnock'],
-  'CHIPPING SPARROW': ['tree-sparrow'],
-  'BLACK-THROATED SPARROW': ['house-sparrow'],
-  'JAPANESE ROBIN': ['robin'],
-  'DUSKY ROBIN': ['robin'],
-  'PINK ROBIN': ['robin'],
-  'EASTERN YELLOW ROBIN': ['robin'],
-  'DAURIAN REDSTART': ['redstart'],
-  'AMERICAN REDSTART': ['redstart'],
-  'SPLENDID WREN': ['wren'],
-  'CACTUS WREN': ['wren'],
-  'FASCIATED WREN': ['wren'],
-  'BROWN CREPPER': ['treecreeper'],
-  'WALL CREAPER': ['treecreeper'],
-  'CRESTED NUTHATCH': ['nuthatch'],
-  'RED HEADED WOODPECKER': ['great-spotted-woodpecker'],
-  'DOWNY WOODPECKER': ['great-spotted-woodpecker', 'lesser-spotted-woodpecker'],
-  'GILA WOODPECKER': ['green-woodpecker'],
-  'CANARY': ['yellowhammer', 'siskin'],
-  'ANDEAN SISKIN': ['siskin'],
-  'CEDAR WAXWING': ['waxwing'],
-  'SURF SCOTER': ['eider'],
-  'KING EIDER': ['eider'],
-  'SNOW GOOSE': ['greylag-goose'],
-  'EGYPTIAN GOOSE': ['canada-goose'],
-  'HAWAIIAN GOOSE': ['canada-goose'],
-  'BLACK SWAN': ['mute-swan'],
-  'TRUMPTER SWAN': ['mute-swan'],
-  'HOOPOES': ['hoopoe'],
-  'LITTLE AUK': ['guillemot'],
-  'LAUGHING GULL': ['black-headed-gull'],
-  'CALIFORNIA GULL': ['herring-gull'],
-  'IVORY GULL': ['herring-gull'],
-  'FAIRY TERN': ['common-tern'],
-  'INCA TERN': ['arctic-tern'],
-  'LIMPKIN': ['curlew'],
-  'SUPERB STARLING': ['starling'],
-  'CAPE GLOSSY STARLING': ['starling'],
-  'BALI STARLING': ['starling'],
-  'PURPLE MARTIN': ['house-martin', 'sand-martin'],
-  'TREE SWALLOW': ['swallow'],
-  'STRIPPED SWALLOW': ['swallow'],
-  'SCARLET TANAGER': ['crossbill'],
-  'NORTHERN CARDINAL': ['bullfinch'],
-  'DOUBLE BRESTED CORMARANT': ['cormorant'],
-  'BRANDT CORMARANT': ['cormorant'],
-  'RED FACED CORMORANT': ['shag'],
-  'GYRFALCON': ['peregrine'],
-  'GREY HEADED FISH EAGLE': ['osprey'],
-  'SHORT BILLED DOWITCHER': ['snipe', 'redshank'],
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+
+const PROMPT = `You are a UK bird identification expert. Identify the bird in this photo.
+
+Return ONLY valid JSON in this exact format:
+{
+  "description": "Brief description of what you see in the photo",
+  "matches": [
+    {
+      "name": "UK common name",
+      "confidence": 85,
+      "reasoning": "Key features that identify this bird"
+    }
+  ]
 }
 
-// ─── Resize for efficient classification ────────────────────────────────────
+Rules:
+- Use UK common names (e.g. "Robin", "Blue Tit", "Grey Heron", "Mallard")
+- Up to 3 matches ordered by confidence (0–100)
+- If no bird is clearly visible, return matches: []
+- One sentence per reasoning`
 
-function resizeImage(base64: string, maxDim = 512): Promise<string> {
+// ─── Resize image before sending to API ─────────────────────────────────────
+
+function resizeImage(base64: string, maxDim = 768): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image()
     img.onload = () => {
@@ -176,146 +70,111 @@ function resizeImage(base64: string, maxDim = 512): Promise<string> {
   })
 }
 
-// ─── Map model predictions to UK bird catalogue ────────────────────────────
+// ─── Map Gemini names to UK catalogue ───────────────────────────────────────
 
-function mapToCatalogue(
-  predictions: { label: string; score: number }[],
+function matchToCatalogue(
+  geminiMatches: { name: string; confidence: number; reasoning: string }[],
 ): ReconMatch[] {
   const seen = new Set<string>()
-  const matches: ReconMatch[] = []
+  const results: ReconMatch[] = []
 
-  console.log('[BirdRecon] Model predictions:', predictions.map(p =>
-    `${p.label} (${(p.score * 100).toFixed(1)}%)`
-  ))
+  for (const gm of geminiMatches) {
+    const nameLower = gm.name.toLowerCase().trim()
+    const nameWords = nameLower.split(/[\s-]+/)
 
-  for (const pred of predictions) {
-    const label = pred.label.toUpperCase().trim()
+    // Try exact match first, then partial
+    let bird = BIRDS.find(b => b.name.toLowerCase() === nameLower)
 
-    // ── Step 1: Direct label mapping ──────────────────────────────
-    const directIds = LABEL_TO_CATALOGUE[label]
-    if (directIds) {
-      for (const id of directIds) {
-        if (seen.has(id)) continue
-        const bird = BIRDS.find(b => b.id === id)
-        if (!bird) continue
-        seen.add(id)
-        matches.push({
-          bird,
-          confidence: Math.round(pred.score * 100),
-          reasoning: `Identified as ${pred.label} — matches ${bird.name}`,
-        })
-      }
+    if (!bird) {
+      bird = BIRDS.find(b => {
+        const bWords = b.name.toLowerCase().split(/[\s-]+/)
+        return nameWords.some(w => w.length >= 4 && bWords.includes(w))
+      })
     }
 
-    // ── Step 2: Fuzzy name matching against catalogue ─────────────
-    // Try matching prediction label words against bird names/families
-    const predWords = label.toLowerCase().split(/\s+/)
-    for (const bird of BIRDS) {
-      if (seen.has(bird.id)) continue
-      const birdNameLower = bird.name.toLowerCase()
-      const birdWords = birdNameLower.split(/[\s-]+/)
-
-      // Check if a significant word from the prediction matches the bird name
-      const significantMatch = predWords.some(pw =>
-        pw.length >= 4 && (
-          birdNameLower.includes(pw) ||
-          birdWords.some(bw => bw === pw)
-        )
-      )
-
-      if (significantMatch) {
-        seen.add(bird.id)
-        matches.push({
-          bird,
-          confidence: Math.round(pred.score * 85), // Slightly lower for fuzzy
-          reasoning: `Identified as ${pred.label} — similar to ${bird.name}`,
-        })
-      }
+    if (bird && !seen.has(bird.id)) {
+      seen.add(bird.id)
+      results.push({ bird, confidence: gm.confidence, reasoning: gm.reasoning })
     }
   }
 
-  console.log('[BirdRecon] Matched UK birds:', matches.map(m =>
-    `${m.bird.name} (${m.confidence}%)`
-  ))
-
-  return matches
-    .sort((a, b) => b.confidence - a.confidence)
-    .slice(0, 5)
+  return results.sort((a, b) => b.confidence - a.confidence)
 }
 
-// ─── Hook ───────────────────────────────────────────────────────────────────
+// ─── Hook ────────────────────────────────────────────────────────────────────
 
 export function useBirdRecon() {
   const [status, setStatus] = useState<ReconStatus>('idle')
   const [photo, setPhoto] = useState<string | null>(null)
   const [result, setResult] = useState<ReconResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [modelLoaded, setModelLoaded] = useState(false)
-  const workerRef = useRef<Worker | null>(null)
-
-  // Spin up Web Worker on mount
-  useEffect(() => {
-    const worker = new Worker(
-      new URL('../workers/birdRecon.worker.ts', import.meta.url),
-      { type: 'module' },
-    )
-
-    worker.onmessage = (e: MessageEvent) => {
-      const { type, status: workerStatus, predictions, message } = e.data
-
-      if (type === 'model-ready') {
-        setModelLoaded(true)
-      } else if (type === 'status') {
-        console.log(`[BirdRecon] Worker status: ${workerStatus}`)
-      } else if (type === 'result') {
-        console.log('[BirdRecon] Worker returned predictions')
-        const mapped = mapToCatalogue(predictions)
-        const topPred = predictions[0]
-        const description = mapped.length > 0
-          ? `Identified as ${topPred.label} (${Math.round(topPred.score * 100)}% confidence). Best UK match: ${mapped[0].bird.name}.`
-          : `Identified as ${topPred.label} (${Math.round(topPred.score * 100)}% confidence). No direct UK species match found — try the manual filters below.`
-
-        setResult({
-          matches: mapped,
-          rawDescription: description,
-          timestamp: new Date(),
-        })
-        setStatus('done')
-      } else if (type === 'error') {
-        console.error('[BirdRecon] Worker error:', message)
-        setError(message)
-        setStatus('error')
-      }
-    }
-
-    worker.onerror = (e) => {
-      console.error('[BirdRecon] Worker crashed:', e)
-      setError('Bird identification engine failed to start')
-      setStatus('error')
-    }
-
-    workerRef.current = worker
-    return () => worker.terminate()
-  }, [])
 
   const analyse = useCallback(async (base64Image: string) => {
+    if (!API_KEY) {
+      setError('Add VITE_GEMINI_API_KEY to your .env file to enable BirdRecon.')
+      setStatus('error')
+      return
+    }
+
     try {
-      setStatus('loading')
+      setStatus('analysing')
       setError(null)
 
-      console.log('[BirdRecon] Resizing image...')
       const resized = await resizeImage(base64Image)
       setPhoto(resized)
 
-      setStatus('analysing')
-      console.log('[BirdRecon] Sending to worker...')
-      workerRef.current?.postMessage({
-        type: 'analyse',
-        payload: { imageDataUrl: resized },
+      // Strip the data URL prefix to get raw base64
+      const base64Data = resized.replace(/^data:image\/\w+;base64,/, '')
+
+      const response = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              {
+                inline_data: {
+                  mime_type: 'image/jpeg',
+                  data: base64Data,
+                },
+              },
+              { text: PROMPT },
+            ],
+          }],
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.1,
+          },
+        }),
       })
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        throw new Error(err?.error?.message ?? `API error ${response.status}`)
+      }
+
+      const data = await response.json()
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+      const parsed = JSON.parse(text) as {
+        description: string
+        matches: { name: string; confidence: number; reasoning: string }[]
+      }
+
+      const matches = matchToCatalogue(parsed.matches ?? [])
+      const description = parsed.description ?? 'No description returned.'
+
+      setResult({ matches, rawDescription: description, timestamp: new Date() })
+      setStatus('done')
     } catch (err) {
-      console.error('[BirdRecon] analysis failed:', err)
-      setError(err instanceof Error ? err.message : 'Analysis failed')
+      console.error('[BirdRecon] Gemini error:', err)
+      const msg = err instanceof Error ? err.message : 'Identification failed'
+      if (msg.includes('API_KEY_INVALID') || msg.includes('API key')) {
+        setError('Invalid Gemini API key. Check VITE_GEMINI_API_KEY in your .env file.')
+      } else if (msg.includes('RATE_LIMIT') || msg.includes('429')) {
+        setError('Too many requests — you\'ve hit the free limit. Try again in a minute.')
+      } else {
+        setError('Identification failed. Check your connection and try again.')
+      }
       setStatus('error')
     }
   }, [])
@@ -327,13 +186,5 @@ export function useBirdRecon() {
     setError(null)
   }, [])
 
-  return {
-    status,
-    photo,
-    result,
-    error,
-    analyse,
-    reset,
-    modelLoaded,
-  }
+  return { status, photo, result, error, analyse, reset, modelLoaded: !!API_KEY }
 }

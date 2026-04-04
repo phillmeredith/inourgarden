@@ -89,10 +89,9 @@ interface BirdReconViewProps {
 }
 
 export function BirdReconView({ onBirdTap }: BirdReconViewProps) {
-  const { status, photo, result, error, analyse, reset } = useBirdRecon()
+  const { status, photo, result, error, analyse, reset, modelLoaded: hasApiKey } = useBirdRecon()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
-  const hasApiKey = true // TF.js — no API key needed
 
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -135,9 +134,9 @@ export function BirdReconView({ onBirdTap }: BirdReconViewProps) {
         <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--amber-sub)] border border-[var(--amber)] mb-5">
           <AlertCircle size={16} className="text-[var(--amber-t)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-[var(--amber-t)]">API key required</p>
+            <p className="text-[13px] font-semibold text-[var(--amber-t)]">Gemini API key required</p>
             <p className="text-[12px] text-[var(--amber-t)] mt-1 opacity-80">
-              Add your Anthropic API key in Settings → BirdRecon to enable photo identification.
+              Add <code className="bg-black/20 px-1 rounded">VITE_GEMINI_API_KEY</code> to your .env file to enable photo identification.
             </p>
           </div>
         </div>
@@ -225,7 +224,7 @@ export function BirdReconView({ onBirdTap }: BirdReconViewProps) {
               <Loader2 size={18} className="text-[var(--blue-t)] animate-spin" />
               <p className="text-[14px] font-semibold text-[var(--t1)]">Analysing...</p>
             </div>
-            <p className="text-[12px] text-[var(--t3)]">BirdRecon is examining your photo</p>
+            <p className="text-[12px] text-[var(--t3)]">Asking Gemini to identify your bird...</p>
           </motion.div>
         )}
 
