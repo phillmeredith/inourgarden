@@ -9,9 +9,25 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
+// ─── shared modal-open signal ─────────────────────────────────────────────────
+
+function useModalOpenSignal() {
+  useEffect(() => {
+    const html = document.documentElement
+    const count = Number(html.dataset.modalOpen ?? '0') + 1
+    html.dataset.modalOpen = String(count)
+    return () => {
+      const next = count - 1
+      if (next <= 0) delete html.dataset.modalOpen
+      else html.dataset.modalOpen = String(next)
+    }
+  }, [])
+}
+
 // ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
 
 function Backdrop({ onClick }: { onClick: () => void }) {
+  useModalOpenSignal()
 
   return (
     <motion.div
@@ -44,6 +60,8 @@ interface ModalProps {
 // ─── FullScreenBackdrop ───────────────────────────────────────────────────────
 
 function FullScreenBackdrop() {
+  useModalOpenSignal()
+
   return (
     <motion.div
       className="fixed inset-0 z-[999]"

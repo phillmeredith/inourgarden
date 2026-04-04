@@ -13,6 +13,18 @@ import { cn } from '../../lib/utils'
 // ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
 
 function Backdrop({ onClick }: { onClick: () => void }) {
+  // Signal to CSS that a modal is open so scoped elements (e.g. PageHeader
+  // in ExploreScreen) can become transparent and let backdrop-filter see through.
+  useEffect(() => {
+    const html = document.documentElement
+    const count = Number(html.dataset.modalOpen ?? '0') + 1
+    html.dataset.modalOpen = String(count)
+    return () => {
+      const next = count - 1
+      if (next <= 0) delete html.dataset.modalOpen
+      else html.dataset.modalOpen = String(next)
+    }
+  }, [])
 
   return (
     <motion.div

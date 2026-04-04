@@ -252,3 +252,14 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* ── Modal open: make PageHeader transparent in ExploreScreen ─────────────
+   When a modal/sheet is open ([data-modal-open] on <html>), the floating
+   PageHeader inside ExploreScreen becomes transparent so the backdrop-filter
+   blur on the modal can sample the bird images that sit behind it (including
+   in the safe-area zone). Scoped to [data-explore-screen] so other screens
+   (Garden, Settings) are unaffected. */
+[data-modal-open] [data-explore-screen] [data-page-header] {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+}
+
