@@ -1,82 +1,67 @@
-// IdentifyView — bird identification with BirdRecon photo AI + manual filters
-// Laura can upload/snap a photo for AI identification OR use size/colour filters
+// IdentifyView — bird identification: BirdRecon photo AI + manual describe flow
+// Manual flow order mirrors expert birder cognition (Merlin / Cornell research):
+//   Location → Size → Behaviour → Field marks → Colour
+// Each section halves candidates. Field marks are most discriminating.
 
 import { useRef } from 'react'
-import { Binoculars, RotateCcw, Camera, Upload, Loader2, AlertCircle, Scan, Sparkles } from 'lucide-react'
+import {
+  Binoculars, RotateCcw, Camera, Upload,
+  Loader2, AlertCircle, Scan, Sparkles,
+} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../../lib/utils'
-import { useIdentifyFilter, ALL_LOCATIONS, LOCATION_LABELS } from '../../hooks/useIdentifyFilter'
+import {
+  useIdentifyFilter,
+  ALL_LOCATIONS, LOCATION_LABELS,
+  ALL_SIZES, SIZE_CONFIG,
+  ALL_BEHAVIORS, BEHAVIOR_LABELS,
+  ALL_FIELD_MARKS, FIELD_MARK_LABELS, FIELD_MARK_INDICATOR,
+  ALL_COLORS, COLOR_SWATCH,
+} from '../../hooks/useIdentifyFilter'
 import { useBirdRecon } from '../../hooks/useBirdRecon'
-import type { BirdColor, SizeCategory, LocationFilter } from '../../hooks/useIdentifyFilter'
 import type { BirdSpecies } from '../../data/birds'
 
-// ─── Location emoji icons ───────────────────────────────────────────────────
+// ─── Section wrapper ─────────────────────────────────────────────────────────
 
-const LOCATION_ICON: Record<LocationFilter, string> = {
-  garden:   '🏡',
-  woodland: '🌳',
-  wetland:  '🦆',
-  coastal:  '🌊',
-  farmland: '🌾',
-  upland:   '⛰️',
-  urban:    '🏙️',
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-5">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--t4)] mb-2.5">
+        {title}
+      </p>
+      {children}
+    </div>
+  )
 }
 
-// ─── Color swatch mapping ───────────────────────────────────────────────────
+// ─── Generic pill ────────────────────────────────────────────────────────────
 
-const COLOR_SWATCH: Record<BirdColor, string> = {
-  red: '#E53935',
-  blue: '#1E88E5',
-  green: '#43A047',
-  yellow: '#FDD835',
-  orange: '#FB8C00',
-  brown: '#795548',
-  black: '#212121',
-  white: '#FAFAFA',
-  grey: '#9E9E9E',
-  pink: '#EC407A',
-  purple: '#9C27B0',
-}
-
-// ─── Conservation badge colour ──────────────────────────────────────────────
-
-function conservationColor(status: string) {
-  if (status === 'Red') return 'var(--red)'
-  if (status === 'Amber') return 'var(--amber)'
-  return 'var(--green)'
-}
-
-// ─── Filter pill component ──────────────────────────────────────────────────
-
-function FilterPill({
+function Pill({
   label,
   active,
   onClick,
-  swatch,
-  highlight,
+  indicator,
 }: {
   label: string
   active: boolean
   onClick: () => void
-  swatch?: string
-  highlight?: boolean
+  indicator?: string // CSS colour string for the dot
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'h-8 px-3 rounded-[var(--r-pill)] text-[12px] font-semibold border transition-colors duration-150 flex items-center gap-1.5 shrink-0',
+        'h-8 px-3 rounded-[var(--r-pill)] text-[12px] font-semibold border',
+        'transition-colors duration-150 flex items-center gap-2 shrink-0',
         active
           ? 'bg-[var(--blue-sub)] border-[var(--blue)] text-[var(--blue-t)]'
-          : highlight
-            ? 'bg-[var(--card)] border-[var(--blue)]/40 text-[var(--t1)] hover:border-[var(--blue)]'
-            : 'bg-[var(--card)] border-[var(--border-s)] text-[var(--t2)] hover:text-[var(--t1)]',
+          : 'bg-[var(--card)] border-[var(--border-s)] text-[var(--t2)] hover:text-[var(--t1)] hover:border-[var(--border)]',
       )}
     >
-      {swatch && (
+      {indicator && (
         <span
-          className="w-3 h-3 rounded-full border border-white/20 shrink-0"
-          style={{ background: swatch }}
+          className="w-2.5 h-2.5 rounded-full shrink-0 border border-white/10"
+          style={{ background: indicator }}
         />
       )}
       {label}
@@ -84,22 +69,66 @@ function FilterPill({
   )
 }
 
-// ─── Filter section ─────────────────────────────────────────────────────────
+// ─── Size scale ──────────────────────────────────────────────────────────────
+// Visual dot-scale: 5 buttons with proportionally-sized filled circles.
+// Mirrors Merlin's reference-bird approach — much clearer than abstract labels.
 
-function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
+function SizeScale({
+  selected,
+  onSelect,
+}: {
+  selected: string | null
+  onSelect: (s: string | null) => void
+}) {
   return (
-    <div className="mb-4">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-[var(--t3)] mb-2">
-        {title}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {children}
-      </div>
+    <div className="flex gap-2">
+      {ALL_SIZES.map(size => {
+        const { ref, cm, dotPx } = SIZE_CONFIG[size]
+        const isActive = selected === size
+        return (
+          <button
+            key={size}
+            onClick={() => onSelect(size === selected ? null : size)}
+            className={cn(
+              'flex-1 flex flex-col items-center pt-3 pb-2 rounded-xl border transition-colors duration-150',
+              isActive
+                ? 'bg-[var(--blue-sub)] border-[var(--blue)]'
+                : 'bg-[var(--card)] border-[var(--border-s)] hover:border-[var(--border)]',
+            )}
+          >
+            {/* Size indicator dot — scales proportionally */}
+            <div
+              className="rounded-full mb-2 transition-colors duration-150"
+              style={{
+                width: dotPx,
+                height: dotPx,
+                background: isActive ? 'var(--blue-t)' : 'var(--t3)',
+              }}
+            />
+            <span
+              className={cn(
+                'text-[11px] font-semibold leading-tight text-center',
+                isActive ? 'text-[var(--blue-t)]' : 'text-[var(--t2)]',
+              )}
+            >
+              {ref}
+            </span>
+            <span
+              className={cn(
+                'text-[10px] mt-0.5',
+                isActive ? 'text-[var(--blue-t)]/70' : 'text-[var(--t4)]',
+              )}
+            >
+              {cm}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
 
-// ─── Manual filter result row ───────────────────────────────────────────────
+// ─── Result row ──────────────────────────────────────────────────────────────
 
 function ResultRow({
   bird,
@@ -133,7 +162,7 @@ function ResultRow({
       <div className="shrink-0 flex items-center gap-2">
         <div className="w-10 h-1.5 rounded-full bg-[var(--elev)] overflow-hidden">
           <div
-            className="h-full rounded-full bg-[var(--blue)]"
+            className="h-full rounded-full bg-[var(--blue)] transition-[width] duration-150"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -143,7 +172,13 @@ function ResultRow({
   )
 }
 
-// ─── BirdRecon result card ──────────────────────────────────────────────────
+// ─── BirdRecon result card ────────────────────────────────────────────────────
+
+function conservationColor(status: string) {
+  if (status === 'Red') return 'var(--red)'
+  if (status === 'Amber') return 'var(--amber)'
+  return 'var(--green)'
+}
 
 function ReconResultCard({
   bird,
@@ -202,23 +237,22 @@ function ReconResultCard({
   )
 }
 
-// ─── Main component ─────────────────────────────────────────────────────────
+// ─── Main component ───────────────────────────────────────────────────────────
 
 interface IdentifyViewProps {
   onBirdTap: (bird: BirdSpecies) => void
 }
-
-const SIZES: SizeCategory[] = ['Tiny', 'Small', 'Medium', 'Large']
-const COLORS: BirdColor[] = ['red', 'blue', 'green', 'yellow', 'orange', 'brown', 'black', 'white', 'grey', 'pink']
 
 export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
   const {
     filters,
     hasAnyFilter,
     results,
-    setSize,
-    toggleColor,
     setLocation,
+    setSize,
+    toggleBehavior,
+    toggleFieldMark,
+    toggleColor,
     reset: resetFilters,
   } = useIdentifyFilter()
 
@@ -244,16 +278,26 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
     e.target.value = ''
   }
 
+  // Friendly result label
+  const resultLabel = (() => {
+    if (results.length === 0) return 'No birds match — try fewer filters'
+    if (filters.location === 'garden') {
+      return `${results.length} garden bird${results.length === 1 ? '' : 's'} · most likely first`
+    }
+    return `${results.length} bird${results.length === 1 ? '' : 's'} match`
+  })()
+
   return (
-    <div className="px-6 pt-4 pb-24 max-w-3xl mx-auto w-full">
-      {/* ─── BirdRecon: Photo identification ──────────────────── */}
+    <div className="px-4 pt-4 pb-24 max-w-3xl mx-auto w-full">
+
+      {/* ─── BirdRecon: Photo identification ─────────────────────── */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--blue-sub)]">
               <Scan size={14} className="text-[var(--blue-t)]" />
             </div>
-            <h2 className="text-[15px] font-bold text-[var(--t1)]">On-device AI identification</h2>
+            <h2 className="text-[15px] font-bold text-[var(--t1)]">Photo identification</h2>
           </div>
           {reconActive && (
             <button
@@ -267,7 +311,6 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
         </div>
 
         <AnimatePresence mode="wait">
-          {/* Idle: compact capture buttons */}
           {reconStatus === 'idle' && (
             <motion.div
               key="capture"
@@ -278,22 +321,21 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
             >
               <button
                 onClick={() => cameraInputRef.current?.click()}
-                className="flex-1 h-[72px] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[.97] border-[var(--blue)]/40 bg-[var(--blue-sub)] text-[var(--blue-t)] hover:border-[var(--blue)]"
+                className="flex-1 h-[68px] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[.97] border-[var(--blue)]/40 bg-[var(--blue-sub)] text-[var(--blue-t)] hover:border-[var(--blue)]"
               >
-                <Camera size={20} />
+                <Camera size={18} />
                 <span className="text-[12px] font-semibold">Camera</span>
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 h-[72px] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[.97] border-[var(--border)] bg-[var(--card)] text-[var(--t2)] hover:border-[var(--blue)] hover:text-[var(--blue-t)]"
+                className="flex-1 h-[68px] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[.97] border-[var(--border)] bg-[var(--card)] text-[var(--t2)] hover:border-[var(--blue)] hover:text-[var(--blue-t)]"
               >
-                <Upload size={20} />
-                <span className="text-[12px] font-semibold">Upload</span>
+                <Upload size={18} />
+                <span className="text-[12px] font-semibold">Upload photo</span>
               </button>
             </motion.div>
           )}
 
-          {/* Loading model / Analysing */}
           {(reconStatus === 'loading' || reconStatus === 'analysing') && (
             <motion.div
               key="analysing"
@@ -318,7 +360,7 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
                   <div className="flex items-center gap-2">
                     <Loader2 size={14} className="text-[var(--blue-t)] animate-spin" />
                     <p className="text-[14px] font-semibold text-[var(--t1)]">
-                      {reconStatus === 'loading' ? 'Loading model...' : 'Analysing...'}
+                      {reconStatus === 'loading' ? 'Loading model…' : 'Analysing…'}
                     </p>
                   </div>
                   <p className="text-[12px] text-[var(--t3)] mt-1">
@@ -331,7 +373,6 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
             </motion.div>
           )}
 
-          {/* Results */}
           {reconStatus === 'done' && reconResult && (
             <motion.div
               key="results"
@@ -339,7 +380,6 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              {/* Photo + description */}
               <div className="flex gap-3 mb-4 p-3 rounded-xl bg-[var(--card)] border border-[var(--border-s)]">
                 {reconPhoto && (
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--elev)] shrink-0">
@@ -349,16 +389,13 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-1">
                     <Sparkles size={11} className="text-[var(--blue-t)]" />
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--blue-t)]">
-                      Analysis
-                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--blue-t)]">Analysis</p>
                   </div>
                   <p className="text-[12px] text-[var(--t2)] leading-relaxed line-clamp-3">
                     {reconResult.rawDescription}
                   </p>
                 </div>
               </div>
-
               {reconResult.matches.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   {reconResult.matches.map((m, i) => (
@@ -373,14 +410,13 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center py-4 gap-2">
-                  <p className="text-[13px] text-[var(--t3)]">No birds identified — try the filters below</p>
+                <div className="flex flex-col items-center py-4">
+                  <p className="text-[13px] text-[var(--t3)]">No match — try the filters below</p>
                 </div>
               )}
             </motion.div>
           )}
 
-          {/* Error */}
           {reconStatus === 'error' && (
             <motion.div
               key="error"
@@ -396,76 +432,100 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
         </AnimatePresence>
       </div>
 
-      {/* ─── Divider ─────────────────────────────────────────── */}
+      {/* ─── Divider ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 mb-5">
         <div className="flex-1 h-px bg-[var(--border-s)]" />
-        <span className="text-[11px] font-semibold text-[var(--t4)] uppercase tracking-widest">or describe it</span>
+        <span className="text-[10px] font-bold text-[var(--t4)] uppercase tracking-[0.12em]">or describe it</span>
         <div className="flex-1 h-px bg-[var(--border-s)]" />
       </div>
 
-      {/* ─── Manual filters: Size + Colour ───────────────────── */}
-      <div className="flex items-center justify-between mb-4">
+      {/* ─── Describe it header ────────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <Binoculars size={18} className="text-[var(--blue-t)]" />
-          <h2 className="text-[16px] font-bold text-[var(--t1)]">What did you see?</h2>
+          <Binoculars size={17} className="text-[var(--t2)]" />
+          <h2 className="text-[15px] font-bold text-[var(--t1)]">What did you see?</h2>
         </div>
         {hasAnyFilter && (
           <button
             onClick={resetFilters}
             className="flex items-center gap-1.5 text-[12px] font-semibold text-[var(--t3)] hover:text-[var(--t1)] transition-colors"
           >
-            <RotateCcw size={12} />
+            <RotateCcw size={11} />
             Clear all
           </button>
         )}
       </div>
 
-      {/* Filters */}
-      <FilterSection title="Where did you spot it?">
-        {ALL_LOCATIONS.map(loc => (
-          <FilterPill
-            key={loc}
-            label={`${LOCATION_ICON[loc]} ${LOCATION_LABELS[loc]}`}
-            active={filters.location === loc}
-            onClick={() => setLocation(loc)}
-            highlight={loc === 'garden'}
-          />
-        ))}
-      </FilterSection>
+      {/* ── 1. Where ──────────────────────────────────────────────── */}
+      <Section title="Where did you spot it?">
+        <div className="flex flex-wrap gap-2">
+          {ALL_LOCATIONS.map(loc => (
+            <Pill
+              key={loc}
+              label={LOCATION_LABELS[loc]}
+              active={filters.location === loc}
+              onClick={() => setLocation(loc)}
+            />
+          ))}
+        </div>
+      </Section>
 
-      <FilterSection title="Size">
-        {SIZES.map(s => (
-          <FilterPill
-            key={s}
-            label={s}
-            active={filters.size === s}
-            onClick={() => setSize(s)}
-          />
-        ))}
-      </FilterSection>
+      {/* ── 2. Size ───────────────────────────────────────────────── */}
+      <Section title="How big was it?">
+        <SizeScale
+          selected={filters.size}
+          onSelect={v => setSize(v as import('../../hooks/useIdentifyFilter').SizeCategory | null)}
+        />
+      </Section>
 
-      <FilterSection title="Colours spotted">
-        {COLORS.map(c => (
-          <FilterPill
-            key={c}
-            label={c.charAt(0).toUpperCase() + c.slice(1)}
-            active={filters.colors.includes(c)}
-            onClick={() => toggleColor(c)}
-            swatch={COLOR_SWATCH[c]}
-          />
-        ))}
-      </FilterSection>
+      {/* ── 3. Behaviour ──────────────────────────────────────────── */}
+      <Section title="What was it doing?">
+        <div className="flex flex-wrap gap-2">
+          {ALL_BEHAVIORS.map(b => (
+            <Pill
+              key={b}
+              label={BEHAVIOR_LABELS[b]}
+              active={filters.behaviors.includes(b)}
+              onClick={() => toggleBehavior(b)}
+            />
+          ))}
+        </div>
+      </Section>
 
-      {/* Filter Results */}
+      {/* ── 4. Field marks ────────────────────────────────────────── */}
+      <Section title="Anything obvious?">
+        <div className="flex flex-wrap gap-2">
+          {ALL_FIELD_MARKS.map(m => (
+            <Pill
+              key={m}
+              label={FIELD_MARK_LABELS[m]}
+              active={filters.fieldMarks.includes(m)}
+              onClick={() => toggleFieldMark(m)}
+              indicator={FIELD_MARK_INDICATOR[m]}
+            />
+          ))}
+        </div>
+      </Section>
+
+      {/* ── 5. Colour ─────────────────────────────────────────────── */}
+      <Section title="Colour (optional)">
+        <div className="flex flex-wrap gap-2">
+          {ALL_COLORS.map(c => (
+            <Pill
+              key={c}
+              label={c.charAt(0).toUpperCase() + c.slice(1)}
+              active={filters.colors.includes(c)}
+              onClick={() => toggleColor(c)}
+              indicator={COLOR_SWATCH[c]}
+            />
+          ))}
+        </div>
+      </Section>
+
+      {/* ── Results ───────────────────────────────────────────────── */}
       {hasAnyFilter && (
-        <div className="mt-6">
-          <p className="text-[13px] font-semibold text-[var(--t2)] mb-3">
-            {results.length === 0
-              ? 'No birds match — try adjusting your filters'
-              : filters.location === 'garden'
-                ? `${results.length} garden bird${results.length === 1 ? '' : 's'} — most likely first`
-                : `${results.length} bird${results.length === 1 ? '' : 's'} match`}
-          </p>
+        <div className="mt-2">
+          <p className="text-[12px] font-semibold text-[var(--t3)] mb-3">{resultLabel}</p>
           <div className="flex flex-col gap-2">
             {results.slice(0, 30).map(r => (
               <ResultRow
@@ -478,19 +538,19 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
             ))}
             {results.length > 30 && (
               <p className="text-[12px] text-[var(--t4)] text-center pt-2">
-                + {results.length - 30} more — try adding filters to narrow down
+                +{results.length - 30} more — add more details to narrow down
               </p>
             )}
           </div>
         </div>
       )}
 
-      {/* Empty state — only if no recon active and no filters */}
+      {/* ── Empty state ────────────────────────────────────────────── */}
       {!hasAnyFilter && !reconActive && (
         <div className="flex flex-col items-center justify-center py-8 gap-3">
-          <Binoculars size={40} className="text-[var(--t3)]" />
-          <p className="text-[13px] text-[var(--t2)] text-center max-w-[260px]">
-            Upload a photo above or select characteristics to identify a bird
+          <Binoculars size={36} className="text-[var(--t3)]" />
+          <p className="text-[13px] text-[var(--t2)] text-center max-w-[260px] leading-relaxed">
+            Upload a photo above, or answer a few questions to narrow it down
           </p>
         </div>
       )}
