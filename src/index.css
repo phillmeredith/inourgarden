@@ -59,26 +59,26 @@ body,
 ════════════════════════════════════════════════════════ */
 [data-theme="forest"] {
   --bg:       #4f523f;
-  --card:     #595c49;
-  --elev:     #646755;
-  --border:   #7b7e6c;
-  --border-s: #6c6f5d;
-  --nav:      rgba(35,37,26,.95);
+  --card:     #363929;
+  --elev:     #404435;
+  --border:   #545748;
+  --border-s: #474a3c;
+  --nav:      rgba(51,54,38,.97);
 
   --blue:     #5EC47A;
   --blue-h:   #4aae67;
   --blue-sub: rgba(94,196,122,.15);
   --blue-t:   #88D4A0;
 
-  --t1: #EDEEDD;
-  --t2: #B9BCAA;
-  --t3: #898D7D;
-  --t4: #676B5D;
+  --t1: #E8EDD8;
+  --t2: #A8B098;
+  --t3: #757D65;
+  --t4: #565E48;
 
-  --sh-card:     0 4px 24px rgba(0,0,0,.20);
-  --sh-elevated: 0 8px 40px rgba(0,0,0,.28);
+  --sh-card:     0 4px 24px rgba(0,0,0,.35);
+  --sh-elevated: 0 8px 40px rgba(0,0,0,.45);
 
-  --grad-hero:   linear-gradient(135deg, #5EC47A, #3772FF);
+  --grad-hero:   linear-gradient(135deg, #5EC47A, #3A8C55);
   --grad-accent: linear-gradient(135deg, #5EC47A, #45B26B);
 }
 

@@ -6,7 +6,7 @@
 import { useState, useRef } from 'react'
 import {
   Download, Upload, Trash2, AlertTriangle,
-  Loader2, Palette, Type, Zap, Sun, Moon, Monitor,
+  Loader2, Type, Zap,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '../lib/utils'
@@ -16,7 +16,7 @@ import { Modal } from '../components/ui/Modal'
 import { usePreferences } from '../hooks/usePreferences'
 import { useDataExport } from '../hooks/useDataExport'
 import { db } from '../lib/db'
-import type { AppPreferences } from '../lib/db'
+import type { AppPreferences, AppTheme } from '../lib/db'
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 
@@ -120,42 +120,79 @@ function PillToggle<T extends string>({
   )
 }
 
-// ─── Accent colour picker ─────────────────────────────────────────────────────
+// ─── Theme picker ─────────────────────────────────────────────────────────────
 
-const ACCENT_COLOURS: { value: AppPreferences['accentColour']; colour: string }[] = [
-  { value: 'blue', colour: 'var(--blue)' },
-  { value: 'green', colour: 'var(--green)' },
-  { value: 'purple', colour: 'var(--purple)' },
-  { value: 'pink', colour: 'var(--pink)' },
+const THEMES: { value: AppTheme; label: string; bg: string; card: string; accent: string }[] = [
+  { value: 'midnight', label: 'Midnight', bg: '#0D0D11', card: '#18181D', accent: '#3772FF' },
+  { value: 'forest',   label: 'Forest',   bg: '#4f523f', card: '#363929', accent: '#5EC47A' },
+  { value: 'meadow',   label: 'Meadow',   bg: '#F3EFE6', card: '#FFFFFF', accent: '#3A7D44' },
+  { value: 'dusk',     label: 'Dusk',     bg: '#16101F', card: '#1F1730', accent: '#9757D7' },
 ]
 
-function AccentPicker({
+function ThemePicker({
   value,
   onChange,
 }: {
-  value: AppPreferences['accentColour']
-  onChange: (v: AppPreferences['accentColour']) => void
+  value: AppTheme
+  onChange: (v: AppTheme) => void
 }) {
   return (
-    <div className="flex items-center gap-3">
-      {ACCENT_COLOURS.map(a => (
-        <button
-          key={a.value}
-          onClick={() => onChange(a.value)}
-          className="relative w-8 h-8 rounded-full transition-transform active:scale-[.9]"
-          style={{ background: a.colour }}
-          aria-label={`${a.value} accent`}
-        >
-          {a.value === value && (
-            <motion.div
-              layoutId="accent-ring"
-              className="absolute -inset-1 rounded-full border-2"
-              style={{ borderColor: a.colour }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            />
-          )}
-        </button>
-      ))}
+    <div className="grid grid-cols-4 gap-2 pt-1 pb-2">
+      {THEMES.map(t => {
+        const active = t.value === value
+        return (
+          <button
+            key={t.value}
+            onClick={() => onChange(t.value)}
+            className="flex flex-col items-center gap-1.5 group"
+            aria-label={`${t.label} theme`}
+          >
+            {/* Swatch */}
+            <div
+              className="w-full aspect-[3/4] rounded-xl relative overflow-hidden transition-transform active:scale-[.95]"
+              style={{
+                background: t.bg,
+                boxShadow: active ? `0 0 0 2.5px ${t.accent}` : '0 0 0 1.5px rgba(255,255,255,.08)',
+              }}
+            >
+              {/* Mini card strip */}
+              <div
+                className="absolute bottom-3 left-2.5 right-2.5 h-5 rounded-lg"
+                style={{ background: t.card }}
+              />
+              {/* Mini card line */}
+              <div
+                className="absolute bottom-3 left-2.5 right-2.5 h-5 rounded-lg opacity-80"
+                style={{ background: t.card }}
+              />
+              {/* Accent dot */}
+              <div
+                className="absolute top-2.5 right-2.5 w-3 h-3 rounded-full"
+                style={{ background: t.accent }}
+              />
+              {/* Active tick */}
+              {active && (
+                <motion.div
+                  layoutId="theme-tick"
+                  className="absolute top-2 left-2 w-4 h-4 rounded-full flex items-center justify-center"
+                  style={{ background: t.accent }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                >
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                    <path d="M1.5 4l2 2 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </motion.div>
+              )}
+            </div>
+            <span
+              className="text-[11px] font-semibold transition-colors"
+              style={{ color: active ? 'var(--t1)' : 'var(--t3)' }}
+            >
+              {t.label}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -264,24 +301,14 @@ export function SettingsScreen() {
       <div className="px-6 pt-6 pb-24 max-w-3xl mx-auto w-full flex flex-col gap-6">
         {/* ── Appearance ─────────────────────────────────────────────────── */}
         <Section title="Appearance">
-          <SettingRow icon={Sun} label="Theme" description="Choose your preferred theme">
-            <PillToggle
-              options={[
-                { value: 'dark' as const, label: 'Dark', Icon: Moon },
-                { value: 'light' as const, label: 'Light', Icon: Sun },
-                { value: 'system' as const, label: 'System', Icon: Monitor },
-              ]}
+          {/* Theme picker — full width, above the divider rows */}
+          <div className="pt-4 pb-2">
+            <p className="text-[12px] font-bold uppercase tracking-[0.8px] text-[var(--t3)] mb-3">Theme</p>
+            <ThemePicker
               value={preferences.theme}
               onChange={v => updatePreference('theme', v)}
             />
-          </SettingRow>
-
-          <SettingRow icon={Palette} label="Accent colour" description="Highlight colour used throughout the app">
-            <AccentPicker
-              value={preferences.accentColour}
-              onChange={v => updatePreference('accentColour', v)}
-            />
-          </SettingRow>
+          </div>
 
           <SettingRow icon={Type} label="Text size">
             <PillToggle
