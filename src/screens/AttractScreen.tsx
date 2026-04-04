@@ -17,7 +17,10 @@ import { useState, useLayoutEffect, useRef, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   Leaf, Settings2, Heart, ChevronRight, AlertTriangle,
-  ShoppingCart, Check, X, Star, Info,
+  ShoppingCart, Check, X, Star, Info, Mountain, Sun, Trees,
+  Droplets, Sprout, Flower2, Wheat, Bug, Apple, Ban,
+  Lightbulb, Copy, Home, MapPin, Bird as BirdIcon, Utensils,
+  Layers, TreePine,
 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { cn } from '../lib/utils'
@@ -39,22 +42,48 @@ import type { AttractEntry } from '../data/attractData'
 
 type AttractTab = 'strategy' | 'feeding' | 'hierarchy'
 
-const REGIONS: { value: GardenRegion; label: string; emoji: string }[] = [
-  { value: 'scotland',       label: 'Scotland',         emoji: '🏔️' },
-  { value: 'n-england',      label: 'North England',    emoji: '🌄' },
-  { value: 'midlands-wales', label: 'Midlands & Wales', emoji: '🌿' },
-  { value: 's-england',      label: 'South England',    emoji: '🌳' },
-  { value: 'n-ireland',      label: 'N. Ireland',       emoji: '☘️' },
+type LucideIcon = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
+
+const REGIONS: { value: GardenRegion; label: string; Icon: LucideIcon; color: string }[] = [
+  { value: 'scotland',       label: 'Scotland',         Icon: Mountain, color: 'var(--blue-t)'  },
+  { value: 'n-england',      label: 'North England',    Icon: Sun,      color: 'var(--amber-t)' },
+  { value: 'midlands-wales', label: 'Midlands & Wales', Icon: Trees,    color: 'var(--green-t)' },
+  { value: 's-england',      label: 'South England',    Icon: Sun,      color: 'var(--amber-t)' },
+  { value: 'n-ireland',      label: 'N. Ireland',       Icon: Leaf,     color: 'var(--green-t)' },
 ]
 
-const FEATURES: { value: GardenFeature; label: string; emoji: string }[] = [
-  { value: 'trees',   label: 'Trees',         emoji: '🌳' },
-  { value: 'hedges',  label: 'Dense Hedges',  emoji: '🌿' },
-  { value: 'water',   label: 'Water / Pond',  emoji: '💧' },
-  { value: 'lawn',    label: 'Lawn',          emoji: '🌱' },
-  { value: 'berries', label: 'Berry Plants',  emoji: '🫐' },
-  { value: 'feeders', label: 'Feeders up',    emoji: '🪤' },
+const FEATURES: { value: GardenFeature; label: string; Icon: LucideIcon; color: string }[] = [
+  { value: 'trees',   label: 'Trees',        Icon: Trees,    color: 'var(--green-t)' },
+  { value: 'hedges',  label: 'Dense Hedges', Icon: Leaf,     color: 'var(--green-t)' },
+  { value: 'water',   label: 'Water / Pond', Icon: Droplets, color: 'var(--blue-t)'  },
+  { value: 'lawn',    label: 'Lawn',         Icon: Sprout,   color: 'var(--green-t)' },
+  { value: 'berries', label: 'Berry Plants', Icon: Apple,    color: 'var(--red-t)'   },
+  { value: 'feeders', label: 'Feeders up',   Icon: BirdIcon, color: 'var(--amber-t)' },
 ]
+
+// Icon map for food guide items (fallback icon alongside images)
+const FOOD_ICONS: Record<string, LucideIcon> = {
+  'Sunflower Hearts':   Flower2,
+  'Mealworms':          Bug,
+  'Niger Seeds':        Wheat,
+  'Suet / Fat Balls':   Layers,
+  'Peanuts':            Apple,
+  'Mixed Seed':         Wheat,
+  'Fresh Berries & Fruit': Apple,
+  'Water (Bird Bath)':  Droplets,
+}
+
+// Icon map for garden features
+const FEATURE_ICONS: Record<string, LucideIcon> = {
+  'Dense Hedge':                  Leaf,
+  'Berry-bearing Shrubs':         Apple,
+  'Bird Bath / Water':            Droplets,
+  'Log Pile':                     TreePine,
+  'Mature Trees':                 Trees,
+  'Nest Boxes':                   Home,
+  'Long Grass / Wildflower Patch': Sprout,
+  'Lawn (short)':                 Sprout,
+}
 
 const TIER_ORDER: HierarchyTier[] = ['apex', 'dominant', 'assertive', 'moderate', 'shy']
 
@@ -226,7 +255,7 @@ function AttractBirdCard({
         <button onClick={onTap} className="flex-1 text-left min-w-0">
           <p className="text-[12px] font-semibold text-[var(--t1)] leading-tight line-clamp-1">{bird.name}</p>
           <p className="text-[10px] text-[var(--t3)] mt-0.5 line-clamp-1">
-            {entry.foods.slice(0, 2).map(f => f.emoji).join(' ')} {entry.foods[0]?.item}
+            {entry.foods.slice(0, 2).map(f => f.item).join(' · ')}
           </p>
         </button>
         {/* Heart toggle */}
@@ -325,21 +354,21 @@ function AttractBirdSheet({
             )}
 
             {/* How to feed */}
-            <Section title="How to Feed" icon="🍽️">
+            <Section title="How to Feed" icon={<Utensils size={11} />}>
               <p className="text-[13px] text-[var(--t2)] mb-3 leading-relaxed">{entry.feederType}</p>
               <div className="flex flex-wrap gap-2">
                 {entry.foods.map(f => (
                   <span key={f.item}
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold"
                     style={{ background: 'var(--elev)', color: 'var(--t1)' }}>
-                    {f.emoji} {f.item}
+                    {f.item}
                   </span>
                 ))}
               </div>
             </Section>
 
             {/* Garden tips */}
-            <Section title="Garden Tips" icon="🌿">
+            <Section title="Garden Tips" icon={<Leaf size={11} />}>
               <ul className="flex flex-col gap-2.5">
                 {entry.gardenTips.map((tip, i) => (
                   <li key={i} className="flex items-start gap-2.5">
@@ -355,14 +384,14 @@ function AttractBirdSheet({
 
             {/* Nesting */}
             {entry.nestingNote && (
-              <Section title="Nesting Advice" icon="🏠">
+              <Section title="Nesting Advice" icon={<Home size={11} />}>
                 <p className="text-[13px] text-[var(--t2)] leading-relaxed">{entry.nestingNote}</p>
               </Section>
             )}
 
             {/* Good companions */}
             {entry.goodWith && entry.goodWith.length > 0 && (
-              <Section title="Good Companions" icon="🤝">
+              <Section title="Good Companions" icon={<Heart size={11} />}>
                 <p className="text-[12px] text-[var(--t3)] mb-2">These species coexist well in the same garden:</p>
                 <div className="flex flex-wrap gap-2">
                   {entry.goodWith.map(name => (
@@ -391,11 +420,11 @@ function AttractBirdSheet({
   )
 }
 
-function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
+function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="mt-5">
       <h3 className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--t3)] mb-3 flex items-center gap-1.5">
-        <span>{icon}</span>{title}
+        {icon}{title}
       </h3>
       {children}
     </div>
@@ -465,7 +494,10 @@ function SetupSheet({
                     : 'border-[var(--border-s)] bg-[var(--elev)]',
                 )}
               >
-                <span className="text-xl">{r.emoji}</span>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: setup.region === r.value ? 'var(--blue-sub)' : 'var(--card)', color: r.color }}>
+                  <r.Icon size={16} strokeWidth={2} />
+                </div>
                 <span className={cn(
                   'text-[14px] font-semibold',
                   setup.region === r.value ? 'text-[var(--blue-t)]' : 'text-[var(--t1)]',
@@ -498,7 +530,10 @@ function SetupSheet({
                         : 'border-[var(--border-s)] bg-[var(--elev)]',
                     )}
                   >
-                    <span className="text-lg">{f.emoji}</span>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: active ? 'var(--blue-sub)' : 'var(--card)', color: active ? 'var(--blue-t)' : f.color }}>
+                      <f.Icon size={15} strokeWidth={2} />
+                    </div>
                     <span className={cn(
                       'text-[13px] font-semibold leading-tight',
                       active ? 'text-[var(--blue-t)]' : 'text-[var(--t1)]',
@@ -612,6 +647,22 @@ function StrategyTab({
     )
   }
 
+  const [copiedItem, setCopiedItem] = useState<string | null>(null)
+
+  function copyItem(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedItem(text)
+      setTimeout(() => setCopiedItem(null), 1800)
+    })
+  }
+
+  function copyAll() {
+    navigator.clipboard.writeText(shoppingList.join('\n')).then(() => {
+      setCopiedItem('__all__')
+      setTimeout(() => setCopiedItem(null), 1800)
+    })
+  }
+
   return (
     <div className="px-4 pb-24 flex flex-col gap-6 pt-4">
 
@@ -622,7 +673,7 @@ function StrategyTab({
           <Heart size={24} className="text-[var(--t4)] mx-auto mb-2" />
           <p className="text-[14px] font-semibold text-[var(--t1)] mb-1">No favourites yet</p>
           <p className="text-[13px] text-[var(--t3)] mb-4">
-            Tap the ♥ on any bird card, or update your setup to pick your favourites.
+            Tap the heart on any bird card, or update your setup to pick your favourites.
           </p>
           <button onClick={onOpenSetup}
             className="h-9 px-5 rounded-full text-[13px] font-semibold border border-[var(--blue)] text-[var(--blue-t)]">
@@ -631,10 +682,42 @@ function StrategyTab({
         </div>
       )}
 
-      {/* Conflict alerts */}
+      {/* Your favourites — TOP */}
+      {favouriteBirds.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Your Favourites"
+            subtitle="Tap any bird for your personalised attraction plan"
+            icon={<Heart size={14} />}
+            iconBg="var(--red-sub)"
+            iconColor="var(--red-t)"
+          />
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            {favouriteBirds.map(bird => (
+              <AttractBirdCard
+                key={bird.id}
+                bird={bird}
+                isFavourite
+                isDiscouraged={false}
+                isConflict={false}
+                onTap={() => onBirdTap(bird)}
+                onToggleFavourite={() => onToggleFavourite(bird.name)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Conflict alerts — Watch Out For */}
       {unconflictedThreats.length > 0 && (
         <div>
-          <SectionHeader title="⚠️ Watch Out For" subtitle="These birds are likely to visit but may threaten your favourites" />
+          <SectionHeader
+            title="Watch Out For"
+            subtitle="These birds are likely to visit but may threaten your favourites"
+            icon={<AlertTriangle size={14} />}
+            iconBg="var(--red-sub)"
+            iconColor="var(--red-t)"
+          />
           <div className="flex flex-col gap-3 mt-3">
             {unconflictedThreats.map(({ threatBird, entry, victims }) => (
               <div key={threatBird.id}
@@ -672,37 +755,52 @@ function StrategyTab({
         </div>
       )}
 
-      {/* Your favourites */}
-      {favouriteBirds.length > 0 && (
-        <div>
-          <SectionHeader title="❤️ Your Favourites" subtitle="Tap any bird for your personalised attraction plan" />
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            {favouriteBirds.map(bird => (
-              <AttractBirdCard
-                key={bird.id}
-                bird={bird}
-                isFavourite
-                isDiscouraged={false}
-                isConflict={false}
-                onTap={() => onBirdTap(bird)}
-                onToggleFavourite={() => onToggleFavourite(bird.name)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Shopping list */}
       {shoppingList.length > 0 && (
         <div>
-          <SectionHeader title="🛒 Your Shopping List" subtitle="Everything you need to attract your favourite birds" />
-          <div className="mt-3 rounded-2xl border border-[var(--border-s)] overflow-hidden"
+          <div className="flex items-start justify-between gap-2 mb-3">
+            <SectionHeader
+              title="Your Shopping List"
+              subtitle="Everything you need to attract your favourite birds"
+              icon={<ShoppingCart size={14} />}
+              iconBg="var(--green-sub)"
+              iconColor="var(--green-t)"
+            />
+            <button
+              onClick={copyAll}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-semibold border shrink-0 mt-0.5 transition-colors"
+              style={copiedItem === '__all__'
+                ? { background: 'var(--green-sub)', borderColor: 'var(--green)', color: 'var(--green-t)' }
+                : { background: 'var(--elev)', borderColor: 'var(--border-s)', color: 'var(--t2)' }
+              }
+            >
+              {copiedItem === '__all__'
+                ? <><Check size={11} strokeWidth={3} />Copied!</>
+                : <><Copy size={11} />Copy all</>
+              }
+            </button>
+          </div>
+          <div className="rounded-2xl border border-[var(--border-s)] overflow-hidden"
             style={{ background: 'var(--card)' }}>
             {shoppingList.map((item, i) => (
               <div key={item}
                 className={cn('flex items-center gap-3 px-4 py-3', i > 0 && 'border-t border-[var(--border-s)]')}>
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ background: 'var(--green)' }} />
-                <span className="text-[13px] font-medium text-[var(--t1)]">{item}</span>
+                <span className="flex-1 text-[13px] font-medium text-[var(--t1)]">{item}</span>
+                <button
+                  onClick={() => copyItem(item)}
+                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors"
+                  style={copiedItem === item
+                    ? { background: 'var(--green-sub)', color: 'var(--green-t)' }
+                    : { background: 'var(--elev)', color: 'var(--t3)' }
+                  }
+                  aria-label={`Copy ${item}`}
+                >
+                  {copiedItem === item
+                    ? <Check size={11} strokeWidth={3} />
+                    : <Copy size={11} />
+                  }
+                </button>
               </div>
             ))}
           </div>
@@ -712,7 +810,13 @@ function StrategyTab({
       {/* Discourage list */}
       {discourage.length > 0 && (
         <div>
-          <SectionHeader title="🚫 Birds to Discourage" subtitle="Tap a bird for deterrent tips; tap × to remove from list" />
+          <SectionHeader
+            title="Birds to Discourage"
+            subtitle="Tap a bird for deterrent tips; tap × to remove from list"
+            icon={<Ban size={14} />}
+            iconBg="var(--amber-sub)"
+            iconColor="var(--amber-t)"
+          />
           <div className="flex flex-col gap-2 mt-3">
             {gardenBirds.filter(b => discourage.includes(b.name)).map(bird => {
               const entry = ATTRACT_DATA[bird.name]!
@@ -745,8 +849,11 @@ function StrategyTab({
       {otherBirds.length > 0 && (
         <div>
           <SectionHeader
-            title="🐦 Other Likely Visitors"
-            subtitle="All birds with a good chance of visiting your garden. Tap ♥ to add to favourites."
+            title="Other Likely Visitors"
+            subtitle="All birds with a good chance of visiting your garden. Tap the heart to add to favourites."
+            icon={<BirdIcon size={14} />}
+            iconBg="var(--blue-sub)"
+            iconColor="var(--blue-t)"
           />
           <div className="grid grid-cols-2 gap-3 mt-3">
             {otherBirds.map(bird => {
@@ -775,66 +882,111 @@ function StrategyTab({
 function FeedingTab() {
   return (
     <div className="px-4 pb-24 pt-4 flex flex-col gap-4">
-      {FOOD_GUIDE.map(entry => (
-        <div key={entry.food}
-          className="rounded-2xl border border-[var(--border-s)] overflow-hidden"
-          style={{ background: 'var(--card)' }}>
-          <div className="px-4 pt-4 pb-3">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl">{entry.emoji}</span>
-              <h3 className="text-[16px] font-bold text-[var(--t1)]">{entry.food}</h3>
-            </div>
-            <p className="text-[13px] text-[var(--t2)] leading-relaxed mb-3">{entry.description}</p>
-            <p className="text-[12px] font-semibold text-[var(--t3)] mb-2 uppercase tracking-wide">Tip</p>
-            <p className="text-[12px] text-[var(--t2)] leading-relaxed">{entry.feederTip}</p>
-            {entry.avoid && (
-              <div className="mt-3 px-3 py-2 rounded-xl"
-                style={{ background: 'var(--amber-sub)', border: '1px solid var(--amber)' }}>
-                <p className="text-[11px] font-bold text-[var(--amber-t)] mb-0.5">⚠️ Avoid</p>
-                <p className="text-[11px] text-[var(--amber-t)] leading-relaxed">{entry.avoid}</p>
-              </div>
-            )}
-          </div>
-          <div className="border-t border-[var(--border-s)] px-4 py-3">
-            <p className="text-[11px] font-bold text-[var(--t4)] uppercase tracking-wide mb-2">Attracts</p>
-            <div className="flex flex-wrap gap-1.5">
-              {entry.attractsBirds.map(name => (
-                <span key={name}
-                  className="px-2 py-0.5 rounded-full text-[11px] font-medium"
-                  style={{ background: 'var(--elev)', color: 'var(--t2)' }}>
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      ))}
 
-      {/* Garden features */}
-      <h2 className="text-[18px] font-bold text-[var(--t1)] mt-2 mb-1 px-1">Garden Features</h2>
-      <p className="text-[13px] text-[var(--t2)] px-1 mb-2">
-        The right habitat matters as much as food. Here's what to plant or build.
-      </p>
-      {GARDEN_FEATURES.map(gf => (
-        <div key={gf.feature}
-          className="rounded-2xl border border-[var(--border-s)] p-4"
-          style={{ background: 'var(--card)' }}>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xl">{gf.emoji}</span>
-            <h3 className="text-[15px] font-bold text-[var(--t1)]">{gf.feature}</h3>
+      {/* Food types */}
+      {FOOD_GUIDE.map(entry => {
+        const FoodIcon = FOOD_ICONS[entry.food] ?? Leaf
+        return (
+          <div key={entry.food}
+            className="rounded-2xl border border-[var(--border-s)] overflow-hidden"
+            style={{ background: 'var(--card)' }}>
+
+            {/* Header row: text left, image right */}
+            <div className="flex gap-3 px-4 pt-4 pb-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: 'var(--elev)', color: 'var(--t2)' }}>
+                    <FoodIcon size={16} strokeWidth={2} />
+                  </div>
+                  <h3 className="text-[16px] font-bold text-[var(--t1)]">{entry.food}</h3>
+                </div>
+                <p className="text-[13px] text-[var(--t2)] leading-relaxed mb-3">{entry.description}</p>
+                <p className="text-[11px] font-bold text-[var(--t3)] mb-1 uppercase tracking-wide">Feeder tip</p>
+                <p className="text-[12px] text-[var(--t2)] leading-relaxed">{entry.feederTip}</p>
+                {entry.avoid && (
+                  <div className="mt-3 px-3 py-2 rounded-xl flex items-start gap-2"
+                    style={{ background: 'var(--amber-sub)', border: '1px solid var(--amber)' }}>
+                    <AlertTriangle size={12} className="text-[var(--amber-t)] shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-[var(--amber-t)] leading-relaxed">{entry.avoid}</p>
+                  </div>
+                )}
+              </div>
+              {/* Food image */}
+              <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 self-start">
+                <img
+                  src={entry.imageUrl}
+                  alt={entry.food}
+                  className="w-full h-full object-cover"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                />
+              </div>
+            </div>
+
+            {/* Attracts footer */}
+            <div className="border-t border-[var(--border-s)] px-4 py-3">
+              <p className="text-[11px] font-bold text-[var(--t4)] uppercase tracking-wide mb-2">Attracts</p>
+              <div className="flex flex-wrap gap-1.5">
+                {entry.attractsBirds.map(name => (
+                  <span key={name}
+                    className="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                    style={{ background: 'var(--elev)', color: 'var(--t2)' }}>
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-          <p className="text-[13px] text-[var(--t2)] leading-relaxed mb-3">{gf.tip}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {gf.benefitsBirds.map(name => (
-              <span key={name}
-                className="px-2 py-0.5 rounded-full text-[11px] font-medium"
-                style={{ background: 'var(--elev)', color: 'var(--t2)' }}>
-                {name}
-              </span>
-            ))}
+        )
+      })}
+
+      {/* Garden features section */}
+      <div className="mt-2 px-1">
+        <h2 className="text-[18px] font-bold text-[var(--t1)] mb-1">Garden Features</h2>
+        <p className="text-[13px] text-[var(--t2)]">
+          The right habitat matters as much as food. Here's what to plant or build.
+        </p>
+      </div>
+
+      {GARDEN_FEATURES.map(gf => {
+        const FeatureIcon = FEATURE_ICONS[gf.feature] ?? Leaf
+        return (
+          <div key={gf.feature}
+            className="rounded-2xl border border-[var(--border-s)] overflow-hidden"
+            style={{ background: 'var(--card)' }}>
+            <div className="flex gap-3 p-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: 'var(--elev)', color: 'var(--t2)' }}>
+                    <FeatureIcon size={16} strokeWidth={2} />
+                  </div>
+                  <h3 className="text-[15px] font-bold text-[var(--t1)]">{gf.feature}</h3>
+                </div>
+                <p className="text-[13px] text-[var(--t2)] leading-relaxed mb-3">{gf.tip}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {gf.benefitsBirds.map(name => (
+                    <span key={name}
+                      className="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                      style={{ background: 'var(--elev)', color: 'var(--t2)' }}>
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {/* Feature image */}
+              <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 self-start">
+                <img
+                  src={gf.imageUrl}
+                  alt={gf.feature}
+                  className="w-full h-full object-cover"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -906,14 +1058,15 @@ function HierarchyTab({ gardenBirds, onBirdTap }: { gardenBirds: BirdSpecies[]; 
                     <div className="flex-1 min-w-0">
                       <p className="text-[14px] font-semibold text-[var(--t1)]">{bird.name}</p>
                       {hasConflicts && (
-                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--red-t)' }}>
-                          ⚠️ Threatens: {entry.conflictsWith!.slice(0, 3).join(', ')}
+                        <p className="text-[11px] mt-0.5 flex items-center gap-1" style={{ color: 'var(--red-t)' }}>
+                          <AlertTriangle size={10} className="shrink-0" />
+                          Threatens: {entry.conflictsWith!.slice(0, 3).join(', ')}
                           {entry.conflictsWith!.length > 3 ? '…' : ''}
                         </p>
                       )}
                       {!hasConflicts && (
                         <p className="text-[11px] text-[var(--t4)] mt-0.5">
-                          {entry.foods.slice(0, 2).map(f => f.emoji).join(' ')} {entry.foods[0]?.item}
+                          {entry.foods.slice(0, 2).map(f => f.item).join(' · ')}
                         </p>
                       )}
                     </div>
@@ -930,7 +1083,10 @@ function HierarchyTab({ gardenBirds, onBirdTap }: { gardenBirds: BirdSpecies[]; 
       <div className="rounded-2xl border overflow-hidden"
         style={{ borderColor: 'var(--red)', background: 'var(--card)' }}>
         <div className="px-4 pt-4 pb-2">
-          <h3 className="text-[15px] font-bold text-[var(--t1)] mb-1">⚠️ Key conflict pairs</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <AlertTriangle size={15} className="text-[var(--red-t)] shrink-0" />
+            <h3 className="text-[15px] font-bold text-[var(--t1)]">Key conflict pairs</h3>
+          </div>
           <p className="text-[13px] text-[var(--t2)] leading-relaxed">
             These combinations need careful management in a balanced garden.
           </p>
@@ -948,7 +1104,9 @@ function HierarchyTab({ gardenBirds, onBirdTap }: { gardenBirds: BirdSpecies[]; 
               <span className="text-[13px] font-bold text-[var(--t1)]">{c.threat}</span>
               <span className="text-[11px] text-[var(--red-t)] shrink-0">→ {c.victims}</span>
             </div>
-            <p className="text-[12px] text-[var(--t3)] leading-relaxed">💡 {c.action}</p>
+            <p className="text-[12px] text-[var(--t3)] leading-relaxed flex items-start gap-1.5">
+              <Lightbulb size={12} className="shrink-0 mt-0.5" />{c.action}
+            </p>
           </div>
         ))}
       </div>
@@ -956,11 +1114,27 @@ function HierarchyTab({ gardenBirds, onBirdTap }: { gardenBirds: BirdSpecies[]; 
   )
 }
 
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+function SectionHeader({
+  title, subtitle, icon, iconBg, iconColor,
+}: {
+  title: string
+  subtitle?: string
+  icon?: React.ReactNode
+  iconBg?: string
+  iconColor?: string
+}) {
   return (
-    <div className="px-1">
-      <h2 className="text-[16px] font-bold text-[var(--t1)]">{title}</h2>
-      {subtitle && <p className="text-[12px] text-[var(--t3)] mt-0.5">{subtitle}</p>}
+    <div className="px-1 flex items-start gap-2.5">
+      {icon && (
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+          style={{ background: iconBg ?? 'var(--elev)', color: iconColor ?? 'var(--t2)' }}>
+          {icon}
+        </div>
+      )}
+      <div>
+        <h2 className="text-[16px] font-bold text-[var(--t1)]">{title}</h2>
+        {subtitle && <p className="text-[12px] text-[var(--t3)] mt-0.5">{subtitle}</p>}
+      </div>
     </div>
   )
 }
