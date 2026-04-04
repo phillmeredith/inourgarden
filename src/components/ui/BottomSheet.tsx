@@ -10,16 +10,21 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
-// ─── Backdrop ──────────────────────────────────────────────────────────────────
+// ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
 
 function Backdrop({ onClick }: { onClick: () => void }) {
   return (
     <motion.div
-      className="fixed inset-0 bg-black/10"
+      className="fixed inset-0"
+      style={{
+        background: 'rgba(0,0,0,0.45)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.25 }}
       onClick={onClick}
     />
   )

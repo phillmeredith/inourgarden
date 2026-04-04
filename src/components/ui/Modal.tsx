@@ -9,16 +9,21 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
-// ─── Backdrop ──────────────────────────────────────────────────────────────────
+// ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
 
 function Backdrop({ onClick }: { onClick: () => void }) {
   return (
     <motion.div
-      className="fixed inset-0 bg-black/10"
+      className="fixed inset-0"
+      style={{
+        background: 'rgba(0,0,0,0.45)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.25 }}
       onClick={onClick}
     />
   )
@@ -82,16 +87,32 @@ export function FullScreenModal({
   const content = (
     <AnimatePresence>
       {open && (
-        <motion.div
-          className={cn('fixed inset-0 z-[1000] overflow-y-auto', className)}
-          style={{ background: 'var(--bg)' }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
-          {children}
-        </motion.div>
+        <>
+          {/* Frosted glass backdrop fades in first */}
+          <motion.div
+            className="fixed inset-0 z-[999]"
+            style={{
+              background: 'rgba(0,0,0,0.4)',
+              backdropFilter: 'blur(14px)',
+              WebkitBackdropFilter: 'blur(14px)',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+          />
+          {/* Modal slides up over the blurred backdrop */}
+          <motion.div
+            className={cn('fixed inset-0 z-[1000] overflow-y-auto', className)}
+            style={{ background: 'var(--bg)' }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+          >
+            {children}
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   )
