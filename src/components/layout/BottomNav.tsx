@@ -1,8 +1,8 @@
-// BottomNav — 3-tab fixed bottom navigation
+// BottomNav — 4-tab fixed bottom navigation
 // Glass treatment: rgba(13,13,17,.88) + backdrop-filter blur(24px) + border top
 
 import { NavLink } from 'react-router-dom'
-import { Binoculars, Bird, Settings } from 'lucide-react'
+import { Binoculars, Bird, Settings, Leaf } from 'lucide-react'
 
 const TABS: {
   to: string
@@ -11,6 +11,7 @@ const TABS: {
 }[] = [
   { to: '/',         label: 'In Our Garden', Icon: Bird },
   { to: '/explore',  label: 'Explore',       Icon: Binoculars },
+  { to: '/attract',  label: 'Attract',       Icon: Leaf },
   { to: '/settings', label: 'Settings',      Icon: Settings },
 ]
 
