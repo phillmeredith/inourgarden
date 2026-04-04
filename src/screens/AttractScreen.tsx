@@ -405,13 +405,16 @@ function Section({ title, icon, children }: { title: string; icon: string; child
 // ─── Setup Sheet ──────────────────────────────────────────────────────────────
 
 function SetupSheet({
-  open, onClose, gardenBirds,
+  open, onClose, gardenBirds, setup, update, toggleFeature, toggleFavourite,
 }: {
   open: boolean
   onClose: () => void
   gardenBirds: BirdSpecies[]
+  setup: ReturnType<typeof useGardenSetup>['setup']
+  update: ReturnType<typeof useGardenSetup>['update']
+  toggleFeature: ReturnType<typeof useGardenSetup>['toggleFeature']
+  toggleFavourite: ReturnType<typeof useGardenSetup>['toggleFavourite']
 }) {
-  const { setup, update, toggleFeature, toggleFavourite } = useGardenSetup()
   const [step, setStep] = useState(0)
 
   const steps = ['Where are you?', 'Your garden', 'Favourite birds']
@@ -969,7 +972,7 @@ export function AttractScreen() {
   const [setupOpen, setSetupOpen] = useState(false)
   const [selectedBird, setSelectedBird] = useState<BirdSpecies | null>(null)
 
-  const { setup, isConfigured, toggleFavourite, toggleDiscourage } = useGardenSetup()
+  const { setup, isConfigured, update, toggleFeature, toggleFavourite, toggleDiscourage } = useGardenSetup()
   const gardenBirds = useGardenBirds()
 
   const headerRef = useRef<HTMLDivElement>(null)
@@ -1071,11 +1074,15 @@ export function AttractScreen() {
         />
       </div>
 
-      {/* Setup sheet */}
+      {/* Setup sheet — receives hook state from the single useGardenSetup instance above */}
       <SetupSheet
         open={setupOpen}
         onClose={() => setSetupOpen(false)}
         gardenBirds={gardenBirds}
+        setup={setup}
+        update={update}
+        toggleFeature={toggleFeature}
+        toggleFavourite={toggleFavourite}
       />
 
       {/* Bird detail sheet */}
