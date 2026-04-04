@@ -1,7 +1,7 @@
-// Modal — centred dialog with glass treatment
+// Modal — centred dialog + full-screen modal
 // Renders via createPortal to escape stacking context traps from Framer Motion ancestors.
-// Glass: rgba(13,13,17,.80) + backdrop-filter blur(24px) + border
-// Backdrop: bg-black/10
+// Backdrop: gradient from transparent at top → dark at ~25%, so the safe area
+// and header remain visible, fading naturally into the overlay.
 
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -9,33 +9,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
-// ─── shared modal-open signal ─────────────────────────────────────────────────
-
-function useModalOpenSignal() {
-  useEffect(() => {
-    const html = document.documentElement
-    const count = Number(html.dataset.modalOpen ?? '0') + 1
-    html.dataset.modalOpen = String(count)
-    return () => {
-      const next = count - 1
-      if (next <= 0) delete html.dataset.modalOpen
-      else html.dataset.modalOpen = String(next)
-    }
-  }, [])
-}
-
-// ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
+// ─── Backdrop — gradient overlay ──────────────────────────────────────────────
 
 function Backdrop({ onClick }: { onClick: () => void }) {
-  useModalOpenSignal()
-
   return (
     <motion.div
       className="fixed inset-0"
       style={{
-        background: 'rgba(0,0,0,0.45)',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
+        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.72) 28%)',
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -46,29 +27,14 @@ function Backdrop({ onClick }: { onClick: () => void }) {
   )
 }
 
-// ─── Modal ─────────────────────────────────────────────────────────────────────
-
-interface ModalProps {
-  open: boolean
-  onClose: () => void
-  title?: string
-  children: React.ReactNode
-  className?: string
-  maxWidth?: string
-}
-
 // ─── FullScreenBackdrop ───────────────────────────────────────────────────────
 
 function FullScreenBackdrop() {
-  useModalOpenSignal()
-
   return (
     <motion.div
       className="fixed inset-0 z-[999]"
       style={{
-        background: 'rgba(0,0,0,0.4)',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
+        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.72) 28%)',
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -126,9 +92,7 @@ export function FullScreenModal({
     <AnimatePresence>
       {open && (
         <>
-          {/* Frosted glass backdrop fades in first — also sets data-modal-open */}
           <FullScreenBackdrop />
-          {/* Modal slides up over the blurred backdrop */}
           <motion.div
             className={cn('fixed inset-0 z-[1000] overflow-y-auto', className)}
             style={{ background: 'var(--bg)' }}
@@ -149,6 +113,15 @@ export function FullScreenModal({
 
 // ─── Centred Modal ────────────────────────────────────────────────────────────
 
+interface ModalProps {
+  open: boolean
+  onClose: () => void
+  title?: string
+  children: React.ReactNode
+  className?: string
+  maxWidth?: string
+}
+
 export function Modal({
   open,
   onClose,
@@ -159,7 +132,7 @@ export function Modal({
 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
-  // Scroll lock — simple ref-counted approach via effect cleanup
+  // Scroll lock
   useEffect(() => {
     if (!open) return
     const prev = document.body.style.overflow
@@ -203,7 +176,7 @@ export function Modal({
   const content = (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[1000] flex items-end justify-center pb-0 sm:items-center sm:p-4">
           <Backdrop onClick={onClose} />
           <motion.div
             ref={dialogRef}
@@ -211,19 +184,17 @@ export function Modal({
             aria-modal="true"
             aria-labelledby={title ? 'modal-title' : undefined}
             className={cn(
-              'relative rounded-2xl p-7 shadow-lg w-full',
+              'relative rounded-t-2xl sm:rounded-2xl p-7 shadow-lg w-full',
               maxWidth,
               className,
             )}
             style={{
               background: 'var(--card)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
               border: '1px solid var(--border-s)',
             }}
-            initial={{ opacity: 0, scale: 0.95, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
           >

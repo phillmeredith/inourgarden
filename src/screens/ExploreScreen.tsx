@@ -282,44 +282,7 @@ export function ExploreScreen() {
   }
 
   return (
-    // data-explore-screen: used by CSS to scope the modal-open PageHeader
-    // transparency rule to this screen only (not Garden/Settings).
-    // bg-[var(--nav-solid)]: matches html/body so the safe area colour is
-    // consistent when the floating header becomes transparent.
-    <div data-explore-screen="" className="relative h-full bg-[var(--nav-solid)]">
-
-      {/* ── Phantom bird strip ───────────────────────────────────────────────
-          Fixed behind the floating PageHeader (z-1). At scrollTop=0 the bird
-          grid starts below headerHeight so the top zone is visually empty.
-          This strip fills that zone with real bird images so that when a modal
-          opens and the PageHeader becomes transparent, the backdrop-filter blur
-          has something colourful to sample — extending the frosted glass effect
-          all the way into the safe area behind the status bar. */}
-      {activeTab === 'browse' && viewMode === 'grid' && filteredBirds.length > 0 && headerHeight > 0 && (
-        <div
-          aria-hidden="true"
-          className="absolute top-0 left-0 right-0 z-[1] overflow-hidden pointer-events-none"
-          style={{ height: headerHeight }}
-        >
-          <div className="flex h-full">
-            {filteredBirds.slice(0, 6).map(bird => (
-              <div
-                key={bird.id}
-                className="flex-1 overflow-hidden"
-                style={{ background: 'var(--card)' }}
-              >
-                {bird.imageUrl && (
-                  <img
-                    src={bird.imageUrl}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+    <div className="relative h-full bg-[var(--bg)]">
 
       {/* ── Scroll area + AZ rail ─────────────────────────────────────────
           Starts at the very top of the viewport (y=0), behind the floating

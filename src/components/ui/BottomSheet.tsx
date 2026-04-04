@@ -1,8 +1,7 @@
 // BottomSheet — iOS-style bottom sheet with glass treatment
 // Renders via createPortal to escape stacking context traps.
-// Glass: rgba(13,13,17,.80) + backdrop-filter blur(24px) + border
-// Backdrop: bg-black/10
-// Drag-to-dismiss via Framer Motion drag constraint
+// Backdrop: gradient from transparent at top → dark at ~25% so the safe area
+// and header remain visible, fading naturally into the overlay.
 
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
@@ -10,29 +9,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
-// ─── Backdrop — frosted glass overlay ─────────────────────────────────────────
+// ─── Backdrop — gradient overlay, fades in from bottom ────────────────────────
 
 function Backdrop({ onClick }: { onClick: () => void }) {
-  // Signal to CSS that a modal is open so scoped elements (e.g. PageHeader
-  // in ExploreScreen) can become transparent and let backdrop-filter see through.
-  useEffect(() => {
-    const html = document.documentElement
-    const count = Number(html.dataset.modalOpen ?? '0') + 1
-    html.dataset.modalOpen = String(count)
-    return () => {
-      const next = count - 1
-      if (next <= 0) delete html.dataset.modalOpen
-      else html.dataset.modalOpen = String(next)
-    }
-  }, [])
-
   return (
     <motion.div
       className="fixed inset-0"
       style={{
-        background: 'rgba(0,0,0,0.45)',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
+        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.72) 28%)',
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -105,8 +89,6 @@ export function BottomSheet({
             style={{
               maxHeight,
               background: 'var(--card)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
               borderTop: '1px solid var(--border-s)',
               borderLeft: '1px solid var(--border-s)',
               borderRight: '1px solid var(--border-s)',
