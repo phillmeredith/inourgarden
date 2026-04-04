@@ -3,6 +3,7 @@
 // Inline audio player when bird has sound data
 // DS hover pattern: motion-safe:hover:-translate-y-0.5 etc.
 
+import { memo } from 'react'
 import { cn } from '../../lib/utils'
 import type { BirdSpecies } from '../../data/birds'
 import { InlineAudioPlayer } from './InlineAudioPlayer'
@@ -29,7 +30,7 @@ interface BirdCardProps {
   onClick: () => void
 }
 
-export function BirdCard({ bird, onClick }: BirdCardProps) {
+export const BirdCard = memo(function BirdCard({ bird, onClick }: BirdCardProps) {
   // Resolve the first available sound URL (prefer soundUrl, fall back to sounds[])
   const soundUrl = bird.soundUrl ?? bird.sounds?.[0]?.url ?? null
 
@@ -49,7 +50,7 @@ export function BirdCard({ bird, onClick }: BirdCardProps) {
         'bg-[var(--card)] border border-[var(--border-s)] rounded-[var(--r-lg)] overflow-hidden',
         'hover:border-[var(--border)]',
         'motion-safe:hover:-translate-y-0.5 hover:shadow-[0_4px_24px_rgba(0,0,0,.25)]',
-        'transition-all duration-300 motion-safe:active:scale-[.97]',
+        'transition-[transform,box-shadow,border-color] duration-150 motion-safe:active:scale-[.97]',
         'focus-visible:outline-2 focus-visible:outline-[var(--blue)] focus-visible:outline-offset-2',
       )}
     >
@@ -109,4 +110,4 @@ export function BirdCard({ bird, onClick }: BirdCardProps) {
       </div>
     </div>
   )
-}
+})
