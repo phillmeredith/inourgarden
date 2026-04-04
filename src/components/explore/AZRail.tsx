@@ -46,7 +46,7 @@ export function AZRail({ onLetterTap, activeLetter, availableLetters }: AZRailPr
   return (
     <div
       ref={railRef}
-      className="flex flex-col items-center justify-evenly w-7 py-4 select-none touch-none rounded-full"
+      className="flex flex-col items-center justify-evenly w-7 py-4 select-none touch-none rounded-b-2xl"
       style={{ background: 'var(--elev)' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
