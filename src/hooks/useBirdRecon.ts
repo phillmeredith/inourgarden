@@ -1,5 +1,5 @@
-// useBirdRecon — bird identification via Google Gemini Vision API
-// Free tier: gemini-2.0-flash, 1500 req/day, no cost
+// useBirdRecon — bird identification via Groq Vision API (Llama 3.2)
+// Free tier, works globally including UK, no billing required
 // Works on all devices including iPhone (no ONNX/WASM required)
 
 import { useState, useCallback } from 'react'
@@ -24,8 +24,9 @@ type ReconStatus = 'idle' | 'analysing' | 'done' | 'error'
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+const API_KEY = import.meta.env.VITE_GROQ_API_KEY as string | undefined
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const GROQ_MODEL = 'llama-3.2-11b-vision-preview'
 
 const PROMPT = `You are a UK bird identification expert. Identify the bird in this photo.
 
@@ -111,7 +112,7 @@ export function useBirdRecon() {
 
   const analyse = useCallback(async (base64Image: string) => {
     if (!API_KEY) {
-      setError('Add VITE_GEMINI_API_KEY to your .env file to enable BirdRecon.')
+      setError('Add VITE_GROQ_API_KEY to your .env file to enable BirdRecon.')
       setStatus('error')
       return
     }
@@ -123,39 +124,45 @@ export function useBirdRecon() {
       const resized = await resizeImage(base64Image)
       setPhoto(resized)
 
-      // Strip the data URL prefix to get raw base64
-      const base64Data = resized.replace(/^data:image\/\w+;base64,/, '')
-
-      const response = await fetch(GEMINI_URL, {
+      const response = await fetch(GROQ_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`,
+        },
         body: JSON.stringify({
-          contents: [{
-            parts: [
+          model: GROQ_MODEL,
+          messages: [{
+            role: 'user',
+            content: [
               {
-                inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: base64Data,
-                },
+                type: 'image_url',
+                image_url: { url: resized },
               },
-              { text: PROMPT },
+              {
+                type: 'text',
+                text: PROMPT,
+              },
             ],
           }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            temperature: 0.1,
-          },
+          temperature: 0.1,
+          max_tokens: 512,
         }),
       })
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
-        throw new Error(err?.error?.message ?? `API error ${response.status}`)
+        const msg = err?.error?.message ?? `API error ${response.status}`
+        console.error('[BirdRecon] Groq API error:', response.status, msg, err)
+        throw new Error(msg)
       }
 
       const data = await response.json()
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-      const parsed = JSON.parse(text) as {
+      const text = data.choices?.[0]?.message?.content ?? ''
+      console.log('[BirdRecon] Groq raw response:', text)
+      // Strip markdown code fences if present
+      const cleanText = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()
+      const parsed = JSON.parse(cleanText) as {
         description: string
         matches: { name: string; confidence: number; reasoning: string }[]
       }
@@ -166,14 +173,14 @@ export function useBirdRecon() {
       setResult({ matches, rawDescription: description, timestamp: new Date() })
       setStatus('done')
     } catch (err) {
-      console.error('[BirdRecon] Gemini error:', err)
-      const msg = err instanceof Error ? err.message : 'Identification failed'
-      if (msg.includes('API_KEY_INVALID') || msg.includes('API key')) {
-        setError('Invalid Gemini API key. Check VITE_GEMINI_API_KEY in your .env file.')
-      } else if (msg.includes('RATE_LIMIT') || msg.includes('429')) {
-        setError('Too many requests — you\'ve hit the free limit. Try again in a minute.')
+      console.error('[BirdRecon] Groq error:', err)
+      const msg = err instanceof Error ? err.message : String(err)
+      if (msg.includes('401') || msg.includes('invalid_api_key') || msg.includes('Unauthorized')) {
+        setError('Invalid Groq API key. Check VITE_GROQ_API_KEY in your .env file.')
+      } else if (msg.includes('429') || msg.includes('rate_limit') || msg.includes('quota')) {
+        setError('Groq is busy — wait a few seconds and try again.')
       } else {
-        setError('Identification failed. Check your connection and try again.')
+        setError(`Identification failed: ${msg}`)
       }
       setStatus('error')
     }

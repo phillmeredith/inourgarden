@@ -4,7 +4,7 @@
 import { useCallback, useMemo, useRef } from 'react'
 import Map, { Marker, NavigationControl } from 'react-map-gl/mapbox'
 import type { MapRef } from 'react-map-gl/mapbox'
-import { Bird, MapOff } from 'lucide-react'
+import { Bird, MapPinOff } from 'lucide-react'
 import type { BirdSpecies } from '../../data/birds'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -184,7 +184,7 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
   if (!MAPBOX_TOKEN) {
     return (
       <div className="w-full h-[calc(100dvh-290px)] min-h-[350px] flex flex-col items-center justify-center gap-3 rounded-[var(--r-md)] bg-[var(--card)] border border-[var(--border-s)]">
-        <MapOff size={32} className="text-[var(--t3)]" />
+        <MapPinOff size={32} className="text-[var(--t3)]" />
         <p className="text-[14px] font-semibold text-[var(--t1)]">Map unavailable</p>
         <p className="text-[12px] text-[var(--t3)] text-center max-w-[260px]">
           Add <code className="bg-[var(--elev)] px-1 rounded text-[11px]">VITE_MAPBOX_TOKEN</code> to your Vercel environment variables to enable the map.

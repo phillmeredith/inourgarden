@@ -134,9 +134,9 @@ export function BirdReconView({ onBirdTap }: BirdReconViewProps) {
         <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--amber-sub)] border border-[var(--amber)] mb-5">
           <AlertCircle size={16} className="text-[var(--amber-t)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-[var(--amber-t)]">Gemini API key required</p>
+            <p className="text-[13px] font-semibold text-[var(--amber-t)]">Groq API key required</p>
             <p className="text-[12px] text-[var(--amber-t)] mt-1 opacity-80">
-              Add <code className="bg-black/20 px-1 rounded">VITE_GEMINI_API_KEY</code> to your .env file to enable photo identification.
+              Add <code className="bg-black/20 px-1 rounded">VITE_GROQ_API_KEY</code> to your .env file to enable photo identification.
             </p>
           </div>
         </div>
