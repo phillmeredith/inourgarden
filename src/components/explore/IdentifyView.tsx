@@ -2,13 +2,25 @@
 // Laura can upload/snap a photo for AI identification OR use size/colour filters
 
 import { useRef } from 'react'
-import { Binoculars, RotateCcw, Camera, Upload, Loader2, AlertCircle, Scan, Sparkles, Cpu } from 'lucide-react'
+import { Binoculars, RotateCcw, Camera, Upload, Loader2, AlertCircle, Scan, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../../lib/utils'
-import { useIdentifyFilter } from '../../hooks/useIdentifyFilter'
+import { useIdentifyFilter, ALL_LOCATIONS, LOCATION_LABELS } from '../../hooks/useIdentifyFilter'
 import { useBirdRecon } from '../../hooks/useBirdRecon'
-import type { BirdColor, SizeCategory } from '../../hooks/useIdentifyFilter'
+import type { BirdColor, SizeCategory, LocationFilter } from '../../hooks/useIdentifyFilter'
 import type { BirdSpecies } from '../../data/birds'
+
+// ─── Location emoji icons ───────────────────────────────────────────────────
+
+const LOCATION_ICON: Record<LocationFilter, string> = {
+  garden:   '🏡',
+  woodland: '🌳',
+  wetland:  '🦆',
+  coastal:  '🌊',
+  farmland: '🌾',
+  upland:   '⛰️',
+  urban:    '🏙️',
+}
 
 // ─── Color swatch mapping ───────────────────────────────────────────────────
 
@@ -41,11 +53,13 @@ function FilterPill({
   active,
   onClick,
   swatch,
+  highlight,
 }: {
   label: string
   active: boolean
   onClick: () => void
   swatch?: string
+  highlight?: boolean
 }) {
   return (
     <button
@@ -54,7 +68,9 @@ function FilterPill({
         'h-8 px-3 rounded-[var(--r-pill)] text-[12px] font-semibold border transition-colors duration-150 flex items-center gap-1.5 shrink-0',
         active
           ? 'bg-[var(--blue-sub)] border-[var(--blue)] text-[var(--blue-t)]'
-          : 'bg-[var(--card)] border-[var(--border-s)] text-[var(--t2)] hover:text-[var(--t1)]',
+          : highlight
+            ? 'bg-[var(--card)] border-[var(--blue)]/40 text-[var(--t1)] hover:border-[var(--blue)]'
+            : 'bg-[var(--card)] border-[var(--border-s)] text-[var(--t2)] hover:text-[var(--t1)]',
       )}
     >
       {swatch && (
@@ -202,6 +218,7 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
     results,
     setSize,
     toggleColor,
+    setLocation,
     reset: resetFilters,
   } = useIdentifyFilter()
 
@@ -404,6 +421,18 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
       </div>
 
       {/* Filters */}
+      <FilterSection title="Where did you spot it?">
+        {ALL_LOCATIONS.map(loc => (
+          <FilterPill
+            key={loc}
+            label={`${LOCATION_ICON[loc]} ${LOCATION_LABELS[loc]}`}
+            active={filters.location === loc}
+            onClick={() => setLocation(loc)}
+            highlight={loc === 'garden'}
+          />
+        ))}
+      </FilterSection>
+
       <FilterSection title="Size">
         {SIZES.map(s => (
           <FilterPill
@@ -432,8 +461,10 @@ export function IdentifyView({ onBirdTap }: IdentifyViewProps) {
         <div className="mt-6">
           <p className="text-[13px] font-semibold text-[var(--t2)] mb-3">
             {results.length === 0
-              ? 'No birds match your criteria'
-              : `${results.length} bird${results.length === 1 ? '' : 's'} match`}
+              ? 'No birds match — try adjusting your filters'
+              : filters.location === 'garden'
+                ? `${results.length} garden bird${results.length === 1 ? '' : 's'} — most likely first`
+                : `${results.length} bird${results.length === 1 ? '' : 's'} match`}
           </p>
           <div className="flex flex-col gap-2">
             {results.slice(0, 30).map(r => (
