@@ -9,7 +9,7 @@
 // AZ rail scroll: handleLetterPress computes the target row index for each letter
 // and scrolls the virtualiser to the correct offset.
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Grid3X3, Map as MapIcon, Search, Volume2 } from 'lucide-react'
 import { PageHeader } from '../components/layout/PageHeader'
@@ -29,7 +29,12 @@ import type { BirdSpecies } from '../data/birds'
 
 // ─── Virtual grid ─────────────────────────────────────────────────────────────
 
-interface BirdVirtualGridProps {
+// ─── BirdVirtualGrid (inner) ──────────────────────────────────────────────────
+// Receives a confirmed containerWidth — never called with 0.
+// Virtualizer is always initialised with correct item sizes.
+
+interface BirdVirtualGridInnerProps {
+  containerWidth: number
   items: BirdSpecies[]
   letterFirstIndex: Map<string, number>
   onCardTap: (bird: BirdSpecies) => void
@@ -39,47 +44,26 @@ interface BirdVirtualGridProps {
   } | null>
 }
 
-function BirdVirtualGrid({
+function BirdVirtualGridInner({
+  containerWidth,
   items,
   letterFirstIndex,
   onCardTap,
   scrollRef,
   virtualizerRef,
-}: BirdVirtualGridProps) {
-  const measureRef = useRef<HTMLDivElement>(null)
-  const [gridWidth, setGridWidth] = useState(0)
+}: BirdVirtualGridInnerProps) {
+  const gap = 12
 
-  useEffect(() => {
-    const el = measureRef.current
-    if (!el) return
-    const observer = new ResizeObserver(entries => {
-      setGridWidth(entries[0]?.contentRect.width ?? 0)
-    })
-    observer.observe(el)
-    setGridWidth(el.offsetWidth)
-    return () => observer.disconnect()
-  }, [])
+  const colCount = containerWidth >= 1024 ? 4
+    : containerWidth >= 768 ? 3
+    : containerWidth >= 500 ? 2
+    : 1
 
-  // Column count: 1 (phone) / 2 (large phone landscape / small tablet) / 3 (tablet portrait) / 4 (tablet landscape+)
-  const colCount = useMemo(() => {
-    if (gridWidth >= 1024) return 4
-    if (gridWidth >= 768) return 3
-    if (gridWidth >= 500) return 2
-    return 1
-  }, [gridWidth])
-
-  const gap = 12 // gap-3 = 12px
-
-  const cardWidth = gridWidth > 0
-    ? (gridWidth - gap * (colCount - 1)) / colCount
-    : 0
-
-  // BirdCard is aspect-square image + name strip (~44px)
-  const cardHeight = cardWidth > 0 ? cardWidth + 44 : 0
-  const rowHeight = cardHeight + gap
+  const cardWidth = (containerWidth - gap * (colCount - 1)) / colCount
+  // BirdCard: aspect-square image + ~44px name strip
+  const rowHeight = cardWidth + 44 + gap
 
   const rows = useMemo<BirdSpecies[][]>(() => {
-    if (colCount === 0) return []
     const result: BirdSpecies[][] = []
     for (let i = 0; i < items.length; i += colCount) {
       result.push(items.slice(i, i + colCount))
@@ -90,11 +74,10 @@ function BirdVirtualGrid({
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => (rowHeight > 0 ? rowHeight : 240),
+    estimateSize: () => rowHeight,
     overscan: 10,
   })
 
-  // Expose imperative scroll-to-row
   useEffect(() => {
     virtualizerRef.current = {
       scrollToIndex: (rowIndex, opts) =>
@@ -102,65 +85,82 @@ function BirdVirtualGrid({
     }
   })
 
-  if (cardWidth === 0) {
-    return (
-      <div
-        ref={measureRef}
-        className="w-full pt-1"
-        style={{ minHeight: 4 }}
-        aria-hidden="true"
-      />
+  return (
+    <div
+      style={{ height: virtualizer.getTotalSize(), width: '100%', position: 'relative' }}
+    >
+      {virtualizer.getVirtualItems().map(virtualRow => {
+        const row = rows[virtualRow.index]
+        if (!row) return null
+        return (
+          <div
+            key={virtualRow.key}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              transform: `translate3d(0,${virtualRow.start}px,0)`,
+              display: 'grid',
+              gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+              gap: `${gap}px`,
+              paddingBottom: `${gap}px`,
+            }}
+          >
+            {row.map((bird, colIdx) => {
+              const globalIndex = virtualRow.index * colCount + colIdx
+              const letter = bird.name[0].toUpperCase()
+              const isFirst = letterFirstIndex.get(letter) === globalIndex
+              return (
+                <div key={bird.id} {...(isFirst ? { 'data-first-letter': letter } : {})}>
+                  <BirdCard bird={bird} onClick={() => onCardTap(bird)} />
+                </div>
+              )
+            })}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ─── BirdVirtualGrid (outer container) ───────────────────────────────────────
+// Measures its own width with useLayoutEffect (fires before paint, so
+// offsetWidth is always valid). Only renders BirdVirtualGridInner once
+// a real width is known — virtualizer never sees width = 0.
+
+interface BirdVirtualGridProps {
+  items: BirdSpecies[]
+  letterFirstIndex: Map<string, number>
+  onCardTap: (bird: BirdSpecies) => void
+  scrollRef: React.RefObject<HTMLDivElement>
+  virtualizerRef: React.MutableRefObject<{
+    scrollToIndex: (index: number, opts?: { align?: 'start' }) => void
+  } | null>
+}
+
+function BirdVirtualGrid(props: BirdVirtualGridProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerWidth, setContainerWidth] = useState<number>(0)
+
+  useLayoutEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    // Read width synchronously before browser paint — always correct
+    setContainerWidth(el.offsetWidth)
+    const ro = new ResizeObserver(([entry]) =>
+      setContainerWidth(entry.contentRect.width)
     )
-  }
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   return (
-    // pt-1: prevents hover lift from clipping at the scroll container top
-    <div ref={measureRef} className="w-full pt-1">
-      <div
-        style={{
-          height: virtualizer.getTotalSize(),
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        {virtualizer.getVirtualItems().map(virtualRow => {
-          const row = rows[virtualRow.index]
-          if (!row) return null
-          return (
-            <div
-              key={virtualRow.key}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                transform: `translate3d(0,${virtualRow.start}px,0)`,
-                display: 'grid',
-                gridTemplateColumns: `repeat(${colCount}, 1fr)`,
-                gap: `${gap}px`,
-                paddingBottom: `${gap}px`,
-              }}
-            >
-              {row.map((bird, colIdx) => {
-                const globalIndex = virtualRow.index * colCount + colIdx
-                const letter = bird.name[0].toUpperCase()
-                const isFirst = letterFirstIndex.get(letter) === globalIndex
-                return (
-                  <div
-                    key={bird.id}
-                    {...(isFirst ? { 'data-first-letter': letter } : {})}
-                  >
-                    <BirdCard
-                      bird={bird}
-                      onClick={() => onCardTap(bird)}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })}
-      </div>
+    // pt-1: prevents hover-lift shadow clipping at scroll container top
+    <div ref={containerRef} className="w-full pt-1">
+      {containerWidth > 0 && (
+        <BirdVirtualGridInner containerWidth={containerWidth} {...props} />
+      )}
     </div>
   )
 }

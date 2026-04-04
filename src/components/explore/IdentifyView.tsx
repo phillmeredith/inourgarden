@@ -26,7 +26,7 @@ import type { BirdSpecies } from '../../data/birds'
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-5">
-      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--t4)] mb-2.5">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--t3)] mb-2.5">
         {title}
       </p>
       {children}

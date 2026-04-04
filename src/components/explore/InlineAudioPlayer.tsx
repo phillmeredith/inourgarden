@@ -1,5 +1,8 @@
-// InlineAudioPlayer — compact play/pause + progress slider for bird cards
+// InlineAudioPlayer — compact play/pause + scrubbable progress slider for bird cards
 // Renders as a small translucent bar, designed to overlay the image area.
+//
+// Scrubbing: unified Pointer Events (mouse + touch) with setPointerCapture so
+// dragging outside the track element still updates position correctly.
 
 import { useCallback, useRef } from 'react'
 import { cn } from '../../lib/utils'
@@ -15,6 +18,7 @@ export function InlineAudioPlayer({ birdId, soundUrl }: InlineAudioPlayerProps) 
     useBirdAudioContext()
 
   const trackRef = useRef<HTMLDivElement>(null)
+  const isDragging = useRef(false)
 
   const isThisBirdPlaying =
     activeBirdId === birdId && activeUrl === soundUrl && isPlaying
@@ -23,6 +27,14 @@ export function InlineAudioPlayer({ birdId, soundUrl }: InlineAudioPlayerProps) 
     activeBirdId === birdId && activeUrl === soundUrl
 
   const displayProgress = isThisBirdActive ? progress : 0
+
+  /** Calculate fraction (0–1) from a pointer clientX relative to the track. */
+  function fractionFromPointer(clientX: number): number {
+    const track = trackRef.current
+    if (!track) return 0
+    const rect = track.getBoundingClientRect()
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+  }
 
   /** Handle play/pause tap — stop event from bubbling to the card onClick. */
   const handleToggle = useCallback(
@@ -33,26 +45,46 @@ export function InlineAudioPlayer({ birdId, soundUrl }: InlineAudioPlayerProps) 
     [birdId, soundUrl, toggle],
   )
 
-  /** Handle click/drag on the progress track to seek. */
-  const handleTrackInteraction = useCallback(
-    (e: React.MouseEvent) => {
+  // ─── Pointer scrub handlers ───────────────────────────────────────────────
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
       e.stopPropagation()
-      const track = trackRef.current
-      if (!track) return
+      e.preventDefault()
+      // Capture pointer so we receive move/up even outside the element
+      e.currentTarget.setPointerCapture(e.pointerId)
+      isDragging.current = true
 
-      const rect = track.getBoundingClientRect()
-      const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+      const fraction = fractionFromPointer(e.clientX)
 
-      // If this bird isn't active yet, start playing then seek
+      // If this bird isn't active yet, start it then seek
       if (!isThisBirdActive) {
         toggle(birdId, soundUrl)
-        // Seek after a tick so the audio element is created
         requestAnimationFrame(() => seek(fraction))
       } else {
         seek(fraction)
       }
     },
     [birdId, soundUrl, isThisBirdActive, toggle, seek],
+  )
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDragging.current) return
+      e.stopPropagation()
+      seek(fractionFromPointer(e.clientX))
+    },
+    [seek],
+  )
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDragging.current) return
+      e.stopPropagation()
+      isDragging.current = false
+      seek(fractionFromPointer(e.clientX))
+    },
+    [seek],
   )
 
   return (
@@ -111,11 +143,14 @@ export function InlineAudioPlayer({ birdId, soundUrl }: InlineAudioPlayerProps) 
         )}
       </button>
 
-      {/* Progress track */}
+      {/* Progress track — scrubbable via pointer events */}
       <div
         ref={trackRef}
-        className="flex-1 h-4 flex items-center cursor-pointer group"
-        onClick={handleTrackInteraction}
+        className="flex-1 h-5 flex items-center cursor-pointer touch-none select-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         role="slider"
         aria-label="Audio progress"
         aria-valuemin={0}
@@ -133,12 +168,20 @@ export function InlineAudioPlayer({ birdId, soundUrl }: InlineAudioPlayerProps) 
           }
         }}
       >
-        <div className="w-full h-[3px] rounded-full bg-[var(--border-s)] relative overflow-hidden">
+        {/* Track bar */}
+        <div className="w-full h-[3px] rounded-full bg-[var(--border-s)] relative">
           {/* Filled portion */}
           <div
-            className="absolute inset-y-0 left-0 rounded-full bg-[var(--blue)] transition-[width] duration-75 ease-linear"
+            className="absolute inset-y-0 left-0 rounded-full bg-[var(--blue)]"
             style={{ width: `${displayProgress * 100}%` }}
           />
+          {/* Scrub thumb — visible when active */}
+          {isThisBirdActive && (
+            <div
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[var(--blue)] border-2 border-[var(--elev)] shadow-sm transition-opacity duration-100"
+              style={{ left: `${displayProgress * 100}%` }}
+            />
+          )}
         </div>
       </div>
 

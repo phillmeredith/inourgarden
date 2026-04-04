@@ -2,12 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Default surface colours (prevents flash before JS applies data-theme) ── */
+/* ── Default surface colours (prevents flash before JS applies data-theme) ──
+   html uses --nav-solid so the iOS safe-area (behind status bar) always
+   shows the header/nav colour rather than the page background. */
 html {
   height: -webkit-fill-available;
   height: 100dvh;
   width: 100%;
-  background-color: var(--bg, #4f523f);
+  background-color: var(--nav-solid, #333626);
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -18,7 +20,7 @@ body,
   min-height: -webkit-fill-available;
   min-height: 100dvh;
   width: 100%;
-  background-color: var(--bg, #4f523f);
+  background-color: var(--nav-solid, #333626);
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -29,12 +31,13 @@ body,
 ════════════════════════════════════════════════════════ */
 :root,
 [data-theme="forest"] {
-  --bg:       #4f523f;
-  --card:     #363929;
-  --elev:     #404435;
-  --border:   #545748;
-  --border-s: #474a3c;
-  --nav:      rgba(51,54,38,.97);
+  --bg:        #4f523f;
+  --card:      #363929;
+  --elev:      #404435;
+  --border:    #545748;
+  --border-s:  #474a3c;
+  --nav:       rgba(51,54,38,.97);
+  --nav-solid: #333626;
 
   --blue:     #5EC47A;
   --blue-h:   #4aae67;
@@ -54,12 +57,13 @@ body,
 }
 
 [data-theme="midnight"] {
-  --bg:       #0D0D11;
-  --card:     #18181D;
-  --elev:     #23262F;
-  --border:   #353945;
-  --border-s: #2C2F3A;
-  --nav:      rgba(13,13,17,.92);
+  --bg:        #0D0D11;
+  --card:      #18181D;
+  --elev:      #23262F;
+  --border:    #353945;
+  --border-s:  #2C2F3A;
+  --nav:       rgba(13,13,17,.92);
+  --nav-solid: #0D0D11;
 
   --blue:     #3772FF;
   --blue-h:   #2B5FD9;
@@ -83,12 +87,13 @@ body,
    Warm cream — sage green accent
 ════════════════════════════════════════════════════════ */
 [data-theme="meadow"] {
-  --bg:       #F3EFE6;
-  --card:     #FFFFFF;
-  --elev:     #E8E4DA;
-  --border:   #D3CEC4;
-  --border-s: #DEDAD0;
-  --nav:      rgba(232,228,218,.95);
+  --bg:        #F3EFE6;
+  --card:      #FFFFFF;
+  --elev:      #E8E4DA;
+  --border:    #D3CEC4;
+  --border-s:  #DEDAD0;
+  --nav:       rgba(232,228,218,.95);
+  --nav-solid: #E8E4DA;
 
   --blue:     #3A7D44;
   --blue-h:   #2F6738;
@@ -117,12 +122,13 @@ body,
    Deep purple — violet accent
 ════════════════════════════════════════════════════════ */
 [data-theme="dusk"] {
-  --bg:       #16101F;
-  --card:     #1F1730;
-  --elev:     #292040;
-  --border:   #3C2D58;
-  --border-s: #302448;
-  --nav:      rgba(14,9,20,.95);
+  --bg:        #16101F;
+  --card:      #1F1730;
+  --elev:      #292040;
+  --border:    #3C2D58;
+  --border-s:  #302448;
+  --nav:       rgba(14,9,20,.95);
+  --nav-solid: #0E0914;
 
   --blue:     #9757D7;
   --blue-h:   #7F46BD;
