@@ -7,7 +7,7 @@ html {
   height: -webkit-fill-available;
   height: 100dvh;
   width: 100%;
-  background-color: var(--bg, #0D0D11);
+  background-color: var(--bg, #4f523f);
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -18,7 +18,7 @@ body,
   min-height: -webkit-fill-available;
   min-height: 100dvh;
   width: 100%;
-  background-color: var(--bg, #0D0D11);
+  background-color: var(--bg, #4f523f);
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -28,35 +28,6 @@ body,
    Dark space — blue accent
 ════════════════════════════════════════════════════════ */
 :root,
-[data-theme="midnight"] {
-  --bg:       #0D0D11;
-  --card:     #18181D;
-  --elev:     #23262F;
-  --border:   #353945;
-  --border-s: #2C2F3A;
-  --nav:      rgba(13,13,17,.92);
-
-  --blue:     #3772FF;
-  --blue-h:   #2B5FD9;
-  --blue-sub: rgba(55,114,255,.12);
-  --blue-t:   #6E9BFF;
-
-  --t1: #FCFCFD;
-  --t2: #B1B5C4;
-  --t3: #777E91;
-  --t4: #52566A;
-
-  --sh-card:    0 4px 24px rgba(0,0,0,.25);
-  --sh-elevated: 0 8px 40px rgba(0,0,0,.35);
-
-  --grad-hero:   linear-gradient(135deg, #E8247C, #3772FF);
-  --grad-accent: linear-gradient(135deg, #3772FF, #9757D7);
-}
-
-/* ════════════════════════════════════════════════════════
-   THEME: Forest
-   Dark olive — green accent
-════════════════════════════════════════════════════════ */
 [data-theme="forest"] {
   --bg:       #4f523f;
   --card:     #363929;
@@ -80,6 +51,31 @@ body,
 
   --grad-hero:   linear-gradient(135deg, #5EC47A, #3A8C55);
   --grad-accent: linear-gradient(135deg, #5EC47A, #45B26B);
+}
+
+[data-theme="midnight"] {
+  --bg:       #0D0D11;
+  --card:     #18181D;
+  --elev:     #23262F;
+  --border:   #353945;
+  --border-s: #2C2F3A;
+  --nav:      rgba(13,13,17,.92);
+
+  --blue:     #3772FF;
+  --blue-h:   #2B5FD9;
+  --blue-sub: rgba(55,114,255,.12);
+  --blue-t:   #6E9BFF;
+
+  --t1: #FCFCFD;
+  --t2: #B1B5C4;
+  --t3: #777E91;
+  --t4: #52566A;
+
+  --sh-card:    0 4px 24px rgba(0,0,0,.25);
+  --sh-elevated: 0 8px 40px rgba(0,0,0,.35);
+
+  --grad-hero:   linear-gradient(135deg, #E8247C, #3772FF);
+  --grad-accent: linear-gradient(135deg, #3772FF, #9757D7);
 }
 
 /* ════════════════════════════════════════════════════════

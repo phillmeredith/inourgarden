@@ -8,7 +8,7 @@ import type { AppPreferences } from '../lib/db'
 
 const DEFAULTS: AppPreferences = {
   id: 1,
-  theme: 'midnight',
+  theme: 'forest',
   reducedMotion: false,
   textSize: 'default',
 }
