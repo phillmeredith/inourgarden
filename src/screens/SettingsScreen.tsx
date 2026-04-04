@@ -362,15 +362,25 @@ export function SettingsScreen() {
 
         {/* ── About ──────────────────────────────────────────────────────── */}
         <Section title="About">
-          <div className="py-4 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[15px] font-semibold text-[var(--t1)] flex items-center gap-2">
-                <span aria-label="Raccoon" role="img">🦝</span>
-                Laura's Birdwatch
-              </span>
-              <span className="text-[12px] font-medium text-[var(--t3)] tabular-nums">
-                v1.0.0
-              </span>
+          <div className="py-4 flex flex-col gap-3">
+            {/* Raccoon Developments branding row */}
+            <div className="flex items-center gap-4">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
+                style={{ background: '#1a1c14' }}
+              >
+                <img
+                  src="/raccoon.png"
+                  alt="Raccoon Developments"
+                  className="w-10 h-10 object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[15px] font-semibold text-[var(--t1)]">
+                  Raccoon Developments
+                </div>
+                <div className="text-[12px] text-[var(--t3)] mt-0.5">v1.0.0</div>
+              </div>
             </div>
             <p className="text-[12px] text-[var(--t3)] leading-relaxed">
               All data stored locally on your device.
