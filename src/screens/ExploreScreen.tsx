@@ -1,13 +1,19 @@
 // ExploreScreen — searchable bird directory with virtualised grid
 //
-// Virtualisation: scroll container is the flex-1 overflow-y-auto div (scrollContainerRef).
-// BirdVirtualGrid groups filteredBirds into rows of colCount and uses useVirtualizer
-// relative to that scroll element.
+// Layout: scroll container is absolute inset-0 so it starts at the very top
+// of the viewport (behind the PageHeader). The PageHeader floats above it as
+// absolute top-0. This means bird images sit behind the header zone — when a
+// modal opens, backdrop-filter blurs the grid all the way into the safe area.
 //
-// Column counts: 2 @ <768px | 3 @ 768-1023px | 4 @ >= 1024px
+// Content padding: all scroll content gets paddingTop = headerHeight so birds
+// appear below the header at rest. AZ rail also starts below the header.
 //
-// AZ rail scroll: handleLetterPress computes the target row index for each letter
-// and scrolls the virtualiser to the correct offset.
+// Virtualisation: BirdVirtualGrid uses @tanstack/react-virtual relative to
+// the scroll container. scrollToIndex is NOT used for letter navigation
+// (it doesn't know about the top padding) — handleLetterPress computes the
+// raw scroll offset manually instead.
+//
+// Column counts: 2 @ <500px | 3 @ 500-767px | 4 @ ≥1024px
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
@@ -125,9 +131,8 @@ function BirdVirtualGridInner({
 }
 
 // ─── BirdVirtualGrid (outer container) ───────────────────────────────────────
-// Measures its own width with useLayoutEffect (fires before paint, so
-// offsetWidth is always valid). Only renders BirdVirtualGridInner once
-// a real width is known — virtualizer never sees width = 0.
+// Measures its own width with useLayoutEffect. Only renders BirdVirtualGridInner
+// once a real width is known — virtualizer never sees width = 0.
 
 interface BirdVirtualGridProps {
   items: BirdSpecies[]
@@ -146,7 +151,6 @@ function BirdVirtualGrid(props: BirdVirtualGridProps) {
   useLayoutEffect(() => {
     const el = containerRef.current
     if (!el) return
-    // Read width synchronously before browser paint — always correct
     setContainerWidth(el.offsetWidth)
     const ro = new ResizeObserver(([entry]) =>
       setContainerWidth(entry.contentRect.width)
@@ -195,8 +199,24 @@ export function ExploreScreen() {
   // Active letter for AZ rail highlight
   const [activeLetter, setActiveLetter] = useState<string | null>(null)
 
-  // scrollContainerRef — the overflow-y-auto flex child; passed to BirdVirtualGrid
+  // scrollContainerRef — the overflow-y-auto div; passed to BirdVirtualGrid
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  // headerRef + headerHeight — measures the floating PageHeader so we can
+  // push all content down by exactly that amount.
+  const headerRef = useRef<HTMLDivElement>(null)
+  const [headerHeight, setHeaderHeight] = useState(0)
+
+  useLayoutEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    setHeaderHeight(el.offsetHeight)
+    const ro = new ResizeObserver(([entry]) =>
+      setHeaderHeight(entry.contentRect.height)
+    )
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   // Imperative handle to the virtualiser inside BirdVirtualGrid
   const virtualizerRef = useRef<{
@@ -220,14 +240,11 @@ export function ExploreScreen() {
   }, [filteredBirds])
 
   // Called by BirdProfileSheet when "Learn More" is tapped.
-  // Captures the bird reference, closes the sheet, then mounts detail modal after delay.
   function handleLearnMore() {
     const bird = selectedBird
     if (!bird) return
     setSelectedBird(null)
-    setTimeout(() => {
-      setDetailBird(bird)
-    }, 100)
+    setTimeout(() => setDetailBird(bird), 100)
   }
 
   // Called by BirdProfileSheet/BirdDetailModal when "Spotted in the wild" is tapped.
@@ -239,23 +256,126 @@ export function ExploreScreen() {
     setTimeout(() => setSpottedBird(bird), 100)
   }
 
-  // AZ rail scroll — derive the row index for the letter's first bird
+  // AZ rail — manually compute scroll offset so we account for the headerHeight
+  // top padding. scrollToIndex can't be used here because the virtualizer's
+  // coordinate system starts at 0 (within the virtual container), unaware of
+  // the paddingTop that sits before it in the scroll container.
   function handleLetterPress(letter: string) {
     setActiveLetter(letter)
     const birdIndex = letterFirstIndex.get(letter)
-    if (birdIndex == null) return
-    const containerWidth = scrollContainerRef.current?.offsetWidth ?? 0
-    const colCount = containerWidth >= 1024 ? 4 : containerWidth >= 768 ? 3 : containerWidth >= 500 ? 2 : 1
+    const scrollEl = scrollContainerRef.current
+    if (birdIndex == null || !scrollEl) return
+
+    // Match the grid's actual containerWidth (subtract px-6 on each side)
+    const containerWidth = Math.max(0, scrollEl.offsetWidth - 48)
+    const colCount = containerWidth >= 1024 ? 4
+      : containerWidth >= 768 ? 3
+      : containerWidth >= 500 ? 2
+      : 1
+    const gap = 12
+    const cardWidth = (containerWidth - gap * (colCount - 1)) / colCount
+    const rowHeight = cardWidth + 44 + gap
     const rowIndex = Math.floor(birdIndex / colCount)
-    virtualizerRef.current?.scrollToIndex(rowIndex, { align: 'start' })
+
+    // headerHeight = top padding before the grid + 16px (original pt-4 on grid wrapper)
+    scrollEl.scrollTop = headerHeight + 16 + rowIndex * rowHeight
   }
 
   return (
-    <div className="flex flex-col h-full bg-[var(--bg)]">
-      {/* Full-width header — sits above both scroll column and AZ rail */}
-      <PageHeader
-        title="Explore"
-        centre={
+    <div className="relative h-full bg-[var(--bg)]">
+
+      {/* ── Scroll area + AZ rail ─────────────────────────────────────────
+          Starts at the very top of the viewport (y=0), behind the floating
+          header. Bird content is offset downward by paddingTop = headerHeight
+          so it appears below the header at rest.
+          When a modal opens, its backdrop-filter blurs the bird grid content
+          all the way up into the safe-area zone behind the status bar. */}
+      <div className="absolute inset-0 flex">
+        <div
+          className="flex-1 overflow-y-auto"
+          ref={scrollContainerRef}
+          style={{ willChange: 'scroll-position' }}
+        >
+          {/* ─── Browse tab ──────────────────────────────────────── */}
+          {activeTab === 'browse' && (
+            <>
+              {viewMode === 'grid' && (
+                filteredBirds.length === 0 ? (
+                  <div
+                    className="flex flex-col items-center justify-center py-16 gap-3 px-6"
+                    style={{ paddingTop: headerHeight + 64 }}
+                  >
+                    <Search size={48} className="text-[var(--t3)]" />
+                    <p className="text-[17px] font-semibold text-[var(--t1)]">
+                      No birds found
+                    </p>
+                    <p className="text-[14px] text-[var(--t2)]">Try a different search or clear filters</p>
+                    <Button variant="outline" size="md" onClick={reset}>
+                      Clear filters
+                    </Button>
+                  </div>
+                ) : (
+                  <div
+                    className="px-6 pb-24 max-w-3xl mx-auto w-full"
+                    style={{ paddingTop: headerHeight + 16 }}
+                  >
+                    <BirdVirtualGrid
+                      items={filteredBirds}
+                      letterFirstIndex={letterFirstIndex}
+                      onCardTap={setSelectedBird}
+                      scrollRef={scrollContainerRef as React.RefObject<HTMLDivElement>}
+                      virtualizerRef={virtualizerRef}
+                    />
+                  </div>
+                )
+              )}
+
+              {viewMode === 'map' && (
+                <div className="px-4 pb-24" style={{ paddingTop: headerHeight + 16 }}>
+                  <BirdMap birds={filteredBirds} onBirdTap={setSelectedBird} />
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ─── Identify tab ────────────────────────────────────── */}
+          {activeTab === 'identify' && (
+            <div style={{ paddingTop: headerHeight }}>
+              <IdentifyView onBirdTap={setSelectedBird} />
+            </div>
+          )}
+        </div>
+
+        {/* A-Z Rail — only in browse grid view.
+            Wrapper has paddingTop = headerHeight so letters start below
+            the floating header and the AZ position-to-letter mapping
+            correctly covers only the visible (non-header) screen area. */}
+        {activeTab === 'browse' && viewMode === 'grid' && filteredBirds.length > 0 && (
+          <div
+            style={{
+              paddingTop: headerHeight,
+              height: '100%',
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <AZRail
+              availableLetters={availableLetters}
+              onLetterTap={handleLetterPress}
+              activeLetter={activeLetter}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ── Floating PageHeader ──────────────────────────────────────────────
+          Absolutely positioned above the scroll area. The scroll content
+          slides behind it. */}
+      <div ref={headerRef} className="absolute top-0 left-0 right-0 z-[100]">
+        <PageHeader
+          title="Explore"
+          centre={
             <div className="flex rounded-[var(--r-pill)] overflow-hidden border border-[var(--border-s)] bg-[var(--card)]">
               {(['browse', 'identify'] as const).map(tab => (
                 <button
@@ -276,7 +396,6 @@ export function ExploreScreen() {
           }
           rightAction={
             <div className="flex items-center gap-2">
-              {/* Sound filter toggle */}
               <button
                 onClick={() => setHasSoundOnly(!hasSoundOnly)}
                 aria-pressed={hasSoundOnly}
@@ -295,122 +414,53 @@ export function ExploreScreen() {
           below={
             <>
               {activeTab === 'browse' && (
-              <SearchBar
-                value={query}
-                onChange={setQuery}
-                placeholder="Search birds..."
-              />)}
+                <SearchBar value={query} onChange={setQuery} placeholder="Search birds..." />
+              )}
               {activeTab === 'browse' && (
-              <>
-              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-6 px-6">
-                <div className="flex-1 min-w-0">
-                  <CategoryPills
-                    active={activeCategory ?? 'All'}
-                    onChange={setActiveCategory}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-6 px-6">
-                <ConservationPills
-                  active={conservationStatus}
-                  onChange={setConservationStatus}
-                />
-
-                {/* Grid / Map toggle */}
-                <div
-                  className="flex shrink-0 rounded-[var(--r-pill)] overflow-hidden border border-[var(--border-s)] bg-[var(--card)] ml-auto"
-                  style={{ gap: 0 }}
-                >
-                  {(['grid', 'map'] as const).map(mode => (
-                    <button
-                      key={mode}
-                      onClick={() => setViewMode(mode)}
-                      aria-pressed={viewMode === mode}
-                      aria-label={mode === 'grid' ? 'Grid view' : 'Map view'}
-                      className={[
-                        'h-9 px-3 flex items-center gap-1.5 text-[13px] font-semibold transition-colors duration-150',
-                        viewMode === mode
-                          ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
-                          : 'text-[var(--t2)] hover:text-[var(--t1)]',
-                      ].join(' ')}
+                <>
+                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-6 px-6">
+                    <div className="flex-1 min-w-0">
+                      <CategoryPills
+                        active={activeCategory ?? 'All'}
+                        onChange={setActiveCategory}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-6 px-6">
+                    <ConservationPills
+                      active={conservationStatus}
+                      onChange={setConservationStatus}
+                    />
+                    <div
+                      className="flex shrink-0 rounded-[var(--r-pill)] overflow-hidden border border-[var(--border-s)] bg-[var(--card)] ml-auto"
+                      style={{ gap: 0 }}
                     >
-                      {mode === 'grid'
-                        ? <Grid3X3 size={14} strokeWidth={2} aria-hidden="true" />
-                        : <MapIcon size={14} strokeWidth={2} aria-hidden="true" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              </>
+                      {(['grid', 'map'] as const).map(mode => (
+                        <button
+                          key={mode}
+                          onClick={() => setViewMode(mode)}
+                          aria-pressed={viewMode === mode}
+                          aria-label={mode === 'grid' ? 'Grid view' : 'Map view'}
+                          className={[
+                            'h-9 px-3 flex items-center gap-1.5 text-[13px] font-semibold transition-colors duration-150',
+                            viewMode === mode
+                              ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
+                              : 'text-[var(--t2)] hover:text-[var(--t1)]',
+                          ].join(' ')}
+                        >
+                          {mode === 'grid'
+                            ? <Grid3X3 size={14} strokeWidth={2} aria-hidden="true" />
+                            : <MapIcon size={14} strokeWidth={2} aria-hidden="true" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
               )}
             </>
           }
         />
-
-      {/* Content row: scroll column + AZ rail */}
-      <div className="flex flex-1 min-h-0">
-      <div className="flex-1 overflow-y-auto" ref={scrollContainerRef} style={{ willChange: 'scroll-position' }}>
-
-        {/* ─── Browse tab content ─────────────────────────────────── */}
-        {activeTab === 'browse' && (
-          <>
-            {/* Grid content */}
-            {viewMode === 'grid' && (
-              filteredBirds.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-3 px-6">
-                  <Search size={48} className="text-[var(--t3)]" />
-                  <p className="text-[17px] font-semibold text-[var(--t1)]">
-                    No birds found
-                  </p>
-                  <p className="text-[14px] text-[var(--t2)]">Try a different search or clear filters</p>
-                  <Button
-                    variant="outline"
-                    size="md"
-                    onClick={reset}
-                  >
-                    Clear filters
-                  </Button>
-                </div>
-              ) : (
-                <div className="px-6 pt-4 pb-24 max-w-3xl mx-auto w-full">
-                  <BirdVirtualGrid
-                    items={filteredBirds}
-                    letterFirstIndex={letterFirstIndex}
-                    onCardTap={setSelectedBird}
-                    scrollRef={scrollContainerRef as React.RefObject<HTMLDivElement>}
-                    virtualizerRef={virtualizerRef}
-                  />
-                </div>
-              )
-            )}
-
-            {/* Map view */}
-            {viewMode === 'map' && (
-              <div className="px-4 pt-4 pb-24">
-                <BirdMap
-                  birds={filteredBirds}
-                  onBirdTap={setSelectedBird}
-                />
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ─── Identify tab content ──────────────────────────────── */}
-        {activeTab === 'identify' && (
-          <IdentifyView onBirdTap={setSelectedBird} />
-        )}
       </div>
-
-      {/* A-Z Rail — only shown in browse grid view */}
-      {activeTab === 'browse' && viewMode === 'grid' && filteredBirds.length > 0 && (
-        <AZRail
-          availableLetters={availableLetters}
-          onLetterTap={handleLetterPress}
-          activeLetter={activeLetter}
-        />
-      )}
-      </div>{/* end content row */}
 
       {/* Bird profile sheet — summary view */}
       <BirdProfileSheet
