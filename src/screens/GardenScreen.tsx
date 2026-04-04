@@ -248,7 +248,7 @@ export function GardenScreen() {
       <motion.button
         onClick={() => setAddSheetOpen(true)}
         className={cn(
-          'fixed z-[100] w-14 h-14 rounded-full shadow-lg',
+          'fixed z-[950] w-14 h-14 rounded-full',
           'flex items-center justify-center text-white',
           'active:scale-[.92] transition-transform',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]',
