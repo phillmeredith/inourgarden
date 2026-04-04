@@ -4,7 +4,7 @@
 
 import type { BirdSpecies } from './birds'
 
-export const BIRDS_BATCH10: BirdSpecies[
+export const BIRDS_BATCH10: BirdSpecies[] = [
   {
     id: 'booted-eagle',
     name: 'Booted Eagle',
