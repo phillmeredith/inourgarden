@@ -15,10 +15,10 @@ export function PageHeader({ title, centre, below, rightAction, className = '' }
       className={`sticky top-0 z-[100] shrink-0 px-6 ${className}`}
       style={{
         paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
-        background: 'rgba(13,13,17,.88)',
+        background: 'var(--nav)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(255,255,255,.06)',
+        borderBottom: '1px solid var(--border-s)',
       }}
     >
       <div

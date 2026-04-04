@@ -59,7 +59,7 @@ export function InlineAudioPlayer({ birdId, soundUrl }: InlineAudioPlayerProps) 
     <div
       className={cn(
         'flex items-center gap-1.5 px-2 py-1.5',
-        'bg-[rgba(13,13,17,.72)] backdrop-blur-sm',
+        'bg-[var(--elev)] backdrop-blur-sm',
         'rounded-b-[var(--r-lg)]',
       )}
       // Prevent card navigation when interacting with the player

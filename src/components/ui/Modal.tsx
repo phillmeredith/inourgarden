@@ -168,10 +168,10 @@ export function Modal({
               className,
             )}
             style={{
-              background: 'rgba(13,13,17,.80)',
+              background: 'var(--card)',
               backdropFilter: 'blur(24px)',
               WebkitBackdropFilter: 'blur(24px)',
-              border: '1px solid rgba(255,255,255,.06)',
+              border: '1px solid var(--border-s)',
             }}
             initial={{ opacity: 0, scale: 0.95, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

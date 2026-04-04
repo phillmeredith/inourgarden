@@ -98,7 +98,7 @@ export function BirdDetailModal({ bird, onClose, onSpotted }: BirdDetailModalPro
               onClick={handleClose}
               className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--t3)] hover:text-[var(--t1)] transition-colors"
               style={{
-                background: 'rgba(13,13,17,.80)',
+                background: 'var(--elev)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
               }}

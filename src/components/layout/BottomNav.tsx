@@ -20,12 +20,12 @@ export function BottomNav() {
       className="fixed bottom-0 left-0 right-0 z-[900]"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        background: 'rgba(13,13,17,.88)',
+        background: 'var(--nav)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
       }}
     >
-      <div style={{ borderTop: '1px solid rgba(255,255,255,.06)' }}>
+      <div style={{ borderTop: '1px solid var(--border-s)' }}>
         <div className="flex items-stretch h-[68px]">
           {TABS.map(({ to, label, Icon }) => (
             <NavLink

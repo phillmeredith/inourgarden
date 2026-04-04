@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Default surface colours (prevents flash before JS applies data-theme) ── */
 html {
   height: -webkit-fill-available;
   height: 100dvh;
   width: 100%;
-  background-color: #0D0D11;
+  background-color: var(--bg, #0D0D11);
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -17,71 +18,176 @@ body,
   min-height: -webkit-fill-available;
   min-height: 100dvh;
   width: 100%;
-  background-color: #0D0D11;
+  background-color: var(--bg, #0D0D11);
   overflow: hidden;
   overscroll-behavior: none;
 }
 
-:root {
-  --bg: #0D0D11;
-  --card: #18181D;
-  --elev: #23262F;
-  --border: #353945;
+/* ════════════════════════════════════════════════════════
+   THEME: Midnight (default)
+   Dark space — blue accent
+════════════════════════════════════════════════════════ */
+:root,
+[data-theme="midnight"] {
+  --bg:       #0D0D11;
+  --card:     #18181D;
+  --elev:     #23262F;
+  --border:   #353945;
   --border-s: #2C2F3A;
+  --nav:      rgba(13,13,17,.92);
 
-  --blue: #3772FF;
-  --blue-h: #2B5FD9;
+  --blue:     #3772FF;
+  --blue-h:   #2B5FD9;
   --blue-sub: rgba(55,114,255,.12);
-  --blue-t: #6E9BFF;
-
-  --pink: #E8247C;
-  --pink-h: #C91E6A;
-  --pink-sub: rgba(232,36,124,.12);
-  --pink-t: #F06EAB;
-
-  --green: #45B26B;
-  --green-sub: rgba(69,178,107,.12);
-  --green-t: #7DD69B;
-
-  --amber: #F5A623;
-  --amber-sub: rgba(245,166,35,.12);
-  --amber-t: #FCC76E;
-
-  --red: #EF466F;
-  --red-sub: rgba(239,70,111,.12);
-  --red-t: #F5899E;
-
-  --purple: #9757D7;
-  --purple-sub: rgba(151,87,215,.12);
-  --purple-t: #BA8DE9;
+  --blue-t:   #6E9BFF;
 
   --t1: #FCFCFD;
   --t2: #B1B5C4;
   --t3: #777E91;
   --t4: #52566A;
 
-  --grad-hero: linear-gradient(135deg, #E8247C, #3772FF);
-  --grad-warm: linear-gradient(135deg, #F5A623, #E8247C);
-  --grad-cool: linear-gradient(135deg, #3772FF, #9757D7);
-  --grad-mint: linear-gradient(135deg, #45B26B, #3772FF);
+  --sh-card:    0 4px 24px rgba(0,0,0,.25);
+  --sh-elevated: 0 8px 40px rgba(0,0,0,.35);
+
+  --grad-hero:   linear-gradient(135deg, #E8247C, #3772FF);
+  --grad-accent: linear-gradient(135deg, #3772FF, #9757D7);
+}
+
+/* ════════════════════════════════════════════════════════
+   THEME: Forest
+   Dark olive — green accent
+════════════════════════════════════════════════════════ */
+[data-theme="forest"] {
+  --bg:       #4f523f;
+  --card:     #595c49;
+  --elev:     #646755;
+  --border:   #7b7e6c;
+  --border-s: #6c6f5d;
+  --nav:      rgba(35,37,26,.95);
+
+  --blue:     #5EC47A;
+  --blue-h:   #4aae67;
+  --blue-sub: rgba(94,196,122,.15);
+  --blue-t:   #88D4A0;
+
+  --t1: #EDEEDD;
+  --t2: #B9BCAA;
+  --t3: #898D7D;
+  --t4: #676B5D;
+
+  --sh-card:     0 4px 24px rgba(0,0,0,.20);
+  --sh-elevated: 0 8px 40px rgba(0,0,0,.28);
+
+  --grad-hero:   linear-gradient(135deg, #5EC47A, #3772FF);
+  --grad-accent: linear-gradient(135deg, #5EC47A, #45B26B);
+}
+
+/* ════════════════════════════════════════════════════════
+   THEME: Meadow
+   Warm cream — sage green accent
+════════════════════════════════════════════════════════ */
+[data-theme="meadow"] {
+  --bg:       #F3EFE6;
+  --card:     #FFFFFF;
+  --elev:     #E8E4DA;
+  --border:   #D3CEC4;
+  --border-s: #DEDAD0;
+  --nav:      rgba(232,228,218,.95);
+
+  --blue:     #3A7D44;
+  --blue-h:   #2F6738;
+  --blue-sub: rgba(58,125,68,.10);
+  --blue-t:   #2F6738;
+
+  --t1: #1C1A15;
+  --t2: #4A4840;
+  --t3: #7A7870;
+  --t4: #AFADA5;
+
+  --sh-card:     0 2px 12px rgba(0,0,0,.07);
+  --sh-elevated: 0 4px 20px rgba(0,0,0,.10);
+
+  --grad-hero:   linear-gradient(135deg, #3A7D44, #5A9E64);
+  --grad-accent: linear-gradient(135deg, #3A7D44, #6DBE8C);
+
+  /* Status colours need slightly higher alpha on light bg */
+  --amber-sub: rgba(245,166,35,.14);
+  --red-sub:   rgba(239,70,111,.10);
+  --green-sub: rgba(69,178,107,.12);
+}
+
+/* ════════════════════════════════════════════════════════
+   THEME: Dusk
+   Deep purple — violet accent
+════════════════════════════════════════════════════════ */
+[data-theme="dusk"] {
+  --bg:       #16101F;
+  --card:     #1F1730;
+  --elev:     #292040;
+  --border:   #3C2D58;
+  --border-s: #302448;
+  --nav:      rgba(14,9,20,.95);
+
+  --blue:     #9757D7;
+  --blue-h:   #7F46BD;
+  --blue-sub: rgba(151,87,215,.15);
+  --blue-t:   #BA8DE9;
+
+  --t1: #F0EAFF;
+  --t2: #C2B5E8;
+  --t3: #8E7FC0;
+  --t4: #6A5A9A;
+
+  --sh-card:     0 4px 24px rgba(0,0,0,.32);
+  --sh-elevated: 0 8px 40px rgba(0,0,0,.42);
+
+  --grad-hero:   linear-gradient(135deg, #9757D7, #E8247C);
+  --grad-accent: linear-gradient(135deg, #9757D7, #3772FF);
+}
+
+/* ── Shared static tokens (same across all themes) ───────────────────────── */
+:root {
+  --pink:       #E8247C;
+  --pink-h:     #C91E6A;
+  --pink-sub:   rgba(232,36,124,.12);
+  --pink-t:     #F06EAB;
+
+  --green:      #45B26B;
+  --green-sub:  rgba(69,178,107,.12);
+  --green-t:    #7DD69B;
+
+  --amber:      #F5A623;
+  --amber-sub:  rgba(245,166,35,.12);
+  --amber-t:    #FCC76E;
+
+  --red:        #EF466F;
+  --red-sub:    rgba(239,70,111,.12);
+  --red-t:      #F5899E;
+
+  --purple:     #9757D7;
+  --purple-sub: rgba(151,87,215,.12);
+  --purple-t:   #BA8DE9;
+
+  --grad-warm:   linear-gradient(135deg, #F5A623, #E8247C);
+  --grad-cool:   linear-gradient(135deg, #3772FF, #9757D7);
+  --grad-mint:   linear-gradient(135deg, #45B26B, #3772FF);
   --grad-aurora: linear-gradient(135deg, #9757D7, #3772FF 50%, #45B26B);
 
-  --r-xs: 6px;
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 20px;
-  --r-pill: 100px;
-
-  --sh-card: 0 4px 24px rgba(0,0,0,.25);
-  --sh-elevated: 0 8px 40px rgba(0,0,0,.35);
   --glow-blue: 0 0 24px rgba(55,114,255,.25);
   --glow-pink: 0 0 24px rgba(232,36,124,.25);
 
-  --font: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --r-xs:   6px;
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   20px;
+  --r-pill: 100px;
+
+  --font:      'DM Sans', 'Inter', system-ui, sans-serif;
   --font-body: 'DM Sans', 'Inter', system-ui, sans-serif;
 }
 
+/* ── Base reset ──────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -99,7 +205,7 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Prevent scroll chaining on inner scroll containers */
+/* ── Scroll behaviour ────────────────────────────────────────────────────── */
 .overflow-y-auto,
 .overflow-y-scroll {
   overscroll-behavior-y: contain;
@@ -107,11 +213,9 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Hide scrollbar utility (used by horizontal pill rows) */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Scrollable containers */
 .scroll-y {
   overflow-y: auto;
   overflow-x: hidden;
@@ -122,17 +226,17 @@ body {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* Gradient overlays */
-.grad-hero { background: var(--grad-hero); }
-.grad-warm { background: var(--grad-warm); }
-.grad-cool { background: var(--grad-cool); }
-.grad-mint { background: var(--grad-mint); }
+/* ── Gradient utilities ──────────────────────────────────────────────────── */
+.grad-hero   { background: var(--grad-hero); }
+.grad-warm   { background: var(--grad-warm); }
+.grad-cool   { background: var(--grad-cool); }
+.grad-mint   { background: var(--grad-mint); }
 .grad-aurora { background: var(--grad-aurora); }
 
-/* Shimmer animation */
+/* ── Shimmer animation ───────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
 }
 
 .shimmer {
@@ -141,7 +245,7 @@ body {
   animation: shimmer 2s linear infinite;
 }
 
-/* Safe area support for iPad */
+/* ── Safe area ───────────────────────────────────────────────────────────── */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }

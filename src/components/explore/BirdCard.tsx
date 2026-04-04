@@ -72,7 +72,7 @@ export function BirdCard({ bird, onClick }: BirdCardProps) {
         <span
           className={cn(
             'absolute left-1.5 w-3 h-3 rounded-full',
-            'border-2 border-[rgba(13,13,17,.6)]',
+            'border-2 border-[var(--card)]',
             soundUrl ? 'bottom-9' : 'bottom-1.5',
             CONSERVATION_DOT[bird.conservationStatus] ?? 'bg-[var(--t3)]',
           )}

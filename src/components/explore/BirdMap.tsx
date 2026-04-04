@@ -241,7 +241,7 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
       </Map>
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-3 px-3 py-2 rounded-[var(--r-md)] bg-[rgba(13,13,17,0.85)] backdrop-blur-xl border border-[var(--border-s)]">
+      <div className="absolute bottom-4 left-4 flex items-center gap-3 px-3 py-2 rounded-[var(--r-md)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]">
         {(['Red', 'Amber', 'Green'] as const).map(status => (
           <div key={status} className="flex items-center gap-1.5">
             <div
@@ -254,7 +254,7 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
       </div>
 
       {/* Bird count badge */}
-      <div className="absolute top-4 left-4 px-3 py-1.5 rounded-[var(--r-pill)] bg-[rgba(13,13,17,0.85)] backdrop-blur-xl border border-[var(--border-s)]">
+      <div className="absolute top-4 left-4 px-3 py-1.5 rounded-[var(--r-pill)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]">
         <span className="text-[12px] text-[var(--t2)] font-medium">
           {birds.length} species
         </span>

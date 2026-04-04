@@ -86,12 +86,12 @@ export function BottomSheet({
             )}
             style={{
               maxHeight,
-              background: 'rgba(13,13,17,.80)',
+              background: 'var(--card)',
               backdropFilter: 'blur(24px)',
               WebkitBackdropFilter: 'blur(24px)',
-              borderTop: '1px solid rgba(255,255,255,.06)',
-              borderLeft: '1px solid rgba(255,255,255,.04)',
-              borderRight: '1px solid rgba(255,255,255,.04)',
+              borderTop: '1px solid var(--border-s)',
+              borderLeft: '1px solid var(--border-s)',
+              borderRight: '1px solid var(--border-s)',
             }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
