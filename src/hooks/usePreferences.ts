@@ -1,5 +1,5 @@
 // usePreferences — reads/writes the single AppPreferences row (id=1)
-// Reactive via useLiveQuery; applies theme and text size to the DOM
+// Reactive via useLiveQuery; applies theme to the DOM via data-theme attribute
 
 import { useEffect, useCallback } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -8,77 +8,59 @@ import type { AppPreferences } from '../lib/db'
 
 const DEFAULTS: AppPreferences = {
   id: 1,
-  theme: 'dark',
-  accentColour: 'blue',
+  theme: 'midnight',
   reducedMotion: false,
   textSize: 'default',
 }
 
-/**
- * Ensure the preferences row exists. Called once on hook mount.
- * If no row with id=1 exists, inserts the defaults.
- */
+const VALID_THEMES: AppPreferences['theme'][] = ['midnight', 'forest', 'meadow', 'dusk']
+
+const THEME_NAV_COLOR: Record<AppPreferences['theme'], string> = {
+  midnight: '#0D0D11',
+  forest:   '#333626',
+  meadow:   '#E8E4DA',
+  dusk:     '#0E0914',
+}
+
 async function ensurePreferences(): Promise<void> {
   try {
     const existing = await db.preferences.get(1)
-    if (!existing) {
-      await db.preferences.add(DEFAULTS)
-    }
+    if (!existing) await db.preferences.add(DEFAULTS)
   } catch (err) {
     console.error('[usePreferences] ensurePreferences failed:', err)
   }
 }
 
 export function usePreferences() {
-  // Ensure the row exists on first mount
-  useEffect(() => {
-    ensurePreferences()
-  }, [])
+  useEffect(() => { ensurePreferences() }, [])
 
-  const preferences = useLiveQuery(
-    () => db.preferences.get(1),
-    [],
-    DEFAULTS,
-  )
-
-  // Merge with defaults so callers always get a complete object
+  const preferences = useLiveQuery(() => db.preferences.get(1), [], DEFAULTS)
   const prefs: AppPreferences = { ...DEFAULTS, ...preferences }
 
-  // Apply theme to document root whenever it changes
+  // Apply theme — sets data-theme on <html> which triggers CSS variable overrides
+  // Also updates theme-color meta so the iOS status bar matches the nav
   useEffect(() => {
-    const root = document.documentElement
-
-    if (prefs.theme === 'system') {
-      // Respect OS preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light')
-    } else {
-      root.setAttribute('data-theme', prefs.theme)
-    }
+    const theme = VALID_THEMES.includes(prefs.theme) ? prefs.theme : 'midnight'
+    document.documentElement.setAttribute('data-theme', theme)
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', THEME_NAV_COLOR[theme])
   }, [prefs.theme])
 
-  // Apply text size class to body whenever it changes
+  // Apply text size
   useEffect(() => {
-    const body = document.body
-
-    // Remove any previous text size class
-    body.classList.remove('text-size-default', 'text-size-large')
-
-    // Apply the current one
-    body.classList.add(`text-size-${prefs.textSize}`)
+    document.body.classList.remove('text-size-default', 'text-size-large')
+    document.body.classList.add(`text-size-${prefs.textSize}`)
   }, [prefs.textSize])
 
-  // Apply reduced motion preference
+  // Apply reduced motion
   useEffect(() => {
-    const root = document.documentElement
     if (prefs.reducedMotion) {
-      root.setAttribute('data-reduced-motion', 'true')
+      document.documentElement.setAttribute('data-reduced-motion', 'true')
     } else {
-      root.removeAttribute('data-reduced-motion')
+      document.documentElement.removeAttribute('data-reduced-motion')
     }
   }, [prefs.reducedMotion])
 
-  /** Update a single preference key. */
   const updatePreference = useCallback(
     async <K extends keyof Omit<AppPreferences, 'id'>>(
       key: K,
@@ -95,8 +77,5 @@ export function usePreferences() {
     [],
   )
 
-  return {
-    preferences: prefs,
-    updatePreference,
-  }
+  return { preferences: prefs, updatePreference }
 }
