@@ -7,11 +7,12 @@ import { db, todayString } from '../lib/db'
 import type { GardenSighting } from '../lib/db'
 
 export function useGardenSightings() {
-  const sightings = useLiveQuery(
-    () => db.gardenSightings.toArray(),
-    [],
-    [] as GardenSighting[],
-  )
+  // No default value — useLiveQuery returns `undefined` before the first DB
+  // result arrives. We expose `isLoading` so screens can show a skeleton
+  // rather than briefly flashing an empty state before real data loads.
+  const rawSightings = useLiveQuery(() => db.gardenSightings.toArray(), [])
+  const isLoading = rawSightings === undefined
+  const sightings: GardenSighting[] = rawSightings ?? []
 
   /** Set of all unique birdIds the user has ever logged. */
   const seenBirdIds = useMemo(() => {
@@ -87,6 +88,7 @@ export function useGardenSightings() {
   }
 
   return {
+    isLoading,
     sightings,
     seenBirdIds,
     hasSeen,

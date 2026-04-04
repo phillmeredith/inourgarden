@@ -364,7 +364,8 @@ export function SettingsScreen() {
         <Section title="About">
           <div className="py-4 flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className="text-[15px] font-semibold text-[var(--t1)]">
+              <span className="text-[15px] font-semibold text-[var(--t1)] flex items-center gap-2">
+                <span aria-label="Raccoon" role="img">🦝</span>
                 Laura's Birdwatch
               </span>
               <span className="text-[12px] font-medium text-[var(--t3)] tabular-nums">

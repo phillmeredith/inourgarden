@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import {
   Calendar, Clock, Hash, FileText, Cloud, Camera,
-  Trash2, Pencil, ExternalLink,
+  Trash2, ChevronRight,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BottomSheet } from '../ui/BottomSheet'
@@ -119,19 +119,6 @@ export function SightingDetailSheet({
             </p>
           </div>
 
-          {onViewSpecies && (
-            <button
-              onClick={() => onViewSpecies(bird.id)}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold',
-                'bg-[var(--blue-sub)] border border-[var(--blue)] text-[var(--blue-t)]',
-                'transition-colors hover:bg-[var(--blue)] hover:text-white',
-              )}
-            >
-              <ExternalLink size={12} strokeWidth={2} />
-              Species info
-            </button>
-          )}
         </div>
 
         {/* Summary stats row */}
@@ -251,6 +238,22 @@ export function SightingDetailSheet({
             </div>
           )}
         </div>
+
+        {/* Learn More — full-width CTA */}
+        {onViewSpecies && (
+          <button
+            onClick={() => onViewSpecies(bird.id)}
+            className={cn(
+              'w-full h-12 mt-2 rounded-xl flex items-center justify-center gap-2',
+              'text-[14px] font-semibold transition-colors',
+              'bg-[var(--elev)] border border-[var(--border-s)] text-[var(--t2)]',
+              'hover:border-[var(--blue)] hover:text-[var(--blue-t)]',
+            )}
+          >
+            Learn More
+            <ChevronRight size={16} strokeWidth={2} />
+          </button>
+        )}
       </div>
     </BottomSheet>
   )

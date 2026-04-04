@@ -1,7 +1,12 @@
 // BirdProfileSheet — BottomSheet summary when tapping a bird in the grid
 // Header row: w-20 h-20 rounded-xl image + common name + scientific name + conservation badge
 // Quick stats, play sound button, "Learn More", "Mark as seen", and "Spotted" CTAs
+// When "Mark as seen" is tapped: full-screen success overlay animates in (tick + name),
+// then auto-closes the sheet.
 
+import { useState } from 'react'
+import { createPortal } from 'react-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Volume2, Eye, ChevronRight, Binoculars } from 'lucide-react'
 import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
@@ -16,24 +21,10 @@ import type { BirdSpecies } from '../../data/birds'
 const STATUS_LABEL: Record<string, string> = { Red: 'High concern', Amber: 'Declining', Green: 'Least concern' }
 
 const CONSERVATION_BADGE: Record<string, { bg: string; border: string; text: string }> = {
-  Red: {
-    bg: 'bg-[var(--red-sub)]',
-    border: 'border-[var(--red)]',
-    text: 'text-[var(--red-t)]',
-  },
-  Amber: {
-    bg: 'bg-[var(--amber-sub)]',
-    border: 'border-[var(--amber)]',
-    text: 'text-[var(--amber-t)]',
-  },
-  Green: {
-    bg: 'bg-[var(--green-sub)]',
-    border: 'border-[var(--green)]',
-    text: 'text-[var(--green-t)]',
-  },
+  Red:   { bg: 'bg-[var(--red-sub)]',   border: 'border-[var(--red)]',   text: 'text-[var(--red-t)]'   },
+  Amber: { bg: 'bg-[var(--amber-sub)]', border: 'border-[var(--amber)]', text: 'text-[var(--amber-t)]' },
+  Green: { bg: 'bg-[var(--green-sub)]', border: 'border-[var(--green)]', text: 'text-[var(--green-t)]' },
 }
-
-// ─── Garden likelihood label ─────────────────────────────────────────────────
 
 function gardenLabel(likelihood: number): string {
   if (likelihood >= 5) return 'Very common'
@@ -55,16 +46,17 @@ export function BirdProfileSheet({ bird, onClose, onLearnMore, onSpotted }: Bird
   const { hasSeen, addSighting } = useGardenSightings()
   const { sightingsForBird } = useWildSightings()
 
+  // successName — set to bird name when "Mark as seen" is tapped; drives the overlay.
+  // Stored separately so the overlay keeps its text even after `bird` becomes null.
+  const [successName, setSuccessName] = useState<string | null>(null)
+
   const isAlreadySeen = bird ? hasSeen(bird.id) : false
   const wildCount = bird ? sightingsForBird(bird.id).length : 0
 
   function handlePlaySound() {
     if (!bird?.soundUrl) return
-    if (isPlaying && currentUrl === bird.soundUrl) {
-      stop()
-    } else {
-      play(bird.soundUrl)
-    }
+    if (isPlaying && currentUrl === bird.soundUrl) stop()
+    else play(bird.soundUrl)
   }
 
   function handleLearnMore() {
@@ -74,7 +66,15 @@ export function BirdProfileSheet({ bird, onClose, onLearnMore, onSpotted }: Bird
 
   async function handleMarkAsSeen() {
     if (!bird || isAlreadySeen) return
+    const name = bird.name
     await addSighting(bird.id)
+    setSuccessName(name)
+    // Auto-dismiss: let animation play, then close
+    setTimeout(() => {
+      setSuccessName(null)
+      stop()
+      onClose()
+    }, 2400)
   }
 
   function handleClose() {
@@ -85,130 +85,183 @@ export function BirdProfileSheet({ bird, onClose, onLearnMore, onSpotted }: Bird
   const badge = bird ? CONSERVATION_BADGE[bird.conservationStatus] : null
 
   return (
-    <BottomSheet open={!!bird} onClose={handleClose} maxHeight="100dvh">
-      {bird && (
-        <div className="pb-6">
-          <div className="px-6 pt-4">
-            {/* Hero row — thumbnail + name/meta */}
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-20 h-20 rounded-xl overflow-hidden bg-[var(--elev)] shrink-0">
-                {bird.imageUrl ? (
-                  <img
-                    src={bird.imageUrl}
-                    alt={bird.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[var(--t4)] text-[11px]">
-                    No image
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <h2 className="text-[20px] font-bold text-[var(--t1)] leading-tight truncate">
-                    {bird.name}
-                  </h2>
-                  {badge && (
-                    <span
-                      className={cn(
+    <>
+      <BottomSheet open={!!bird} onClose={handleClose} maxHeight="100dvh">
+        {bird && (
+          <div className="pb-6">
+            <div className="px-6 pt-4">
+              {/* Hero row */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-20 h-20 rounded-xl overflow-hidden bg-[var(--elev)] shrink-0">
+                  {bird.imageUrl ? (
+                    <img src={bird.imageUrl} alt={bird.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[var(--t4)] text-[11px]">
+                      No image
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h2 className="text-[20px] font-bold text-[var(--t1)] leading-tight truncate">
+                      {bird.name}
+                    </h2>
+                    {badge && (
+                      <span className={cn(
                         'shrink-0 px-2 py-0.5 rounded-[var(--r-pill)]',
                         'text-[11px] font-bold uppercase tracking-wide border',
                         badge.bg, badge.border, badge.text,
-                      )}
-                    >
-                      {STATUS_LABEL[bird.conservationStatus] ?? bird.conservationStatus}
+                      )}>
+                        {STATUS_LABEL[bird.conservationStatus] ?? bird.conservationStatus}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[13px] italic text-[var(--t3)] leading-snug truncate mb-1.5">
+                    {bird.scientificName}
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    <span className="inline-flex items-center px-3 py-1 rounded-[var(--r-pill)] text-[11px] font-bold uppercase tracking-wide bg-[var(--elev)] border border-[var(--border-s)] text-[var(--t3)]">
+                      {bird.family}
                     </span>
-                  )}
-                </div>
-                <p className="text-[13px] italic text-[var(--t3)] leading-snug truncate mb-1.5">
-                  {bird.scientificName}
-                </p>
-                <div className="flex gap-2 flex-wrap">
-                  <span className="inline-flex items-center px-3 py-1 rounded-[var(--r-pill)] text-[11px] font-bold uppercase tracking-wide bg-[var(--elev)] border border-[var(--border-s)] text-[var(--t3)]">
-                    {bird.family}
-                  </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Quick stats */}
-            <div className="flex items-center gap-4 mb-4 flex-wrap">
-              {[
-                { label: 'SIZE', value: bird.size },
-                { label: 'SEASON', value: bird.seasonality },
-                { label: 'GARDEN', value: gardenLabel(bird.gardenLikelihood) },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--t3)]">
-                    {label}
-                  </span>
-                  <span className="text-[13px] font-semibold text-[var(--t1)]">{value}</span>
-                </div>
-              ))}
-            </div>
+              {/* Quick stats */}
+              <div className="flex items-center gap-4 mb-4 flex-wrap">
+                {[
+                  { label: 'SIZE',   value: bird.size },
+                  { label: 'SEASON', value: bird.seasonality },
+                  { label: 'GARDEN', value: gardenLabel(bird.gardenLikelihood) },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--t3)]">{label}</span>
+                    <span className="text-[13px] font-semibold text-[var(--t1)]">{value}</span>
+                  </div>
+                ))}
+              </div>
 
-            {/* Play sound button */}
-            {bird.soundUrl && (
-              <button
-                onClick={handlePlaySound}
-                className={cn(
-                  'flex items-center gap-2 px-4 h-10 rounded-[var(--r-pill)] mb-4',
-                  'text-[13px] font-semibold transition-colors duration-150 border',
-                  isPlaying && currentUrl === bird.soundUrl
-                    ? 'bg-[var(--blue-sub)] border-[var(--blue)] text-[var(--blue-t)]'
-                    : 'bg-[var(--card)] border-[var(--border-s)] text-[var(--t2)]',
-                )}
+              {/* Play sound */}
+              {bird.soundUrl && (
+                <button
+                  onClick={handlePlaySound}
+                  className={cn(
+                    'flex items-center gap-2 px-4 h-10 rounded-[var(--r-pill)] mb-4',
+                    'text-[13px] font-semibold transition-colors duration-150 border',
+                    isPlaying && currentUrl === bird.soundUrl
+                      ? 'bg-[var(--blue-sub)] border-[var(--blue)] text-[var(--blue-t)]'
+                      : 'bg-[var(--card)] border-[var(--border-s)] text-[var(--t2)]',
+                  )}
+                >
+                  <Volume2 size={16} strokeWidth={2} aria-hidden="true" />
+                  {isPlaying && currentUrl === bird.soundUrl ? 'Stop sound' : 'Play sound'}
+                </button>
+              )}
+
+              {/* Description */}
+              <p className="text-[14px] text-[var(--t2)] leading-relaxed mb-6">
+                {bird.description}
+              </p>
+
+              {/* Learn More */}
+              <Button variant="outline" size="md" className="w-full mb-3" onClick={handleLearnMore}>
+                <span className="flex items-center gap-2">
+                  Learn More
+                  <ChevronRight size={16} strokeWidth={2} />
+                </span>
+              </Button>
+
+              {/* Mark as seen */}
+              <Button
+                variant={isAlreadySeen ? 'secondary' : 'primary'}
+                size="md"
+                className="w-full mb-2"
+                disabled={isAlreadySeen}
+                onClick={handleMarkAsSeen}
               >
-                <Volume2 size={16} strokeWidth={2} aria-hidden="true" />
-                {isPlaying && currentUrl === bird.soundUrl ? 'Stop sound' : 'Play sound'}
+                <span className="flex items-center gap-2">
+                  <Eye size={16} strokeWidth={2} />
+                  {isAlreadySeen ? 'Already seen in our garden' : 'Mark as seen in our garden'}
+                </span>
+              </Button>
+
+              {/* Spotted in the wild */}
+              <button
+                onClick={onSpotted}
+                className="w-full h-11 rounded-[var(--r-md)] text-[14px] font-semibold flex items-center justify-center gap-2 transition-colors bg-[var(--purple-sub)] text-[var(--purple-t)] border border-transparent hover:border-[var(--purple)]"
+              >
+                <Binoculars size={16} strokeWidth={2} />
+                {wildCount > 0 ? `Spotted in the wild (${wildCount})` : 'Spotted in the wild'}
               </button>
-            )}
-
-            {/* Description */}
-            <p className="text-[14px] text-[var(--t2)] leading-relaxed mb-6">
-              {bird.description}
-            </p>
-
-            {/* Learn More */}
-            <Button
-              variant="outline"
-              size="md"
-              className="w-full mb-3"
-              onClick={handleLearnMore}
-            >
-              <span className="flex items-center gap-2">
-                Learn More
-                <ChevronRight size={16} strokeWidth={2} />
-              </span>
-            </Button>
-
-            {/* Mark as seen */}
-            <Button
-              variant={isAlreadySeen ? 'secondary' : 'primary'}
-              size="md"
-              className="w-full mb-2"
-              disabled={isAlreadySeen}
-              onClick={handleMarkAsSeen}
-            >
-              <span className="flex items-center gap-2">
-                <Eye size={16} strokeWidth={2} />
-                {isAlreadySeen ? 'Already seen in our garden' : 'Mark as seen in our garden'}
-              </span>
-            </Button>
-
-            {/* Spotted in the wild */}
-            <button
-              onClick={onSpotted}
-              className="w-full h-11 rounded-[var(--r-md)] text-[14px] font-semibold flex items-center justify-center gap-2 transition-colors bg-[var(--purple-sub)] text-[var(--purple-t)] border border-transparent hover:border-[var(--purple)]"
-            >
-              <Binoculars size={16} strokeWidth={2} />
-              {wildCount > 0 ? `Spotted in the wild (${wildCount})` : 'Spotted in the wild'}
-            </button>
+            </div>
           </div>
-        </div>
+        )}
+      </BottomSheet>
+
+      {/* ── Success overlay ────────────────────────────────────────────────────
+          Portal-mounted so it sits above the BottomSheet (z-[1010]).
+          Shows an animated tick + bird name, then auto-dismisses. */}
+      {createPortal(
+        <AnimatePresence>
+          {successName && (
+            <motion.div
+              className="fixed inset-0 z-[1010] flex flex-col items-center justify-center"
+              style={{ background: 'var(--bg)' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            >
+              {/* Tick circle */}
+              <motion.div
+                className="relative flex items-center justify-center mb-8"
+                initial={{ scale: 0, rotate: -15 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 22, delay: 0.1 }}
+              >
+                <div
+                  className="w-32 h-32 rounded-full"
+                  style={{
+                    background: 'var(--green-sub)',
+                    border: '2.5px solid var(--green)',
+                  }}
+                />
+                <svg
+                  viewBox="0 0 64 64"
+                  className="absolute w-14 h-14"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <motion.path
+                    d="M14 32 L27 45 L50 18"
+                    stroke="var(--green)"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ delay: 0.35, duration: 0.45, ease: 'easeOut' }}
+                  />
+                </svg>
+              </motion.div>
+
+              {/* Text */}
+              <motion.div
+                className="text-center px-10"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.62, duration: 0.32 }}
+              >
+                <p className="text-[28px] font-bold text-[var(--t1)] mb-2 leading-tight">
+                  Added to your garden!
+                </p>
+                <p className="text-[16px] text-[var(--t2)]">{successName}</p>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body,
       )}
-    </BottomSheet>
+    </>
   )
 }

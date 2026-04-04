@@ -13,6 +13,7 @@ import { GardenStats } from '../components/garden/GardenStats'
 import { EmptyGarden } from '../components/garden/EmptyGarden'
 import { AddSightingSheet } from '../components/garden/AddSightingSheet'
 import { SightingDetailSheet } from '../components/garden/SightingDetailSheet'
+import { BirdDetailModal } from '../components/explore/BirdDetailModal'
 
 import { useGardenSightings } from '../hooks/useGardenSightings'
 import { useGardenStats } from '../hooks/useGardenStats'
@@ -41,7 +42,7 @@ interface GardenBirdSummary {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export function GardenScreen() {
-  const { sightings, seenBirdIds, sightingsForBird, addSighting, removeSighting } =
+  const { isLoading, sightings, seenBirdIds, sightingsForBird, addSighting, removeSighting } =
     useGardenSightings()
   const stats = useGardenStats()
 
@@ -49,6 +50,7 @@ export function GardenScreen() {
   const [sortBy, setSortBy] = useState<SortOption>('recent')
   const [addSheetOpen, setAddSheetOpen] = useState(false)
   const [selectedBirdId, setSelectedBirdId] = useState<string | null>(null)
+  const [detailBirdId, setDetailBirdId] = useState<string | null>(null)
 
   // ─── Build the garden bird grid data ──────────────────────────────────────
 
@@ -138,14 +140,22 @@ export function GardenScreen() {
     await removeSighting(sightingId)
   }
 
+  function handleViewSpecies(birdId: string) {
+    setSelectedBirdId(null)
+    setTimeout(() => setDetailBirdId(birdId), 150)
+  }
+
   // ─── Selected bird data for detail sheet ──────────────────────────────────
 
   const selectedBird = selectedBirdId ? getBirdById(selectedBirdId) ?? null : null
   const selectedBirdSightings = selectedBirdId ? sightingsForBird(selectedBirdId) : []
+  const detailBird = detailBirdId ? getBirdById(detailBirdId) ?? null : null
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
-  const hasSightings = seenBirdIds.size > 0
+  // Guard: don't render content until DB has responded — avoids flashing
+  // EmptyGarden briefly on every navigation to this tab.
+  const hasSightings = !isLoading && seenBirdIds.size > 0
 
   return (
     <div className="flex flex-col h-full bg-[var(--bg)] overflow-y-auto">
@@ -244,11 +254,11 @@ export function GardenScreen() {
         </div>
       )}
 
-      {/* FAB — Add Sighting */}
+      {/* FAB — Add Sighting. z-[1050] sits above the nav-tab gradient overlay */}
       <motion.button
         onClick={() => setAddSheetOpen(true)}
         className={cn(
-          'fixed z-[950] w-14 h-14 rounded-full',
+          'fixed z-[1050] w-14 h-14 rounded-full',
           'flex items-center justify-center text-white',
           'active:scale-[.92] transition-transform',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]',
@@ -279,6 +289,14 @@ export function GardenScreen() {
         bird={selectedBird}
         sightings={selectedBirdSightings}
         onDelete={handleDeleteSighting}
+        onViewSpecies={handleViewSpecies}
+      />
+
+      {/* Bird Detail Modal — opened from "Learn More" in SightingDetailSheet */}
+      <BirdDetailModal
+        bird={detailBird}
+        onClose={() => setDetailBirdId(null)}
+        onSpotted={() => {}}
       />
     </div>
   )
