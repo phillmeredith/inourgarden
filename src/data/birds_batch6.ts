@@ -235,7 +235,7 @@ export const BIRDS_BATCH6: BirdSpecies[] = [
     length: '21-24cm',
     wingspan: '50-57cm',
     imageUrl: '/birds/turnstone.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/turnstone-song.mp3',
     sounds: [],
     description: 'A stocky, short-legged wader that flips over stones, seaweed, and debris on the shoreline to find food.',
     identification: {

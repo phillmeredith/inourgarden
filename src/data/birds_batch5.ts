@@ -973,7 +973,7 @@ export const BIRDS_BATCH5: BirdSpecies[] = [
     length: '34-42cm',
     wingspan: '95-110cm',
     imageUrl: '/birds/short-eared-owl.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/short-eared-owl-song.ogg',
     sounds: [],
     description: 'A daylight-hunting owl of open moorland and marshes, with striking yellow eyes ringed in black and long wings that give it a buoyant, harrier-like flight.',
     identification: {

@@ -691,7 +691,7 @@ const BIRDS_CORE: BirdSpecies[] = [
     length: '26-29cm',
     wingspan: '47-63cm',
     imageUrl: '/birds/puffin.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/puffin-song.ogg',
     sounds: [],
     description: 'An iconic seabird with a colourful triangular bill, breeding on clifftop burrows and spending winter far out at sea.',
     identification: {

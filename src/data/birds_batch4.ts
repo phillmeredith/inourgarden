@@ -786,7 +786,7 @@ export const BIRDS_BATCH4: BirdSpecies[] = [
     length: '42-49cm',
     wingspan: '72-82cm',
     imageUrl: '/birds/pochard.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/pochard-song.ogg',
     sounds: [],
     description: 'A diving duck with a distinctive sloping forehead profile. Males have a rich chestnut head, black breast, and pale grey body.',
     identification: {

@@ -32,10 +32,11 @@ export interface WildSighting {
   createdAt: Date
 }
 
+export type AppTheme = 'midnight' | 'forest' | 'meadow' | 'dusk'
+
 export interface AppPreferences {
   id?: number
-  theme: 'dark' | 'light' | 'system'
-  accentColour: 'blue' | 'green' | 'purple' | 'pink'
+  theme: AppTheme
   reducedMotion: boolean
   textSize: 'default' | 'large'
 }
@@ -60,6 +61,18 @@ class BirdwatchDB extends Dexie {
       wildSightings: '++id, birdId, date',
       preferences: '++id',
     })
+
+    this.version(3).stores({
+      gardenSightings: '++id, birdId, date',
+      wildSightings: '++id, birdId, date',
+      preferences: '++id',
+    }).upgrade(tx =>
+      tx.table('preferences').toCollection().modify(pref => {
+        const valid = ['midnight', 'forest', 'meadow', 'dusk']
+        if (!valid.includes(pref.theme)) pref.theme = 'midnight'
+        delete pref.accentColour
+      })
+    )
   }
 }
 

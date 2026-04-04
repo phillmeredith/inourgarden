@@ -753,7 +753,7 @@ export const BIRDS_BATCH3: BirdSpecies[] = [
     length: '25-27cm',
     wingspan: '70-77cm',
     imageUrl: '/birds/little-gull.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/little-gull-song.mp3',
     sounds: [],
     description: 'The world\'s smallest gull, a dainty and elegant bird more reminiscent of a tern in its buoyant, tern-like flight. A scarce but regular passage migrant and winter visitor to the UK.',
     identification: {

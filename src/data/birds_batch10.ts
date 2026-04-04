@@ -85,7 +85,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (44cm)',
     length: '40-47cm',
     wingspan: '100-120cm',
-    imageUrl: '/birds/montagu-harrier.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/montagu-harrier.jpg', soundUrl: '/sounds/montagu-harrier-song.wav', sounds: [],
     description: 'The most slender and graceful of the harriers, a rare summer visitor to Britain with only a handful of pairs breeding each year in arable farmland.',
     identification: {
       male: 'Pale grey with black wingtips and a single dark bar across the secondaries. Rufous streaking on flanks and belly.',
@@ -593,7 +593,7 @@ export const BIRDS_BATCH10: BirdSpecies[] = [
     size: 'Medium (38cm)',
     length: '36-42cm',
     wingspan: '87-104cm',
-    imageUrl: '/birds/eleonora-falcon.jpg', soundUrl: null, sounds: [],
+    imageUrl: '/birds/eleonora-falcon.jpg', soundUrl: '/sounds/eleonora-falcon-song.ogg', sounds: [],
     description: 'A large, long-winged falcon of the Mediterranean that breeds unusually late in the year to coincide with autumn bird migration. A very rare vagrant to Britain.',
     identification: {
       male: 'Dark morph: all dark sooty-brown. Pale morph: streaked underparts, rufous-washed breast, dark moustache. Both morphs have long wings.',

@@ -482,7 +482,7 @@ export const BIRDS_BATCH11: BirdSpecies[] = [
     length: '11-13cm',
     wingspan: '17-22cm',
     imageUrl: '/birds/arctic-warbler.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/arctic-warbler-song.ogg',
     sounds: [],
     description: 'A scarce autumn migrant from Scandinavia and Siberia, larger and more robust than most Phylloscopus warblers with a stout bill and prominent supercilium.',
     identification: {
@@ -659,7 +659,7 @@ export const BIRDS_BATCH11: BirdSpecies[] = [
     length: '11-13cm',
     wingspan: '15-18cm',
     imageUrl: '/birds/moltoni-warbler.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/moltoni-warbler-song.mp3',
     sounds: [],
     description: 'An extremely rare vagrant from western Mediterranean islands, very similar to Subalpine Warbler and only recently recognised as a separate species.',
     identification: {

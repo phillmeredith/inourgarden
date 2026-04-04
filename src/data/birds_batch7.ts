@@ -1157,7 +1157,7 @@ export const BIRDS_BATCH7: BirdSpecies[] = [
     length: '60-120cm (including tail)',
     wingspan: '65-75cm',
     imageUrl: '/birds/lady-amherst-pheasant.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/lady-amherst-pheasant-song.mp3',
     sounds: [],
     description: 'A spectacular but extremely rare and declining introduced pheasant from China. The small UK population, centred on Bedfordshire, has dwindled to near extinction.',
     identification: {
@@ -1860,7 +1860,7 @@ export const BIRDS_BATCH7: BirdSpecies[] = [
     length: '22-26cm',
     wingspan: '40-45cm',
     imageUrl: '/birds/allen-gallinule.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/allen-gallinule-song.mp3',
     sounds: [],
     description: 'An extremely rare vagrant from sub-Saharan Africa. A small, brightly coloured rail with blue-purple plumage, green back, and red bill and frontal shield.',
     identification: {

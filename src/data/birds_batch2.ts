@@ -17,7 +17,7 @@ export const BIRDS_BATCH2: BirdSpecies[] = [
     length: '12-13cm',
     wingspan: '13-18cm',
     imageUrl: '/birds/dartford-warbler.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/dartford-warbler-song.ogg',
     sounds: [],
     description: 'A small, dark warbler of lowland heathland with a long, often cocked tail and wine-red underparts. One of the few resident warblers in the UK.',
     identification: {

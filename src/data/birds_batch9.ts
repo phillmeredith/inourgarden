@@ -17,7 +17,7 @@ export const BIRDS_BATCH9: BirdSpecies[] = [
     length: '30-36cm',
     wingspan: '85-95cm',
     imageUrl: '/birds/sabine-gull.jpg',
-    soundUrl: null,
+    soundUrl: '/sounds/sabine-gull-song.ogg',
     sounds: [],
     description: 'A graceful, tern-like gull that breeds in the high Arctic and passes through UK waters on autumn migration, often driven close to shore by Atlantic gales.',
     identification: {
