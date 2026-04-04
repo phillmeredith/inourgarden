@@ -8,7 +8,7 @@ export function EmptyGarden() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center">
+    <div className="flex-1 flex flex-col items-center justify-center px-6 pb-8 -mt-12 text-center">
       <Bird size={48} strokeWidth={1.5} className="text-[var(--t4)] mb-5" />
 
       <h2 className="text-[22px] font-semibold text-[var(--t1)] mb-2">
