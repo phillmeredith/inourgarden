@@ -91,7 +91,7 @@ function BirdVirtualGrid({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => (rowHeight > 0 ? rowHeight : 240),
-    overscan: 4,
+    overscan: 10,
   })
 
   // Expose imperative scroll-to-row
@@ -129,14 +129,12 @@ function BirdVirtualGrid({
           return (
             <div
               key={virtualRow.key}
-              data-index={virtualRow.index}
-              ref={virtualizer.measureElement}
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
-                transform: `translateY(${virtualRow.start}px)`,
+                transform: `translate3d(0,${virtualRow.start}px,0)`,
                 display: 'grid',
                 gridTemplateColumns: `repeat(${colCount}, 1fr)`,
                 gap: `${gap}px`,
@@ -255,7 +253,7 @@ export function ExploreScreen() {
   return (
     <div className="flex h-full bg-[var(--bg)]">
       {/* Scrollable content column */}
-      <div className="flex-1 overflow-y-auto" ref={scrollContainerRef}>
+      <div className="flex-1 overflow-y-auto" ref={scrollContainerRef} style={{ willChange: 'scroll-position' }}>
         <PageHeader
           title="Explore"
           centre={

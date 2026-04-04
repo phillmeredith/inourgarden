@@ -257,7 +257,7 @@ export function GardenScreen() {
           background: 'var(--blue)',
           bottom: 'calc(88px + env(safe-area-inset-bottom, 0px))',
           right: '24px',
-          boxShadow: '0 4px 24px rgba(55,114,255,.35)',
+          boxShadow: '0 2px 8px rgba(0,0,0,.25)',
         }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.92 }}
