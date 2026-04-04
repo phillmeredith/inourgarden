@@ -36,8 +36,8 @@ export default defineConfig({
         name: "In Our Garden",
         short_name: 'In Our Garden',
         description: 'Explore, identify, and collect bird sightings',
-        theme_color: '#0D0D11',
-        background_color: '#0D0D11',
+        theme_color: '#333626',
+        background_color: '#4f523f',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

@@ -46,7 +46,8 @@ export function AZRail({ onLetterTap, activeLetter, availableLetters }: AZRailPr
   return (
     <div
       ref={railRef}
-      className="flex flex-col items-center justify-evenly w-7 py-4 select-none touch-none"
+      className="flex flex-col items-center justify-evenly w-7 py-4 select-none touch-none rounded-full"
+      style={{ background: 'var(--elev)' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
     >
@@ -61,7 +62,7 @@ export function AZRail({ onLetterTap, activeLetter, availableLetters }: AZRailPr
               isActive
                 ? 'text-[var(--blue)]'
                 : isAvailable
-                  ? 'text-[var(--t3)] active:text-[var(--blue)]'
+                  ? 'text-[var(--t2)] active:text-[var(--blue)]'
                   : 'text-[var(--t4)]',
             ].join(' ')}
           >
