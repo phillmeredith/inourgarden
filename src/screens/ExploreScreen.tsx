@@ -17,7 +17,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Grid3X3, Map as MapIcon, Search, Volume2 } from 'lucide-react'
+import { Grid3X3, Map as MapIcon, Search, Volume2, VolumeX } from 'lucide-react'
 import { PageHeader } from '../components/layout/PageHeader'
 import { SearchBar } from '../components/ui/SearchBar'
 import { Button } from '../components/ui/Button'
@@ -402,7 +402,9 @@ export function ExploreScreen() {
                     : 'text-[var(--t3)] hover:text-[var(--t1)] hover:bg-white/[.06]',
                 ].join(' ')}
               >
-                <Volume2 size={18} strokeWidth={2} />
+                {hasSoundOnly
+                  ? <Volume2 size={18} strokeWidth={2} />
+                  : <VolumeX size={18} strokeWidth={2} />}
               </button>
             </div>
           }
