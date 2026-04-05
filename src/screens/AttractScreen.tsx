@@ -1229,22 +1229,6 @@ export function AttractScreen() {
               ))}
             </div>
           }
-          rightAction={
-            <button
-              onClick={() => setSetupOpen(true)}
-              className={cn(
-                'h-9 flex items-center gap-1.5 px-3 rounded-full text-[12px] font-semibold transition-colors border',
-                isConfigured
-                  ? 'border-[var(--border-s)] text-[var(--t2)] bg-[var(--card)]'
-                  : 'border-[var(--blue)] text-[var(--blue-t)] bg-[var(--blue-sub)]',
-              )}
-            >
-              {isConfigured
-                ? <><Settings2 size={14} strokeWidth={2} />{regionLabel}</>
-                : <><Star size={14} strokeWidth={2} />Set up</>
-              }
-            </button>
-          }
         />
       </div>
 
