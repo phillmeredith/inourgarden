@@ -6,7 +6,7 @@
 import { useState, useRef } from 'react'
 import {
   Download, Upload, Trash2, AlertTriangle,
-  Loader2, Type, Zap, MapPin, Mountain, Sun, Trees, Leaf, Check,
+  Loader2, Type, Zap, MapPin, Mountain, Sun, Trees, Leaf, Check, ChevronDown,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '../lib/utils'
@@ -258,6 +258,133 @@ function ActionRow({
   )
 }
 
+// ─── Changelog ────────────────────────────────────────────────────────────────
+
+const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
+  {
+    version: '1.0.0',
+    label: 'V1 Release',
+    changes: [
+      'Forest theme set as first/default in theme picker',
+      'Removed flickering entrance animations from garden stat cards and bird grid',
+      'Fixed map not loading on iPhone (iOS DVH height bug)',
+      'Attract tabs now reset scroll position when switching between them',
+    ],
+  },
+  {
+    version: '0.9.4',
+    changes: [
+      'Verified and replaced all broken or wrong feeding/feature images',
+      'Peanuts, mealworms, niger seeds, suet, mixed seed, log pile, nest boxes all fixed',
+      'PWA icon updated to pure black background matching dark mode system icons',
+    ],
+  },
+  {
+    version: '0.9.3',
+    changes: [
+      'PWA app icon — Lucide Bird on dark rounded square, regenerated at 192/512/180px',
+      'Dual theme-color meta tags so iOS sets status bar colour per light/dark mode',
+      'Scoped drag-to-dismiss in bottom sheet to handle pill only — fixes scroll conflict',
+    ],
+  },
+  {
+    version: '0.9.2',
+    changes: [
+      'Edit Favourites shortcut on Strategy tab opens setup directly at step 2',
+      'Fixed blank page when opening setup after using Edit Favourites (hooks violation)',
+      'Fixed setup sheet scroll on bird favourites step',
+    ],
+  },
+  {
+    version: '0.9.1',
+    changes: [
+      'Garden region can now be changed from Settings',
+      'Clear data modal requires typing DELETE before confirming',
+      'Setup button removed from Attract header',
+    ],
+  },
+  {
+    version: '0.9.0',
+    changes: [
+      'Bird cards in Attract now open the full-screen BirdDetailModal (same as Learn More)',
+      'Shopping list — copy individual items or the whole list with one tap',
+      'Your Favourites moved to top of Strategy tab above Watch Out For',
+    ],
+  },
+  {
+    version: '0.8.1',
+    changes: [
+      'Feeding guide: real verified photos for every food type and garden feature',
+      'Images confirmed via live browser fetch — no more placeholder or wrong subjects',
+    ],
+  },
+  {
+    version: '0.8.0',
+    changes: [
+      'Replaced every emoji in the app with matching Lucide icons in rounded containers',
+      'Feeding tab cards show food/feature images on the right',
+      'Strategy, Feeding and Hierarchy tabs all use consistent icon style',
+    ],
+  },
+  {
+    version: '0.7.0',
+    changes: [
+      'PWA support — installable to home screen, offline mode via service worker',
+      'App manifest, icons and apple-touch-icon configured',
+      'Attract screen garden setup with region, features and favourite birds',
+    ],
+  },
+  {
+    version: '0.6.0',
+    changes: [
+      'Full-screen bird detail modal with photo, conservation status, and habitat info',
+      'Log a sighting directly from the bird detail view',
+      'Pecking order (Hierarchy) tab showing feeding dominance and conflict pairs',
+    ],
+  },
+  {
+    version: '0.5.0',
+    changes: [
+      'Settings screen — Forest, Midnight, Meadow and Dusk themes',
+      'Data export and import as JSON backup',
+      'Text size and reduced motion preferences',
+    ],
+  },
+  {
+    version: '0.4.0',
+    changes: [
+      'Attract screen — personalised strategy based on garden region and features',
+      'Feeding guide with food-type sections and which birds each attracts',
+      'Shopping list consolidates everything needed for your favourite birds',
+    ],
+  },
+  {
+    version: '0.3.0',
+    changes: [
+      'Garden screen — log sightings and track your personal bird list',
+      'Stats dashboard: species count, total sightings, monthly count, streak',
+      'Sighting detail with date, count, and notes',
+    ],
+  },
+  {
+    version: '0.2.0',
+    changes: [
+      'Explore screen — full species list with search, filter by conservation status',
+      'Bird cards with photo, conservation badge and garden likelihood',
+      'UK distribution map with colour-coded markers',
+    ],
+  },
+  {
+    version: '0.1.0',
+    label: 'First build',
+    changes: [
+      'Initial app — bird species database (200+ UK species)',
+      'Bottom navigation: Garden, Explore, Attract, Settings',
+      'Dark/light theme foundation with CSS variable design system',
+    ],
+  },
+]
+
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export function SettingsScreen() {
@@ -266,6 +393,7 @@ export function SettingsScreen() {
   const { setup, update: updateGarden } = useGardenSetup()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [changelogOpen, setChangelogOpen] = useState(false)
   const [clearModalOpen, setClearModalOpen] = useState(false)
   const [clearConfirmText, setClearConfirmText] = useState('')
   const [clearing, setClearing] = useState(false)
@@ -457,6 +585,48 @@ export function SettingsScreen() {
             <p className="text-[12px] text-[var(--t3)] leading-relaxed">
               Bird data sources: RSPB, BTO, eBird
             </p>
+
+            {/* Collapsible changelog */}
+            <button
+              onClick={() => setChangelogOpen(o => !o)}
+              className="w-full flex items-center justify-between pt-2 border-t border-[var(--border-s)]"
+            >
+              <span className="text-[12px] font-semibold text-[var(--t2)]">Version history</span>
+              <ChevronDown
+                size={14}
+                strokeWidth={2.5}
+                className="text-[var(--t3)] transition-transform duration-200"
+                style={{ transform: changelogOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+              />
+            </button>
+
+            {changelogOpen && (
+              <div className="flex flex-col gap-4 pt-1">
+                {CHANGELOG.map(entry => (
+                  <div key={entry.version}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[11px] font-bold text-[var(--t1)] tabular-nums">
+                        v{entry.version}
+                      </span>
+                      {entry.label && (
+                        <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full"
+                          style={{ background: 'var(--blue-sub)', color: 'var(--blue-t)' }}>
+                          {entry.label}
+                        </span>
+                      )}
+                    </div>
+                    <ul className="flex flex-col gap-1">
+                      {entry.changes.map((c, i) => (
+                        <li key={i} className="flex items-start gap-1.5">
+                          <span className="text-[var(--t4)] mt-[3px] shrink-0">·</span>
+                          <span className="text-[11px] text-[var(--t3)] leading-relaxed">{c}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Section>
       </div>
