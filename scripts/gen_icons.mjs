@@ -23,12 +23,13 @@ const BIRD_PATHS = [
 ]
 
 function makeSvg(size) {
-  const bg       = '#000000'   // Pure black — OLED pixels off, blends with any dark wallpaper
   const iconCol  = '#b5c47e'   // sage green
   const radius   = size * 0.22 // rounded square corners
 
-  // The bird icon occupies a 24×24 viewBox.
-  // We want it centred and taking up ~50% of the icon area (with padding).
+  // iOS applies a top→bottom gradient over every home-screen icon:
+  //   top  +#303131, bottom +#141413  (measured on pure-black icon)
+  // To counteract it we bake an inverse gradient (#000 at top → #1c1c1e at
+  // bottom) so the sum produces a uniform ~#303131 across the whole icon.
   const birdSize  = size * 0.50
   const birdOff   = (size - birdSize) / 2
 
@@ -38,8 +39,17 @@ function makeSvg(size) {
   ).join('\n    ')
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <!-- background -->
-  <rect width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="${bg}"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#000000"/>
+      <stop offset="100%" stop-color="#1c1c1e"/>
+    </linearGradient>
+    <clipPath id="shape">
+      <rect width="${size}" height="${size}" rx="${radius}" ry="${radius}"/>
+    </clipPath>
+  </defs>
+  <!-- inverse gradient background cancels iOS icon shader -->
+  <rect width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="url(#bg)"/>
   <!-- bird icon: nested svg keeps stroke-width in the 24×24 coordinate space -->
   <svg x="${birdOff.toFixed(2)}" y="${birdOff.toFixed(2)}" width="${birdSize.toFixed(2)}" height="${birdSize.toFixed(2)}" viewBox="0 0 24 24">
     ${pathsStr}
