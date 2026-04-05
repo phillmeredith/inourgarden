@@ -264,6 +264,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.1.0',
+    changes: [
+      'Empty garden message moved to top and updated to "Your garden is empty!"',
+    ],
+  },
+  {
     version: '1.0.9',
     changes: [
       'Renamed "In Our Garden" to "In our garden" throughout the app',
