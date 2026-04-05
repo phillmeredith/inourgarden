@@ -435,6 +435,7 @@ function Section({ title, icon, children }: { title: string; icon: React.ReactNo
 
 function SetupSheet({
   open, onClose, gardenBirds, setup, update, toggleFeature, toggleFavourite,
+  initialStep = 0,
 }: {
   open: boolean
   onClose: () => void
@@ -443,8 +444,18 @@ function SetupSheet({
   update: ReturnType<typeof useGardenSetup>['update']
   toggleFeature: ReturnType<typeof useGardenSetup>['toggleFeature']
   toggleFavourite: ReturnType<typeof useGardenSetup>['toggleFavourite']
+  initialStep?: number
 }) {
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(initialStep)
+
+  // Jump to the requested step each time the sheet opens
+  useState(() => { if (open) setStep(initialStep) })
+  // Also sync when initialStep changes while already open
+  const prevOpen = useRef(false)
+  useLayoutEffect(() => {
+    if (open && !prevOpen.current) setStep(initialStep)
+    prevOpen.current = open
+  }, [open, initialStep])
 
   const steps = ['Where are you?', 'Your garden', 'Favourite birds']
   const isLastStep = step === steps.length - 1
@@ -604,6 +615,7 @@ function StrategyTab({
   onToggleFavourite,
   onToggleDiscourage,
   onOpenSetup,
+  onEditFavourites,
   favourites,
   discourage,
   isConfigured,
@@ -613,6 +625,7 @@ function StrategyTab({
   onToggleFavourite: (name: string) => void
   onToggleDiscourage: (name: string) => void
   onOpenSetup: () => void
+  onEditFavourites: () => void
   favourites: string[]
   discourage: string[]
   isConfigured: boolean
@@ -685,13 +698,22 @@ function StrategyTab({
       {/* Your favourites — TOP */}
       {favouriteBirds.length > 0 && (
         <div>
-          <SectionHeader
-            title="Your Favourites"
-            subtitle="Tap any bird for your personalised attraction plan"
-            icon={<Heart size={14} />}
-            iconBg="var(--red-sub)"
-            iconColor="var(--red-t)"
-          />
+          <div className="flex items-start justify-between gap-2 mb-3">
+            <SectionHeader
+              title="Your Favourites"
+              subtitle="Tap any bird for your personalised attraction plan"
+              icon={<Heart size={14} />}
+              iconBg="var(--red-sub)"
+              iconColor="var(--red-t)"
+            />
+            <button
+              onClick={onEditFavourites}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-semibold border shrink-0 mt-0.5"
+              style={{ background: 'var(--elev)', borderColor: 'var(--border-s)', color: 'var(--t2)' }}
+            >
+              Edit
+            </button>
+          </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
             {favouriteBirds.map(bird => (
               <AttractBirdCard
@@ -1144,6 +1166,7 @@ function SectionHeader({
 export function AttractScreen() {
   const [activeTab, setActiveTab] = useState<AttractTab>('strategy')
   const [setupOpen, setSetupOpen] = useState(false)
+  const [setupInitialStep, setSetupInitialStep] = useState(0)
   const [selectedBird, setSelectedBird] = useState<BirdSpecies | null>(null)
 
   const { setup, isConfigured, update, toggleFeature, toggleFavourite, toggleDiscourage } = useGardenSetup()
@@ -1184,6 +1207,7 @@ export function AttractScreen() {
                 onToggleFavourite={toggleFavourite}
                 onToggleDiscourage={toggleDiscourage}
                 onOpenSetup={() => setSetupOpen(true)}
+                onEditFavourites={() => { setSetupInitialStep(2); setSetupOpen(true) }}
                 favourites={setup.favourites}
                 discourage={setup.discourage}
                 isConfigured={isConfigured}
@@ -1241,6 +1265,7 @@ export function AttractScreen() {
         update={update}
         toggleFeature={toggleFeature}
         toggleFavourite={toggleFavourite}
+        initialStep={setupInitialStep}
       />
 
       {/* Bird detail — full-screen, same as Learn More */}
