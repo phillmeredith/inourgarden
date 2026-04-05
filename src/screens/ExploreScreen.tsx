@@ -330,11 +330,6 @@ export function ExploreScreen() {
                 )
               )}
 
-              {viewMode === 'map' && (
-                <div className="px-4 pb-24" style={{ paddingTop: headerHeight + 16 }}>
-                  <BirdMap birds={filteredBirds} onBirdTap={setSelectedBird} />
-                </div>
-              )}
             </>
           )}
 
@@ -461,6 +456,19 @@ export function ExploreScreen() {
           }
         />
       </div>
+
+      {/* ── Full-bleed map layer ─────────────────────────────────────────────
+          Sits above the scroll area (z-[50]) but below the floating header
+          (z-[100]) so the header remains interactive over the map. */}
+      {activeTab === 'browse' && viewMode === 'map' && (
+        <div className="absolute inset-0 z-[50]">
+          <BirdMap
+            birds={filteredBirds}
+            onBirdTap={setSelectedBird}
+            headerHeight={headerHeight}
+          />
+        </div>
+      )}
 
       {/* Bird profile sheet — summary view */}
       <BirdProfileSheet

@@ -262,6 +262,13 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.3',
+    changes: [
+      'Map is now full-bleed — fills the entire screen with no box or rounded corners',
+      'Map overlay badges reposition dynamically to clear the header and bottom nav',
+    ],
+  },
+  {
     version: '1.0.2',
     changes: [
       'Fixed map not showing birds for Newcastle and other cities beyond the first four in each region',

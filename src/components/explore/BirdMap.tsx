@@ -179,6 +179,8 @@ const CIRCLE_LAYER = {
 interface BirdMapProps {
   birds: BirdSpecies[]
   onBirdTap: (bird: BirdSpecies) => void
+  /** Height of the floating header in px — used to position overlay badges below it */
+  headerHeight?: number
 }
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string
@@ -188,7 +190,7 @@ const UK_BOUNDS: [[number, number], [number, number]] = [
   [2.5, 60.0],
 ]
 
-export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
+export function BirdMap({ birds, onBirdTap, headerHeight = 0 }: BirdMapProps) {
   const mapRef = useRef<MapRef>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerReady, setContainerReady] = useState(false)
@@ -229,7 +231,7 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
 
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="w-full h-[calc(100dvh-290px)] min-h-[350px] flex flex-col items-center justify-center gap-3 rounded-[var(--r-md)] bg-[var(--card)] border border-[var(--border-s)]">
+      <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-[var(--card)]">
         <MapPinOff size={32} className="text-[var(--t3)]" />
         <p className="text-[14px] font-semibold text-[var(--t1)]">Map unavailable</p>
         <p className="text-[12px] text-[var(--t3)] text-center max-w-[260px]">
@@ -239,20 +241,23 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
     )
   }
 
+  // Bottom of the floating nav bar — legend sits just above it
+  const navBottom = 68 // px, matches BottomNav height
+
   return (
-    <div ref={containerRef} className="w-full h-[calc(100dvh-290px)] min-h-[350px] relative">
+    <div ref={containerRef} className="w-full h-full relative">
       {containerReady && (
         <Map
           ref={mapRef}
           mapboxAccessToken={MAPBOX_TOKEN}
           onLoad={(e) => {
             e.target.fitBounds(UK_BOUNDS, {
-              padding: { top: 50, bottom: 80, left: 50, right: 50 },
+              padding: { top: headerHeight + 20, bottom: navBottom + 20, left: 30, right: 30 },
               duration: 0,
             })
           }}
           initialViewState={{ longitude: -3.0, latitude: 54.5, zoom: 4 }}
-          style={{ width: '100%', height: '100%', borderRadius: 'var(--r-md)' }}
+          style={{ width: '100%', height: '100%' }}
           mapStyle={mapStyle}
           attributionControl={false}
           interactiveLayerIds={['bird-points']}
@@ -269,8 +274,11 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
         </Map>
       )}
 
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-3 px-3 py-2 rounded-[var(--r-md)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]">
+      {/* Legend — above the bottom nav */}
+      <div
+        className="absolute left-4 flex items-center gap-3 px-3 py-2 rounded-[var(--r-md)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]"
+        style={{ bottom: navBottom + 12 }}
+      >
         {(['Red', 'Amber', 'Green'] as const).map(status => (
           <div key={status} className="flex items-center gap-1.5">
             <div
@@ -282,8 +290,11 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
         ))}
       </div>
 
-      {/* Bird count badge */}
-      <div className="absolute top-4 left-4 px-3 py-1.5 rounded-[var(--r-pill)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]">
+      {/* Bird count badge — below the floating header */}
+      <div
+        className="absolute left-4 px-3 py-1.5 rounded-[var(--r-pill)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]"
+        style={{ top: headerHeight + 12 }}
+      >
         <span className="text-[12px] text-[var(--t2)] font-medium">
           {birds.length} species
         </span>
