@@ -185,10 +185,6 @@ interface BirdMapProps {
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string
 
-const UK_BOUNDS: [[number, number], [number, number]] = [
-  [-9.0, 49.0],
-  [2.5, 60.0],
-]
 
 export function BirdMap({ birds, onBirdTap, headerHeight = 0 }: BirdMapProps) {
   const mapRef = useRef<MapRef>(null)
@@ -241,22 +237,13 @@ export function BirdMap({ birds, onBirdTap, headerHeight = 0 }: BirdMapProps) {
     )
   }
 
-  // Bottom of the floating nav bar — legend sits just above it
-  const navBottom = 68 // px, matches BottomNav height
-
   return (
     <div ref={containerRef} className="w-full h-full relative">
       {containerReady && (
         <Map
           ref={mapRef}
           mapboxAccessToken={MAPBOX_TOKEN}
-          onLoad={(e) => {
-            e.target.fitBounds(UK_BOUNDS, {
-              padding: { top: headerHeight + 20, bottom: navBottom + 20, left: 30, right: 30 },
-              duration: 0,
-            })
-          }}
-          initialViewState={{ longitude: -3.0, latitude: 54.5, zoom: 4 }}
+          initialViewState={{ longitude: -3.5, latitude: 55.5, zoom: 5.5 }}
           style={{ width: '100%', height: '100%' }}
           mapStyle={mapStyle}
           attributionControl={false}
