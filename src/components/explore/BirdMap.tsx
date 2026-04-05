@@ -274,10 +274,10 @@ export function BirdMap({ birds, onBirdTap, headerHeight = 0 }: BirdMapProps) {
         </Map>
       )}
 
-      {/* Legend — above the bottom nav */}
+      {/* Legend — above the bottom nav + safe area */}
       <div
         className="absolute left-4 flex items-center gap-3 px-3 py-2 rounded-[var(--r-md)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]"
-        style={{ bottom: navBottom + 12 }}
+        style={{ bottom: `calc(${navBottom}px + env(safe-area-inset-bottom, 0px) + 12px)` }}
       >
         {(['Red', 'Amber', 'Green'] as const).map(status => (
           <div key={status} className="flex items-center gap-1.5">

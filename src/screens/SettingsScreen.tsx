@@ -262,6 +262,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.4',
+    changes: [
+      'Fixed map legend clipping behind the bottom nav on iPhone (safe area inset not accounted for)',
+    ],
+  },
+  {
     version: '1.0.3',
     changes: [
       'Map is now full-bleed — fills the entire screen with no box or rounded corners',
