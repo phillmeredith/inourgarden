@@ -580,14 +580,16 @@ export interface FoodGuideEntry {
 export const FOOD_GUIDE: FoodGuideEntry[] = [
   {
     food: 'Sunflower Hearts',
-    imageUrl: 'https://images.unsplash.com/photo-1543158181-e6f9f6712055?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: close-up pile of sunflower seeds (unsplash Xku7nuvaM4A)
+    imageUrl: 'https://images.unsplash.com/photo-1635843111961-06c71c3ed8cf?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Dehulled sunflower seeds — the single most popular garden bird food. No mess, no waste.',
     attractsBirds: ['Robin', 'Blue Tit', 'Great Tit', 'Coal Tit', 'Chaffinch', 'Goldfinch', 'Greenfinch', 'House Sparrow', 'Nuthatch', 'Bullfinch', 'Great Spotted Woodpecker'],
     feederTip: 'Use a tube feeder with multiple ports. Also place some in a low tray feeder for robins and chaffinches.',
   },
   {
     food: 'Mealworms',
-    imageUrl: 'https://images.unsplash.com/photo-1611547212043-c82dd1e8cff2?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: live mealworms / larvae close-up
+    imageUrl: 'https://images.unsplash.com/photo-1504472478235-9bc48ba4d60f?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Live or dried — irresistible to insect-eating birds. Live are best, especially in spring.',
     attractsBirds: ['Robin', 'Song Thrush', 'Blackbird', 'Dunnock', 'Wren', 'Blue Tit', 'Pied Wagtail'],
     feederTip: 'Place in a smooth-sided ceramic bowl (prevents escape if live) on or near the ground. A robin will find it within hours.',
@@ -595,14 +597,16 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   },
   {
     food: 'Niger Seeds',
-    imageUrl: 'https://images.unsplash.com/photo-1598301257942-e6bde1d2149b?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: close-up small dark seeds (spSnJyOtqBQ)
+    imageUrl: 'https://images.unsplash.com/photo-1597284702646-e0e9d8487b3a?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Tiny black seeds (also called nyjer) from the African yellow daisy. Specialist finch food.',
     attractsBirds: ['Goldfinch', 'Siskin', 'Greenfinch'],
     feederTip: 'Use a dedicated niger feeder with very small ports — standard feeders let the tiny seeds fall straight through.',
   },
   {
     food: 'Suet / Fat Balls',
-    imageUrl: 'https://images.unsplash.com/photo-1518832553480-cd0e625ed3e6?w=240&h=240&fit=crop&auto=format&q=80',
+    // Bird on feeder / suet block context
+    imageUrl: 'https://images.unsplash.com/photo-1551732998-9573ac4523fd?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'High-energy food essential in cold weather. Available as balls, blocks, pellets or paste.',
     attractsBirds: ['Blue Tit', 'Great Tit', 'Coal Tit', 'Long-tailed Tit', 'Great Spotted Woodpecker', 'Starling', 'House Sparrow', 'Nuthatch', 'Treecreeper'],
     feederTip: 'Suet pellets in a tube feeder suit tits perfectly. Smear suet paste into bark for treecreepers and woodpeckers.',
@@ -610,7 +614,8 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   },
   {
     food: 'Peanuts',
-    imageUrl: 'https://images.unsplash.com/photo-1567015954601-84c57c9c5018?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: close-up pile of peanuts (unsplash ZJH2FCq6tGc)
+    imageUrl: 'https://images.unsplash.com/photo-1576954224794-3d292e771304?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'High protein and fat — loved by tits, woodpeckers and nuthatches.',
     attractsBirds: ['Blue Tit', 'Great Tit', 'Coal Tit', 'Nuthatch', 'Great Spotted Woodpecker', 'Greenfinch', 'Siskin', 'Jay'],
     feederTip: 'Always use a mesh feeder so birds can only take small pieces — whole peanuts are a choking risk for nestlings.',
@@ -618,21 +623,24 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   },
   {
     food: 'Mixed Seed',
-    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: close-up mixed seeds/grains (200 OK)
+    imageUrl: 'https://images.unsplash.com/photo-1584346133934-a3b6b1cb8dd9?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'A blend of seeds including millet, milo, wheat and canary seed. Broad appeal but avoid cheap mixes with barley filler.',
     attractsBirds: ['House Sparrow', 'Chaffinch', 'Collared Dove', 'Dunnock', 'Blackbird', 'Greenfinch'],
     feederTip: 'Best used on a ground feeding tray or table — many species that eat mixed seed prefer to feed lower down.',
   },
   {
     food: 'Fresh Berries & Fruit',
-    imageUrl: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: red fruit on green leaves (unsplash YPJZUADixy8)
+    imageUrl: 'https://images.unsplash.com/photo-1627741615476-392f28c52b75?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Windfall apples, pears, and berry-bearing shrubs are as valuable as any feeder.',
     attractsBirds: ['Blackbird', 'Song Thrush', 'Mistle Thrush', 'Robin', 'Wren'],
     feederTip: 'Halve apples and leave on the ground or a low flat surface. Plant hawthorn, pyracantha, holly, rowan and cotoneaster.',
   },
   {
     food: 'Water (Bird Bath)',
-    imageUrl: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: birds bathing in bird bath (unsplash tF5QAzFCCR0)
+    imageUrl: 'https://images.unsplash.com/photo-1746230115578-2e4bb5b1e159?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Often more valuable than food — especially in dry summers and frozen winters. Clean water for drinking and bathing.',
     attractsBirds: ['Blackbird', 'Song Thrush', 'Starling', 'Blue Tit', 'Robin', 'Pied Wagtail', 'House Sparrow', 'Chaffinch', 'Collared Dove'],
     feederTip: 'Keep at least 3cm deep, clean every few days, and use a tennis ball or a stick to stop it freezing solid in winter.',
@@ -652,49 +660,57 @@ export interface GardenFeatureEntry {
 export const GARDEN_FEATURES: GardenFeatureEntry[] = [
   {
     feature: 'Dense Hedge',
+    // Verified: tall green hedge next to a building (unsplash F8K12AdC7ag)
     imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['House Sparrow', 'Dunnock', 'Blackbird', 'Robin', 'Wren', 'Chaffinch'],
     tip: 'Hawthorn, hazel or privet are ideal. A hedge 1.5m+ tall with a gappy base gives nesting and roosting cover for multiple species simultaneously.',
   },
   {
     feature: 'Berry-bearing Shrubs',
-    imageUrl: 'https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: pyracantha / red berries on a branch (unsplash aS3uBc4Jxm4)
+    imageUrl: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Blackbird', 'Song Thrush', 'Mistle Thrush', 'Robin', 'Wren'],
     tip: 'Plant pyracantha, cotoneaster, holly, hawthorn and rowan. These feed birds from October through February when natural food is scarce.',
   },
   {
     feature: 'Bird Bath / Water',
-    imageUrl: 'https://images.unsplash.com/photo-1518173918312-89add0fc5e77?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: birds bathing in a garden bird bath (unsplash tF5QAzFCCR0)
+    imageUrl: 'https://images.unsplash.com/photo-1746230115578-2e4bb5b1e159?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Blackbird', 'Starling', 'Song Thrush', 'House Sparrow', 'Blue Tit', 'Robin'],
     tip: 'The single highest-impact addition to a garden. Position it near cover (1–2m from a shrub) so birds can escape quickly if startled.',
   },
   {
     feature: 'Log Pile',
-    imageUrl: 'https://images.unsplash.com/photo-1510924199351-4e9d94df18a6?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: pile of logs stacked on top of each other (unsplash MYwmJyN6D3g)
+    imageUrl: 'https://images.unsplash.com/photo-1689085384248-3b35059e63c7?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Wren', 'Robin', 'Song Thrush', 'Treecreeper'],
     tip: 'Leave logs to rot naturally — the insects inside (beetles, grubs, spiders) are prime food for wrens, robins and thrushes year-round.',
   },
   {
     feature: 'Mature Trees',
-    imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: large old oak tree in a green field (unsplash c2byVGq18IQ)
+    imageUrl: 'https://images.unsplash.com/photo-1757590606772-a59a6a9f4e77?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Nuthatch', 'Treecreeper', 'Great Spotted Woodpecker', 'Coal Tit', 'Jay', 'Long-tailed Tit'],
     tip: 'Older trees with rough bark and holes are irreplaceable. A single mature oak can support hundreds of species of insects, feeding dozens of garden birds.',
   },
   {
     feature: 'Nest Boxes',
-    imageUrl: 'https://images.unsplash.com/photo-1595118216242-3a73e7a62b79?w=240&h=240&fit=crop&auto=format&q=80',
+    // Nest box / bird box mounted on a wall (unsplash 8F4cfPjHhvM)
+    imageUrl: 'https://images.unsplash.com/photo-1594420893547-1a2b0a0c8bb1?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Blue Tit', 'Great Tit', 'Coal Tit', 'House Sparrow', 'Robin', 'Wren', 'Nuthatch', 'Pied Wagtail'],
     tip: 'Put up boxes in February before the breeding season. Different hole sizes suit different species — offer a variety at different heights.',
   },
   {
     feature: 'Long Grass / Wildflower Patch',
-    imageUrl: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: field of tall grass with wildflowers (unsplash OGpmibYqEPc)
+    imageUrl: 'https://images.unsplash.com/photo-1719742882558-c7c8c076b4fb?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Goldfinch', 'Chaffinch', 'Dunnock', 'Wren', 'Bullfinch'],
     tip: 'Let a corner go uncut. Grasses, thistles, nettles and knapweed seed heads feed finches from summer through winter.',
   },
   {
     feature: 'Lawn (short)',
-    imageUrl: 'https://images.unsplash.com/photo-1558904541-efa843a96f01?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: top view of close-cropped green grass lawn (unsplash QSIq9ncQkzY)
+    imageUrl: 'https://images.unsplash.com/photo-1544914379-806667cd9489?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Blackbird', 'Song Thrush', 'Starling', 'Pied Wagtail', 'Mistle Thrush'],
     tip: 'Keep a patch of lawn short and damp — thrushes and blackbirds listen for earthworm movement in the soil. Avoid pesticides and herbicides.',
   },

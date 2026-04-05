@@ -22,10 +22,10 @@ import {
   Lightbulb, Copy, Home, MapPin, Bird as BirdIcon, Utensils,
   Layers, TreePine,
 } from 'lucide-react'
-import { createPortal } from 'react-dom'
 import { cn } from '../lib/utils'
 import { PageHeader } from '../components/layout/PageHeader'
 import { BottomSheet } from '../components/ui/BottomSheet'
+import { BirdDetailModal } from '../components/explore/BirdDetailModal'
 import { BIRDS } from '../data/birds'
 import {
   ATTRACT_DATA, FOOD_GUIDE, GARDEN_FEATURES,
@@ -1259,12 +1259,11 @@ export function AttractScreen() {
         toggleFavourite={toggleFavourite}
       />
 
-      {/* Bird detail sheet */}
-      <AttractBirdSheet
+      {/* Bird detail — full-screen, same as Learn More */}
+      <BirdDetailModal
         bird={selectedBird}
-        isFavourite={selectedBird ? setup.favourites.includes(selectedBird.name) : false}
         onClose={() => setSelectedBird(null)}
-        onToggleFavourite={() => selectedBird && toggleFavourite(selectedBird.name)}
+        onSpotted={() => setSelectedBird(null)}
       />
     </div>
   )

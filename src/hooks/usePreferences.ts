@@ -46,8 +46,9 @@ export function usePreferences() {
     // Set html background to solid nav colour so iOS safe-area/status-bar
     // shows the header colour rather than the page background colour
     document.documentElement.style.backgroundColor = navColour
-    const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', navColour)
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m =>
+      m.setAttribute('content', navColour)
+    )
   }, [prefs.theme])
 
   // Apply text size
