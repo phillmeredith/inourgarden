@@ -267,6 +267,7 @@ export function SettingsScreen() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [clearModalOpen, setClearModalOpen] = useState(false)
+  const [clearConfirmText, setClearConfirmText] = useState('')
   const [clearing, setClearing] = useState(false)
   const [clearError, setClearError] = useState<string | null>(null)
 
@@ -298,6 +299,7 @@ export function SettingsScreen() {
         await db.preferences.clear()
       })
       setClearModalOpen(false)
+      setClearConfirmText('')
     } catch (err) {
       console.error('[SettingsScreen] clearAll failed:', err)
       setClearError('Failed to clear data. Please try again.')
@@ -471,7 +473,7 @@ export function SettingsScreen() {
       {/* Clear data confirmation modal */}
       <Modal
         open={clearModalOpen}
-        onClose={() => setClearModalOpen(false)}
+        onClose={() => { setClearModalOpen(false); setClearConfirmText('') }}
         title="Clear all data?"
       >
         <div className="flex flex-col gap-4">
@@ -483,29 +485,50 @@ export function SettingsScreen() {
             </p>
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[var(--t3)] uppercase tracking-wide">
+              Type DELETE to confirm
+            </label>
+            <input
+              type="text"
+              value={clearConfirmText}
+              onChange={e => setClearConfirmText(e.target.value)}
+              placeholder="DELETE"
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
+              className={cn(
+                'w-full h-11 px-4 rounded-xl border text-[15px] font-mono font-bold tracking-widest',
+                'bg-[var(--elev)] text-[var(--t1)] outline-none transition-colors',
+                clearConfirmText === 'DELETE'
+                  ? 'border-[var(--red)] text-[var(--red-t)]'
+                  : 'border-[var(--border-s)]',
+              )}
+            />
+          </div>
+
           {clearError && (
             <p className="text-[13px] text-[var(--red-t)]">{clearError}</p>
           )}
 
           <div className="flex gap-3">
             <button
-              onClick={() => setClearModalOpen(false)}
+              onClick={() => { setClearModalOpen(false); setClearConfirmText('') }}
               className={cn(
                 'flex-1 h-11 rounded-[var(--r-pill)] text-[14px] font-semibold',
                 'bg-[var(--elev)] border border-[var(--border-s)] text-[var(--t2)]',
                 'transition-all active:scale-[.97]',
-                'hover:bg-[var(--card)]',
               )}
             >
               Cancel
             </button>
             <button
               onClick={handleClearAll}
-              disabled={clearing}
+              disabled={clearing || clearConfirmText !== 'DELETE'}
               className={cn(
                 'flex-1 h-11 rounded-[var(--r-pill)] text-[14px] font-semibold text-white',
                 'transition-all active:scale-[.97]',
-                'disabled:opacity-40 disabled:pointer-events-none',
+                'disabled:opacity-30 disabled:pointer-events-none',
               )}
               style={{ background: 'var(--red)' }}
             >
