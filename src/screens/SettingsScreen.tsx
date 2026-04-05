@@ -6,8 +6,9 @@
 import { useState, useRef } from 'react'
 import {
   Download, Upload, Trash2, AlertTriangle,
-  Loader2, MapPin, Mountain, Sun, Trees, Leaf, Check, ChevronDown,
+  Loader2, MapPin, Mountain, Sun, Trees, Leaf, Check, ChevronDown, RefreshCw,
 } from 'lucide-react'
+import { useRegisterSW } from 'virtual:pwa-register/react'
 
 declare const __APP_VERSION__: string
 import { motion } from 'framer-motion'
@@ -264,6 +265,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.1.1',
+    changes: [
+      'Added "Refresh for latest version" button in Settings — fetches and applies the newest version without losing any data',
+    ],
+  },
+  {
     version: '1.1.0',
     changes: [
       'Empty garden message moved to top and updated to "Your garden is empty!"',
@@ -459,6 +466,24 @@ export function SettingsScreen() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [changelogOpen, setChangelogOpen] = useState(false)
+  const [updating, setUpdating] = useState(false)
+
+  const { updateServiceWorker } = useRegisterSW()
+
+  async function handleCheckForUpdate() {
+    setUpdating(true)
+    try {
+      // Ask the active SW to check for a new version, then apply + reload
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready
+        await reg.update()
+      }
+      await updateServiceWorker(true)
+    } catch {
+      // If anything goes wrong just do a hard reload — data is in IndexedDB and is safe
+      window.location.reload()
+    }
+  }
   const [clearModalOpen, setClearModalOpen] = useState(false)
   const [clearConfirmText, setClearConfirmText] = useState('')
   const [clearing, setClearing] = useState(false)
@@ -627,6 +652,19 @@ export function SettingsScreen() {
                 <div className="text-[12px] text-[var(--t3)] mt-0.5">v{__APP_VERSION__}</div>
               </div>
             </div>
+            {/* Update button */}
+            <button
+              onClick={handleCheckForUpdate}
+              disabled={updating}
+              className="flex items-center gap-2.5 h-10 px-4 rounded-xl text-[13px] font-semibold transition-all duration-150 active:scale-[.97] disabled:opacity-60 self-start"
+              style={{ background: 'var(--elev)', border: '1px solid var(--border-s)', color: 'var(--t1)' }}
+            >
+              {updating
+                ? <Loader2 size={15} strokeWidth={2} className="animate-spin text-[var(--t3)]" />
+                : <RefreshCw size={15} strokeWidth={2} className="text-[var(--t3)]" />}
+              {updating ? 'Updating…' : 'Refresh for latest version'}
+            </button>
+
             <p className="text-[12px] text-[var(--t3)] leading-relaxed">
               All data stored locally on your device.
             </p>
