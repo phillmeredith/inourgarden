@@ -3,7 +3,6 @@
 // Each card uses the DS tint-pair system for its icon colour
 
 import { Bird, Eye, Calendar, Flame } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { cn } from '../../lib/utils'
 
 interface GardenStatsProps {
@@ -58,12 +57,9 @@ export function GardenStats({
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {cards.map((card, i) => (
-        <motion.div
+      {cards.map((card) => (
+        <div
           key={card.label}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05, duration: 0.3 }}
           className={cn(
             'flex items-center gap-3 px-4 py-3.5',
             'rounded-2xl border border-[var(--border-s)] bg-[var(--card)]',
@@ -83,7 +79,7 @@ export function GardenStats({
               {card.label}
             </span>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   )
