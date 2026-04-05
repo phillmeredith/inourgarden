@@ -8,11 +8,11 @@ export function EmptyGarden() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 pb-8 -mt-12 text-center">
+    <div className="flex flex-col items-center py-16 px-8 text-center">
       <Bird size={48} strokeWidth={1.5} className="text-[var(--t4)] mb-5" />
 
       <h2 className="text-[22px] font-semibold text-[var(--t1)] mb-2">
-        Your garden bird list is empty
+        Your garden is empty!
       </h2>
 
       <p className="text-[15px] text-[var(--t3)] max-w-[300px] mb-6 leading-relaxed">
