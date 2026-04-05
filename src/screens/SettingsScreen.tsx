@@ -264,6 +264,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.1.3',
+    changes: [
+      'Fixed sound filter icon showing crossed-out when not muted',
+    ],
+  },
+  {
     version: '1.1.2',
     changes: [
       'Fixed "Refresh for latest version" button getting stuck — now reliably reloads',

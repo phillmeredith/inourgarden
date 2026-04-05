@@ -403,8 +403,8 @@ export function ExploreScreen() {
                 ].join(' ')}
               >
                 {hasSoundOnly
-                  ? <Volume2 size={18} strokeWidth={2} />
-                  : <VolumeX size={18} strokeWidth={2} />}
+                  ? <VolumeX size={18} strokeWidth={2} />
+                  : <Volume2 size={18} strokeWidth={2} />}
               </button>
             </div>
           }
