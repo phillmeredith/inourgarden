@@ -1,15 +1,16 @@
 // BirdMap — interactive map showing bird distribution across the UK
-// Uses Mapbox GL via react-map-gl with conservation-status colored markers
+// Uses Mapbox GL via react-map-gl
+// Rendering: GeoJSON Source + WebGL circle Layer (no DOM markers → fast)
+// Theming: watches data-theme attribute and switches Mapbox basemap style
 
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import Map, { Marker, NavigationControl } from 'react-map-gl/mapbox'
-import type { MapRef } from 'react-map-gl/mapbox'
-import { Bird, MapPinOff } from 'lucide-react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import Map, { Source, Layer, NavigationControl } from 'react-map-gl/mapbox'
+import type { MapRef, MapLayerMouseEvent } from 'react-map-gl/mapbox'
+import { MapPinOff } from 'lucide-react'
 import type { BirdSpecies } from '../../data/birds'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 // ─── Default UK bird distribution coordinates ────────────────────────────────
-// Generates representative coordinates for birds based on their habitat/category
 
 const UK_REGIONS: Record<string, { lat: number; lng: number }[]> = {
   Garden: [
@@ -103,7 +104,6 @@ function seededOffset(id: string, i: number): { lat: number; lng: number } {
 
 function getBirdCoordinates(bird: BirdSpecies): { lat: number; lng: number }[] {
   const regionCoords = UK_REGIONS[bird.category] ?? UK_REGIONS.Garden
-  // Pick 2-4 locations for each bird with small offsets
   const count = 2 + (bird.id.length % 3)
   return regionCoords.slice(0, count).map((coord, i) => {
     const off = seededOffset(bird.id, i)
@@ -111,59 +111,58 @@ function getBirdCoordinates(bird: BirdSpecies): { lat: number; lng: number }[] {
   })
 }
 
-// ─── Conservation status colours ─────────────────────────────────────────────
+// ─── Theme → Mapbox style ─────────────────────────────────────────────────────
+// Forest:   earthy green    → outdoors basemap
+// Midnight: near-black      → dark basemap
+// Meadow:   warm cream      → light basemap
+// Dusk:     deep purple     → dark basemap
 
-const STATUS_COLORS: Record<string, string> = {
-  Red: 'var(--red)',
-  Amber: 'var(--amber)',
-  Green: 'var(--green)',
+const THEME_STYLES: Record<string, string> = {
+  forest:   'mapbox://styles/mapbox/outdoors-v12',
+  midnight: 'mapbox://styles/mapbox/dark-v11',
+  meadow:   'mapbox://styles/mapbox/light-v11',
+  dusk:     'mapbox://styles/mapbox/dark-v11',
 }
 
-const STATUS_BG: Record<string, string> = {
-  Red: 'var(--red-sub)',
-  Amber: 'var(--amber-sub)',
-  Green: 'var(--green-sub)',
+function useMapStyle() {
+  const getTheme = () =>
+    THEME_STYLES[document.documentElement.dataset.theme ?? 'forest'] ?? THEME_STYLES.forest
+
+  const [mapStyle, setMapStyle] = useState(getTheme)
+
+  useEffect(() => {
+    const obs = new MutationObserver(() => setMapStyle(getTheme()))
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => obs.disconnect()
+  }, [])
+
+  return mapStyle
 }
 
-// ─── Pin component ───────────────────────────────────────────────────────────
+// ─── GeoJSON layer spec ───────────────────────────────────────────────────────
+// Conservation status colours are static tokens (not per-theme) so hex is fine
 
-function MapPin({
-  bird,
-  onClick,
-}: {
-  bird: BirdSpecies
-  onClick: () => void
-}) {
-  const color = STATUS_COLORS[bird.conservationStatus] ?? 'var(--blue)'
-  const bg = STATUS_BG[bird.conservationStatus] ?? 'var(--blue-sub)'
-
-  return (
-    <button
-      onClick={onClick}
-      className="group flex flex-col items-center cursor-pointer"
-      aria-label={`${bird.name} — ${bird.conservationStatus} status`}
-      style={{ transform: 'translate(-50%, -100%)' }}
-    >
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform duration-150 group-hover:scale-110"
-        style={{ backgroundColor: bg, border: `2px solid ${color}` }}
-      >
-        <Bird size={14} style={{ color }} />
-      </div>
-      <div
-        className="w-0 h-0"
-        style={{
-          borderLeft: '5px solid transparent',
-          borderRight: '5px solid transparent',
-          borderTop: `6px solid ${color}`,
-          marginTop: '-1px',
-        }}
-      />
-    </button>
-  )
+const CIRCLE_LAYER = {
+  id: 'bird-points',
+  type: 'circle' as const,
+  paint: {
+    // Scale radius slightly with zoom for readability
+    'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 5, 8, 9] as unknown as number,
+    'circle-color': [
+      'match',
+      ['get', 'status'],
+      'Red',   '#EF466F',
+      'Amber', '#F5A623',
+      'Green', '#45B26B',
+      '#3772FF',
+    ] as unknown as string,
+    'circle-stroke-width': 1.5,
+    'circle-stroke-color': 'rgba(255,255,255,0.55)',
+    'circle-opacity': 0.88,
+  },
 }
 
-// ─── BirdMap ─────────────────────────────────────────────────────────────────
+// ─── BirdMap ──────────────────────────────────────────────────────────────────
 
 interface BirdMapProps {
   birds: BirdSpecies[]
@@ -172,31 +171,49 @@ interface BirdMapProps {
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string
 
-// UK bounding box: SW corner to NE corner with padding
 const UK_BOUNDS: [[number, number], [number, number]] = [
-  [-9.0, 49.0],  // SW: Cornwall / Isles of Scilly
-  [2.5, 60.0],   // NE: Shetland
+  [-9.0, 49.0],
+  [2.5, 60.0],
 ]
 
 export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
   const mapRef = useRef<MapRef>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerReady, setContainerReady] = useState(false)
+  const [cursor, setCursor] = useState('auto')
+  const mapStyle = useMapStyle()
 
-  // Measure the container's actual rendered height before initialising the
-  // Mapbox WebGL context — on iOS Safari/PWA, calc(100dvh-X) can resolve to 0
-  // at mount time and the map never renders.
+  // Wait for the container to have a real height before mounting the WebGL context.
+  // On iOS Safari PWA, calc(100dvh - X) can resolve to 0 at mount time.
   useLayoutEffect(() => {
     const el = containerRef.current
     if (!el) return
-    const check = () => {
-      if (el.clientHeight > 0) setContainerReady(true)
-    }
+    const check = () => { if (el.clientHeight > 0) setContainerReady(true) }
     check()
     const ro = new ResizeObserver(check)
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
+
+  // Build a GeoJSON FeatureCollection from all filtered birds.
+  // Each bird gets 2-4 coordinate points; all rendered as WebGL circles.
+  const geojson = useMemo(() => ({
+    type: 'FeatureCollection' as const,
+    features: birds.flatMap(bird =>
+      getBirdCoordinates(bird).map((c, i) => ({
+        type: 'Feature' as const,
+        properties: { birdId: bird.id, status: bird.conservationStatus },
+        geometry: { type: 'Point' as const, coordinates: [c.lng, c.lat] },
+      }))
+    ),
+  }), [birds])
+
+  const handleClick = useCallback((e: MapLayerMouseEvent) => {
+    const feature = e.features?.[0]
+    if (!feature) return
+    const bird = birds.find(b => b.id === feature.properties?.birdId)
+    if (bird) onBirdTap(bird)
+  }, [birds, onBirdTap])
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -210,52 +227,35 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
     )
   }
 
-  const onMapLoad = useCallback(() => {
-    mapRef.current?.fitBounds(UK_BOUNDS, { padding: 30, duration: 0 })
-  }, [])
-
-  // Generate markers for all filtered birds
-  const markers = useMemo(() => {
-    const result: { bird: BirdSpecies; lat: number; lng: number; key: string }[] = []
-    for (const bird of birds) {
-      const coords = getBirdCoordinates(bird)
-      coords.forEach((c, i) => {
-        result.push({ bird, lat: c.lat, lng: c.lng, key: `${bird.id}-${i}` })
-      })
-    }
-    return result
-  }, [birds])
-
   return (
     <div ref={containerRef} className="w-full h-[calc(100dvh-290px)] min-h-[350px] relative">
-      {containerReady && <Map
-        ref={mapRef}
-        mapboxAccessToken={MAPBOX_TOKEN}
-        onLoad={(e) => {
-          e.target.fitBounds(UK_BOUNDS, { padding: { top: 50, bottom: 80, left: 50, right: 50 }, duration: 0 })
-        }}
-        initialViewState={{
-          longitude: -3.0,
-          latitude: 54.5,
-          zoom: 4,
-        }}
-        style={{ width: '100%', height: '100%', borderRadius: 'var(--r-md)' }}
-        mapStyle="mapbox://styles/mapbox/dark-v11"
-        attributionControl={false}
-      >
-        <NavigationControl position="top-right" showCompass={false} />
+      {containerReady && (
+        <Map
+          ref={mapRef}
+          mapboxAccessToken={MAPBOX_TOKEN}
+          onLoad={(e) => {
+            e.target.fitBounds(UK_BOUNDS, {
+              padding: { top: 50, bottom: 80, left: 50, right: 50 },
+              duration: 0,
+            })
+          }}
+          initialViewState={{ longitude: -3.0, latitude: 54.5, zoom: 4 }}
+          style={{ width: '100%', height: '100%', borderRadius: 'var(--r-md)' }}
+          mapStyle={mapStyle}
+          attributionControl={false}
+          interactiveLayerIds={['bird-points']}
+          cursor={cursor}
+          onMouseEnter={() => setCursor('pointer')}
+          onMouseLeave={() => setCursor('auto')}
+          onClick={handleClick}
+        >
+          <NavigationControl position="top-right" showCompass={false} />
 
-        {markers.map(m => (
-          <Marker
-            key={m.key}
-            longitude={m.lng}
-            latitude={m.lat}
-            anchor="bottom"
-          >
-            <MapPin bird={m.bird} onClick={() => onBirdTap(m.bird)} />
-          </Marker>
-        ))}
-      </Map>}
+          <Source id="birds" type="geojson" data={geojson}>
+            <Layer {...CIRCLE_LAYER} />
+          </Source>
+        </Map>
+      )}
 
       {/* Legend */}
       <div className="absolute bottom-4 left-4 flex items-center gap-3 px-3 py-2 rounded-[var(--r-md)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]">

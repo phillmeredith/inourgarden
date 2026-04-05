@@ -262,6 +262,13 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.1',
+    changes: [
+      'Map now matches the active theme — outdoors style for Forest, light for Meadow, dark for Midnight & Dusk',
+      'Map performance significantly improved — switched from DOM markers to WebGL circle layer',
+    ],
+  },
+  {
     version: '1.0.0',
     label: 'V1 Release',
     changes: [
