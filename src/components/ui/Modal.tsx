@@ -16,7 +16,7 @@ function Backdrop({ onClick }: { onClick: () => void }) {
     <motion.div
       className="fixed inset-0"
       style={{
-        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.72) 28%)',
+        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.72) 8%)',
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -34,7 +34,7 @@ function FullScreenBackdrop() {
     <motion.div
       className="fixed inset-0 z-[999]"
       style={{
-        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.72) 28%)',
+        background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.72) 8%)',
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

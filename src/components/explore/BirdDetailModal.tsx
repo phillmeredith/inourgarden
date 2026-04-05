@@ -3,9 +3,11 @@
 // nesting, diet, habitat, similar species, facts, and "mark as seen" CTA
 // Uses FullScreenModal (portal-mounted, escapes stacking contexts)
 
+import { useState } from 'react'
 import { X, Volume2, Eye, Feather, GitCompare, Egg, Utensils, MapPin, Lightbulb, Binoculars } from 'lucide-react'
 import { FullScreenModal } from '../ui/Modal'
 import { Button } from '../ui/Button'
+import { SuccessOverlay } from '../ui/SuccessOverlay'
 import { cn } from '../../lib/utils'
 import { useBirdAudio } from '../../hooks/useBirdAudio'
 import { useGardenSightings } from '../../hooks/useGardenSightings'
@@ -65,6 +67,7 @@ export function BirdDetailModal({ bird, onClose, onSpotted }: BirdDetailModalPro
   const { play, stop, isPlaying, currentUrl } = useBirdAudio()
   const { hasSeen, addSighting } = useGardenSightings()
   const { sightingsForBird } = useWildSightings()
+  const [successName, setSuccessName] = useState<string | null>(null)
 
   const isAlreadySeen = bird ? hasSeen(bird.id) : false
   const wildCount = bird ? sightingsForBird(bird.id).length : 0
@@ -85,10 +88,18 @@ export function BirdDetailModal({ bird, onClose, onSpotted }: BirdDetailModalPro
 
   async function handleMarkAsSeen() {
     if (!bird || isAlreadySeen) return
+    const name = bird.name
     await addSighting(bird.id)
+    setSuccessName(name)
+    setTimeout(() => {
+      setSuccessName(null)
+      stop()
+      onClose()
+    }, 2400)
   }
 
   return (
+    <>
     <FullScreenModal open={!!bird} onClose={handleClose}>
       {bird && (
         <div className="min-h-full">
@@ -325,5 +336,8 @@ export function BirdDetailModal({ bird, onClose, onSpotted }: BirdDetailModalPro
         </div>
       )}
     </FullScreenModal>
+
+    <SuccessOverlay name={successName} variant="garden" />
+    </>
   )
 }

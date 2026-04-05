@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { MapPinned, Loader2, MapIcon } from 'lucide-react'
 import { Modal } from '../ui/Modal'
+import { SuccessOverlay } from '../ui/SuccessOverlay'
 import { cn } from '../../lib/utils'
 import { useWildSightings } from '../../hooks/useWildSightings'
 import { LocationPicker } from './LocationPicker'
@@ -22,6 +23,7 @@ export function SpottedFormModal({ bird, onClose }: SpottedFormModalProps) {
   const [notes, setNotes] = useState('')
   const [gettingLocation, setGettingLocation] = useState(false)
   const [showMapPicker, setShowMapPicker] = useState(false)
+  const [successName, setSuccessName] = useState<string | null>(null)
 
   function resetAndClose() {
     setLocation('')
@@ -48,16 +50,22 @@ export function SpottedFormModal({ bird, onClose }: SpottedFormModalProps) {
 
   async function handleSave() {
     if (!bird) return
+    const name = bird.name
     await addWildSighting(bird.id, {
       notes: notes || null,
       locationName: location || null,
       lat: coords?.lat ?? null,
       lng: coords?.lng ?? null,
     })
-    resetAndClose()
+    setSuccessName(name)
+    setTimeout(() => {
+      setSuccessName(null)
+      resetAndClose()
+    }, 2400)
   }
 
   return (
+    <>
     <Modal
       open={!!bird}
       onClose={resetAndClose}
@@ -174,5 +182,8 @@ export function SpottedFormModal({ bird, onClose }: SpottedFormModalProps) {
         </div>
       )}
     </Modal>
+
+    <SuccessOverlay name={successName} variant="spotted" />
+    </>
   )
 }

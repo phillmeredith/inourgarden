@@ -264,6 +264,14 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.2.0',
+    changes: [
+      '"Mark as seen" in Learn More now shows the same green success animation as the profile sheet',
+      '"Save sighting" in Spotted in the wild now shows a purple success animation',
+      'Reduced modal backdrop gradient height so the top safe zone no longer appears lighter',
+    ],
+  },
+  {
     version: '1.1.6',
     changes: [
       'Identify tab no longer inherits scroll position from Browse tab',
