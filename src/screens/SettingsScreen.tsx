@@ -136,8 +136,8 @@ function PillToggle<T extends string>({
 // ─── Theme picker ─────────────────────────────────────────────────────────────
 
 const THEMES: { value: AppTheme; label: string; bg: string; card: string; accent: string }[] = [
-  { value: 'midnight', label: 'Midnight', bg: '#0D0D11', card: '#18181D', accent: '#3772FF' },
   { value: 'forest',   label: 'Forest',   bg: '#4f523f', card: '#363929', accent: '#5EC47A' },
+  { value: 'midnight', label: 'Midnight', bg: '#0D0D11', card: '#18181D', accent: '#3772FF' },
   { value: 'meadow',   label: 'Meadow',   bg: '#F3EFE6', card: '#FFFFFF', accent: '#3A7D44' },
   { value: 'dusk',     label: 'Dusk',     bg: '#16101F', card: '#1F1730', accent: '#9757D7' },
 ]
