@@ -589,7 +589,7 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   {
     food: 'Mealworms',
     // Verified: live mealworms / larvae close-up
-    imageUrl: 'https://images.unsplash.com/photo-1504472478235-9bc48ba4d60f?w=240&h=240&fit=crop&auto=format&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1767166998528-c1ad5513facb?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Live or dried — irresistible to insect-eating birds. Live are best, especially in spring.',
     attractsBirds: ['Robin', 'Song Thrush', 'Blackbird', 'Dunnock', 'Wren', 'Blue Tit', 'Pied Wagtail'],
     feederTip: 'Place in a smooth-sided ceramic bowl (prevents escape if live) on or near the ground. A robin will find it within hours.',
@@ -598,7 +598,7 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   {
     food: 'Niger Seeds',
     // Verified: close-up small dark seeds (spSnJyOtqBQ)
-    imageUrl: 'https://images.unsplash.com/photo-1597284702646-e0e9d8487b3a?w=240&h=240&fit=crop&auto=format&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1646980720696-5520b992c129?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Tiny black seeds (also called nyjer) from the African yellow daisy. Specialist finch food.',
     attractsBirds: ['Goldfinch', 'Siskin', 'Greenfinch'],
     feederTip: 'Use a dedicated niger feeder with very small ports — standard feeders let the tiny seeds fall straight through.',
@@ -606,7 +606,7 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   {
     food: 'Suet / Fat Balls',
     // Bird on feeder / suet block context
-    imageUrl: 'https://images.unsplash.com/photo-1551732998-9573ac4523fd?w=240&h=240&fit=crop&auto=format&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1720121606488-e7d966339a02?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'High-energy food essential in cold weather. Available as balls, blocks, pellets or paste.',
     attractsBirds: ['Blue Tit', 'Great Tit', 'Coal Tit', 'Long-tailed Tit', 'Great Spotted Woodpecker', 'Starling', 'House Sparrow', 'Nuthatch', 'Treecreeper'],
     feederTip: 'Suet pellets in a tube feeder suit tits perfectly. Smear suet paste into bark for treecreepers and woodpeckers.',
@@ -614,8 +614,8 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   },
   {
     food: 'Peanuts',
-    // Verified: close-up pile of peanuts (unsplash ZJH2FCq6tGc)
-    imageUrl: 'https://images.unsplash.com/photo-1576954224794-3d292e771304?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: pile of peanuts
+    imageUrl: 'https://images.unsplash.com/photo-1549978113-29eb25c8177f?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'High protein and fat — loved by tits, woodpeckers and nuthatches.',
     attractsBirds: ['Blue Tit', 'Great Tit', 'Coal Tit', 'Nuthatch', 'Great Spotted Woodpecker', 'Greenfinch', 'Siskin', 'Jay'],
     feederTip: 'Always use a mesh feeder so birds can only take small pieces — whole peanuts are a choking risk for nestlings.',
@@ -624,7 +624,7 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   {
     food: 'Mixed Seed',
     // Verified: close-up mixed seeds/grains (200 OK)
-    imageUrl: 'https://images.unsplash.com/photo-1584346133934-a3b6b1cb8dd9?w=240&h=240&fit=crop&auto=format&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1758612153921-9525532663d6?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'A blend of seeds including millet, milo, wheat and canary seed. Broad appeal but avoid cheap mixes with barley filler.',
     attractsBirds: ['House Sparrow', 'Chaffinch', 'Collared Dove', 'Dunnock', 'Blackbird', 'Greenfinch'],
     feederTip: 'Best used on a ground feeding tray or table — many species that eat mixed seed prefer to feed lower down.',
@@ -632,7 +632,7 @@ export const FOOD_GUIDE: FoodGuideEntry[] = [
   {
     food: 'Fresh Berries & Fruit',
     // Verified: red fruit on green leaves (unsplash YPJZUADixy8)
-    imageUrl: 'https://images.unsplash.com/photo-1627741615476-392f28c52b75?w=240&h=240&fit=crop&auto=format&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1602857229938-bdae5d1c9b02?w=240&h=240&fit=crop&auto=format&q=80',
     description: 'Windfall apples, pears, and berry-bearing shrubs are as valuable as any feeder.',
     attractsBirds: ['Blackbird', 'Song Thrush', 'Mistle Thrush', 'Robin', 'Wren'],
     feederTip: 'Halve apples and leave on the ground or a low flat surface. Plant hawthorn, pyracantha, holly, rowan and cotoneaster.',
@@ -660,8 +660,8 @@ export interface GardenFeatureEntry {
 export const GARDEN_FEATURES: GardenFeatureEntry[] = [
   {
     feature: 'Dense Hedge',
-    // Verified: tall green hedge next to a building (unsplash F8K12AdC7ag)
-    imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=240&h=240&fit=crop&auto=format&q=80',
+    // Verified: tall green hedge next to a paved driveway
+    imageUrl: 'https://images.unsplash.com/photo-1766228271529-7aac76cca4c9?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['House Sparrow', 'Dunnock', 'Blackbird', 'Robin', 'Wren', 'Chaffinch'],
     tip: 'Hawthorn, hazel or privet are ideal. A hedge 1.5m+ tall with a gappy base gives nesting and roosting cover for multiple species simultaneously.',
   },
@@ -682,7 +682,7 @@ export const GARDEN_FEATURES: GardenFeatureEntry[] = [
   {
     feature: 'Log Pile',
     // Verified: pile of logs stacked on top of each other (unsplash MYwmJyN6D3g)
-    imageUrl: 'https://images.unsplash.com/photo-1689085384248-3b35059e63c7?w=240&h=240&fit=crop&auto=format&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1609249142417-5a15a3f88388?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Wren', 'Robin', 'Song Thrush', 'Treecreeper'],
     tip: 'Leave logs to rot naturally — the insects inside (beetles, grubs, spiders) are prime food for wrens, robins and thrushes year-round.',
   },
@@ -696,7 +696,7 @@ export const GARDEN_FEATURES: GardenFeatureEntry[] = [
   {
     feature: 'Nest Boxes',
     // Nest box / bird box mounted on a wall (unsplash 8F4cfPjHhvM)
-    imageUrl: 'https://images.unsplash.com/photo-1594420893547-1a2b0a0c8bb1?w=240&h=240&fit=crop&auto=format&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1589630390494-901a43bbe894?w=240&h=240&fit=crop&auto=format&q=80',
     benefitsBirds: ['Blue Tit', 'Great Tit', 'Coal Tit', 'House Sparrow', 'Robin', 'Wren', 'Nuthatch', 'Pied Wagtail'],
     tip: 'Put up boxes in February before the breeding season. Different hole sizes suit different species — offer a variety at different heights.',
   },
