@@ -1259,7 +1259,7 @@ export function AttractScreen() {
       {/* Setup sheet — receives hook state from the single useGardenSetup instance above */}
       <SetupSheet
         open={setupOpen}
-        onClose={() => setSetupOpen(false)}
+        onClose={() => { setSetupOpen(false); setSetupInitialStep(0) }}
         gardenBirds={gardenBirds}
         setup={setup}
         update={update}
