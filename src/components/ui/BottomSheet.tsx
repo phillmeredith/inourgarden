@@ -129,7 +129,9 @@ export function BottomSheet({
               </button>
             </div>
 
-            {/* Scrollable content area */}
+            {/* Scrollable content area.
+                Stop pointer events bubbling to the Framer drag handler so
+                native scroll works properly on iOS / Android. */}
             <div
               className="overflow-y-auto overscroll-contain"
               style={{
@@ -137,6 +139,7 @@ export function BottomSheet({
                 WebkitOverflowScrolling: 'touch',
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
               }}
+              onPointerDown={e => e.stopPropagation()}
             >
               {children}
             </div>
