@@ -264,6 +264,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.1.6',
+    changes: [
+      'Identify tab no longer inherits scroll position from Browse tab',
+    ],
+  },
+  {
     version: '1.1.5',
     changes: [
       'Fixed sound button staying highlighted when pausing from within a bird card — only highlights when paused via the top-right button itself',

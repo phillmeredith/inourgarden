@@ -213,6 +213,11 @@ export function ExploreScreen() {
   // scrollContainerRef — the overflow-y-auto div; passed to BirdVirtualGrid
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+  // Reset scroll to top whenever the tab changes
+  useEffect(() => {
+    scrollContainerRef.current?.scrollTo({ top: 0 })
+  }, [activeTab])
+
   // headerRef + headerHeight — measures the floating PageHeader so we can
   // push all content down by exactly that amount.
   const headerRef = useRef<HTMLDivElement>(null)
