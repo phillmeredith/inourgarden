@@ -6,7 +6,7 @@
 import { useState, useRef } from 'react'
 import {
   Download, Upload, Trash2, AlertTriangle,
-  Loader2, Type, Zap,
+  Loader2, Type, Zap, MapPin, Mountain, Sun, Trees, Leaf, Check,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '../lib/utils'
@@ -15,8 +15,21 @@ import { PageHeader } from '../components/layout/PageHeader'
 import { Modal } from '../components/ui/Modal'
 import { usePreferences } from '../hooks/usePreferences'
 import { useDataExport } from '../hooks/useDataExport'
+import { useGardenSetup, type GardenRegion } from '../hooks/useGardenSetup'
 import { db } from '../lib/db'
 import type { AppPreferences, AppTheme } from '../lib/db'
+
+// ─── Region data ──────────────────────────────────────────────────────────────
+
+type LucideIcon = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
+
+const REGIONS: { value: GardenRegion; label: string; Icon: LucideIcon }[] = [
+  { value: 'scotland',       label: 'Scotland',         Icon: Mountain },
+  { value: 'n-england',      label: 'North England',    Icon: Sun      },
+  { value: 'midlands-wales', label: 'Midlands & Wales', Icon: Trees    },
+  { value: 's-england',      label: 'South England',    Icon: Sun      },
+  { value: 'n-ireland',      label: 'N. Ireland',       Icon: Leaf     },
+]
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 
@@ -250,6 +263,7 @@ function ActionRow({
 export function SettingsScreen() {
   const { preferences, updatePreference } = usePreferences()
   const { exportData, importData, importing, error: importError } = useDataExport()
+  const { setup, update: updateGarden } = useGardenSetup()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [clearModalOpen, setClearModalOpen] = useState(false)
@@ -330,6 +344,55 @@ export function SettingsScreen() {
               onChange={v => updatePreference('reducedMotion', v)}
             />
           </SettingRow>
+        </Section>
+
+        {/* ── Garden ─────────────────────────────────────────────────────── */}
+        <Section title="Garden">
+          <div className="py-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--elev)] shrink-0">
+                <MapPin size={18} strokeWidth={2} className="text-[var(--t2)]" />
+              </div>
+              <div>
+                <div className="text-[15px] font-semibold text-[var(--t1)]">Garden location</div>
+                <div className="text-[12px] text-[var(--t3)] mt-0.5">
+                  {setup.region
+                    ? REGIONS.find(r => r.value === setup.region)?.label ?? 'Set below'
+                    : 'Not set — choose your region'}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              {REGIONS.map(r => {
+                const active = setup.region === r.value
+                return (
+                  <button
+                    key={r.value}
+                    onClick={() => updateGarden({ region: r.value })}
+                    className={cn(
+                      'w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all',
+                      active
+                        ? 'border-[var(--blue)] bg-[var(--blue-sub)]'
+                        : 'border-[var(--border-s)] bg-[var(--elev)]',
+                    )}
+                  >
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: active ? 'var(--blue-sub)' : 'var(--card)' }}>
+                      <r.Icon size={15} strokeWidth={2}
+                        className={active ? 'text-[var(--blue-t)]' : 'text-[var(--t2)]'} />
+                    </div>
+                    <span className={cn(
+                      'flex-1 text-[14px] font-semibold',
+                      active ? 'text-[var(--blue-t)]' : 'text-[var(--t1)]',
+                    )}>
+                      {r.label}
+                    </span>
+                    {active && <Check size={14} strokeWidth={2.5} className="text-[var(--blue-t)]" />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </Section>
 
         {/* ── Data ───────────────────────────────────────────────────────── */}
