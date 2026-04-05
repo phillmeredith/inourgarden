@@ -638,6 +638,9 @@ function StrategyTab({
   // Warn birds that conflict with favourites but aren't yet discouraged
   const unconflictedThreats = conflicts.filter(c => !discourage.includes(c.threatBird.name))
 
+  // Must be declared before any conditional return (Rules of Hooks)
+  const [copiedItem, setCopiedItem] = useState<string | null>(null)
+
   if (!isConfigured) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
@@ -659,8 +662,6 @@ function StrategyTab({
       </div>
     )
   }
-
-  const [copiedItem, setCopiedItem] = useState<string | null>(null)
 
   function copyItem(text: string) {
     navigator.clipboard.writeText(text).then(() => {
