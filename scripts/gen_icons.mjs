@@ -23,7 +23,7 @@ const BIRD_PATHS = [
 ]
 
 function makeSvg(size) {
-  const bg       = '#111111'   // near-black to match system dark mode icons
+  const bg       = '#1c1c1e'   // Apple's exact UIColor.systemBackground dark mode value
   const iconCol  = '#b5c47e'   // sage green
   const radius   = size * 0.22 // rounded square corners
 
