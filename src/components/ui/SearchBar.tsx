@@ -31,7 +31,7 @@ export function SearchBar({
         className={cn(
           'w-full h-11 pl-10 pr-10',
           'bg-[var(--elev)] border border-[var(--border-s)]',
-          'rounded-xl text-[15px] text-[var(--t1)]',
+          'rounded-xl text-[16px] text-[var(--t1)]',
           'placeholder:text-[var(--t3)]',
           'focus:border-[var(--blue)] focus:outline-none',
           'focus:ring-2 focus:ring-[var(--blue-sub)]',

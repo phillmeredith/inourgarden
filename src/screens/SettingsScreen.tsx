@@ -262,6 +262,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.6',
+    changes: [
+      'Fixed search field causing iOS to zoom in on tap (font-size bumped to 16px)',
+    ],
+  },
+  {
     version: '1.0.5',
     changes: [
       'Map now opens with the UK properly centred at a consistent zoom level',
