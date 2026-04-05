@@ -6,8 +6,10 @@
 import { useState, useRef } from 'react'
 import {
   Download, Upload, Trash2, AlertTriangle,
-  Loader2, Type, Zap, MapPin, Mountain, Sun, Trees, Leaf, Check, ChevronDown,
+  Loader2, MapPin, Mountain, Sun, Trees, Leaf, Check, ChevronDown,
 } from 'lucide-react'
+
+declare const __APP_VERSION__: string
 import { motion } from 'framer-motion'
 import { cn } from '../lib/utils'
 
@@ -262,6 +264,13 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.8',
+    changes: [
+      'Version number under Raccoon Ltd now updates automatically with each release',
+      'Removed text size and reduced motion settings',
+    ],
+  },
+  {
     version: '1.0.7',
     changes: [
       'Sound filter button now shows a crossed-out icon when the filter is off',
@@ -501,23 +510,6 @@ export function SettingsScreen() {
             />
           </div>
 
-          <SettingRow icon={Type} label="Text size">
-            <PillToggle
-              options={[
-                { value: 'default' as const, label: 'Default' },
-                { value: 'large' as const, label: 'Large' },
-              ]}
-              value={preferences.textSize}
-              onChange={v => updatePreference('textSize', v)}
-            />
-          </SettingRow>
-
-          <SettingRow icon={Zap} label="Reduced motion" description="Minimise animations and transitions">
-            <Toggle
-              checked={preferences.reducedMotion}
-              onChange={v => updatePreference('reducedMotion', v)}
-            />
-          </SettingRow>
         </Section>
 
         {/* ── Garden ─────────────────────────────────────────────────────── */}
@@ -620,7 +612,7 @@ export function SettingsScreen() {
                 <div className="text-[15px] font-semibold text-[var(--t1)]">
                   Raccoon Ltd
                 </div>
-                <div className="text-[12px] text-[var(--t3)] mt-0.5">v1.0.0</div>
+                <div className="text-[12px] text-[var(--t3)] mt-0.5">v{__APP_VERSION__}</div>
               </div>
             </div>
             <p className="text-[12px] text-[var(--t3)] leading-relaxed">
