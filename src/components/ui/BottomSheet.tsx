@@ -2,10 +2,13 @@
 // Renders via createPortal to escape stacking context traps.
 // Backdrop: gradient from transparent at top → dark at ~25% so the safe area
 // and header remain visible, fading naturally into the overlay.
+//
+// Drag-to-dismiss is scoped to the handle pill only (via useDragControls +
+// dragListener={false}) so content scrolling never conflicts with the gesture.
 
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -46,6 +49,8 @@ export function BottomSheet({
   className,
   maxHeight = '85vh',
 }: BottomSheetProps) {
+  const dragControls = useDragControls()
+
   // Reference-counted scroll lock
   useEffect(() => {
     if (!open) return
@@ -98,18 +103,20 @@ export function BottomSheet({
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             drag="y"
+            dragControls={dragControls}
+            dragListener={false}
             dragConstraints={{ top: 0 }}
             dragElastic={0.2}
             onDragEnd={(_e, info) => {
-              // Dismiss if dragged down past 100px or with enough velocity
-              if (info.offset.y > 100 || info.velocity.y > 300) {
-                onClose()
-              }
+              if (info.offset.y > 100 || info.velocity.y > 300) onClose()
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-1">
+            {/* Drag handle — the ONLY place that starts the drag gesture */}
+            <div
+              className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing touch-none"
+              onPointerDown={(e) => dragControls.start(e)}
+            >
               <div className="w-10 h-1 rounded-full bg-white/20" />
             </div>
 
@@ -129,9 +136,7 @@ export function BottomSheet({
               </button>
             </div>
 
-            {/* Scrollable content area.
-                Stop pointer events bubbling to the Framer drag handler so
-                native scroll works properly on iOS / Android. */}
+            {/* Scrollable content area */}
             <div
               className="overflow-y-auto overscroll-contain"
               style={{
@@ -139,7 +144,6 @@ export function BottomSheet({
                 WebkitOverflowScrolling: 'touch',
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
               }}
-              onPointerDown={e => e.stopPropagation()}
             >
               {children}
             </div>
