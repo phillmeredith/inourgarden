@@ -105,7 +105,19 @@ function seededOffset(id: string, i: number): { lat: number; lng: number } {
 function getBirdCoordinates(bird: BirdSpecies): { lat: number; lng: number }[] {
   const regionCoords = UK_REGIONS[bird.category] ?? UK_REGIONS.Garden
   const count = 2 + (bird.id.length % 3)
-  return regionCoords.slice(0, count).map((coord, i) => {
+
+  // Hash the bird id to a starting index so pins are spread across ALL region
+  // cities (not always just the first 2-4). Without this, cities like Newcastle
+  // (index 6 in Garden) are never reached because count is at most 4.
+  let hash = 0
+  for (let c = 0; c < bird.id.length; c++) {
+    hash = (hash << 5) - hash + bird.id.charCodeAt(c)
+    hash |= 0
+  }
+  const startIdx = Math.abs(hash) % regionCoords.length
+
+  return Array.from({ length: count }, (_, i) => {
+    const coord = regionCoords[(startIdx + i) % regionCoords.length]
     const off = seededOffset(bird.id, i)
     return { lat: coord.lat + off.lat, lng: coord.lng + off.lng }
   })

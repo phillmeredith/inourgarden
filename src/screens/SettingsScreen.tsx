@@ -262,6 +262,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.2',
+    changes: [
+      'Fixed map not showing birds for Newcastle and other cities beyond the first four in each region',
+    ],
+  },
+  {
     version: '1.0.1',
     changes: [
       'Map now matches the active theme — outdoors style for Forest, light for Meadow, dark for Midnight & Dusk',
