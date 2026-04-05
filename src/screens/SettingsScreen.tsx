@@ -264,6 +264,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.9',
+    changes: [
+      'Renamed "In Our Garden" to "In our garden" throughout the app',
+    ],
+  },
+  {
     version: '1.0.8',
     changes: [
       'Version number under Raccoon Ltd now updates automatically with each release',

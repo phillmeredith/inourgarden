@@ -1,4 +1,4 @@
-// GardenScreen — "In Our Garden" — Laura's personal sighting collection
+// GardenScreen — "In our garden" — Laura's personal sighting collection
 // PageHeader with title, below-slot search + sort pills
 // GardenStats summary cards, grid of seen birds with sighting count + last-seen date
 // FAB for adding sightings, tap a bird card to open SightingDetailSheet
@@ -160,7 +160,7 @@ export function GardenScreen() {
   return (
     <div className="flex flex-col h-full bg-[var(--bg)] overflow-y-auto">
       <PageHeader
-        title="In Our Garden"
+        title="In our garden"
         below={
           hasSightings ? (
             <div className="flex flex-col gap-3">

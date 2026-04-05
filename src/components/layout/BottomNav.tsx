@@ -9,7 +9,7 @@ const TABS: {
   label: string
   Icon: React.ComponentType<{ size: number; strokeWidth: number; className?: string }>
 }[] = [
-  { to: '/',         label: 'In Our Garden', Icon: Bird },
+  { to: '/',         label: 'In our garden', Icon: Bird },
   { to: '/explore',  label: 'Explore',       Icon: Binoculars },
   { to: '/attract',  label: 'Attract',       Icon: Leaf },
   { to: '/settings', label: 'Settings',      Icon: Settings },

@@ -37,8 +37,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: "In Our Garden",
-        short_name: 'In Our Garden',
+        name: "In our garden",
+        short_name: 'In our garden',
         description: 'Explore, identify, and collect bird sightings',
         theme_color: '#333626',
         background_color: '#4f523f',
