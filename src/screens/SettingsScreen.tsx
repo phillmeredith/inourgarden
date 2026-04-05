@@ -262,6 +262,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.0.7',
+    changes: [
+      'Sound filter button now shows a crossed-out icon when the filter is off',
+    ],
+  },
+  {
     version: '1.0.6',
     changes: [
       'Fixed search field causing iOS to zoom in on tap (font-size bumped to 16px)',
