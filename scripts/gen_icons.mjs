@@ -23,7 +23,7 @@ const BIRD_PATHS = [
 ]
 
 function makeSvg(size) {
-  const bg       = '#2d3020'   // dark forest green
+  const bg       = '#111111'   // near-black to match system dark mode icons
   const iconCol  = '#b5c47e'   // sage green
   const radius   = size * 0.22 // rounded square corners
 
