@@ -245,7 +245,6 @@ export function GardenScreen() {
                 <GardenBirdCard
                   key={summary.bird.id}
                   summary={summary}
-                  index={i}
                   onTap={() => setSelectedBirdId(summary.bird.id)}
                 />
               ))}
@@ -306,11 +305,9 @@ export function GardenScreen() {
 
 function GardenBirdCard({
   summary,
-  index,
   onTap,
 }: {
   summary: GardenBirdSummary
-  index: number
   onTap: () => void
 }) {
   const { bird, totalIndividuals, lastSeenDate } = summary
@@ -327,9 +324,6 @@ function GardenBirdCard({
   return (
     <motion.button
       onClick={onTap}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.03, 0.3), duration: 0.25 }}
       className={cn(
         'w-full text-left rounded-2xl border border-[var(--border-s)] bg-[var(--card)]',
         'flex flex-col overflow-hidden',

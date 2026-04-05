@@ -1,7 +1,7 @@
 // BirdMap — interactive map showing bird distribution across the UK
 // Uses Mapbox GL via react-map-gl with conservation-status colored markers
 
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Map, { Marker, NavigationControl } from 'react-map-gl/mapbox'
 import type { MapRef } from 'react-map-gl/mapbox'
 import { Bird, MapPinOff } from 'lucide-react'
@@ -180,6 +180,23 @@ const UK_BOUNDS: [[number, number], [number, number]] = [
 
 export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
   const mapRef = useRef<MapRef>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerReady, setContainerReady] = useState(false)
+
+  // Measure the container's actual rendered height before initialising the
+  // Mapbox WebGL context — on iOS Safari/PWA, calc(100dvh-X) can resolve to 0
+  // at mount time and the map never renders.
+  useLayoutEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const check = () => {
+      if (el.clientHeight > 0) setContainerReady(true)
+    }
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -210,8 +227,8 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
   }, [birds])
 
   return (
-    <div className="w-full h-[calc(100dvh-290px)] min-h-[350px] relative">
-      <Map
+    <div ref={containerRef} className="w-full h-[calc(100dvh-290px)] min-h-[350px] relative">
+      {containerReady && <Map
         ref={mapRef}
         mapboxAccessToken={MAPBOX_TOKEN}
         onLoad={(e) => {
@@ -238,7 +255,7 @@ export function BirdMap({ birds, onBirdTap }: BirdMapProps) {
             <MapPin bird={m.bird} onClick={() => onBirdTap(m.bird)} />
           </Marker>
         ))}
-      </Map>
+      </Map>}
 
       {/* Legend */}
       <div className="absolute bottom-4 left-4 flex items-center gap-3 px-3 py-2 rounded-[var(--r-md)] bg-[var(--elev)] backdrop-blur-xl border border-[var(--border-s)]">

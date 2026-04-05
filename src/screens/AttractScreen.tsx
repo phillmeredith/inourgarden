@@ -13,7 +13,7 @@
 // Pecking Order tab: visual hierarchy from apex predator down to gentle shy birds,
 // with conflict pair warnings throughout.
 
-import { useState, useLayoutEffect, useRef, useMemo } from 'react'
+import { useState, useLayoutEffect, useEffect, useRef, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   Leaf, Settings2, Heart, ChevronRight, AlertTriangle,
@@ -1173,8 +1173,14 @@ export function AttractScreen() {
   const { setup, isConfigured, update, toggleFeature, toggleFavourite, toggleDiscourage } = useGardenSetup()
   const gardenBirds = useGardenBirds()
 
+  const scrollRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const [headerHeight, setHeaderHeight] = useState(0)
+
+  // Reset scroll position to top whenever the active tab changes
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 })
+  }, [activeTab])
   useLayoutEffect(() => {
     const el = headerRef.current
     if (!el) return
@@ -1196,7 +1202,7 @@ export function AttractScreen() {
     <div className="relative h-full bg-[var(--bg)]">
 
       {/* Scrollable content */}
-      <div className="absolute inset-0 overflow-y-auto" style={{ paddingTop: headerHeight }}>
+      <div ref={scrollRef} className="absolute inset-0 overflow-y-auto" style={{ paddingTop: headerHeight }}>
         <AnimatePresence mode="wait">
           {activeTab === 'strategy' && (
             <motion.div key="strategy"
