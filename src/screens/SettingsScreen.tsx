@@ -8,7 +8,6 @@ import {
   Download, Upload, Trash2, AlertTriangle,
   Loader2, MapPin, Mountain, Sun, Trees, Leaf, Check, ChevronDown, RefreshCw,
 } from 'lucide-react'
-import { useRegisterSW } from 'virtual:pwa-register/react'
 
 declare const __APP_VERSION__: string
 import { motion } from 'framer-motion'
@@ -265,6 +264,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.1.2',
+    changes: [
+      'Fixed "Refresh for latest version" button getting stuck — now reliably reloads',
+    ],
+  },
+  {
     version: '1.1.1',
     changes: [
       'Added "Refresh for latest version" button in Settings — fetches and applies the newest version without losing any data',
@@ -468,21 +473,19 @@ export function SettingsScreen() {
   const [changelogOpen, setChangelogOpen] = useState(false)
   const [updating, setUpdating] = useState(false)
 
-  const { updateServiceWorker } = useRegisterSW()
-
   async function handleCheckForUpdate() {
     setUpdating(true)
     try {
-      // Ask the active SW to check for a new version, then apply + reload
+      // Tell the SW to fetch the latest version from the server
       if ('serviceWorker' in navigator) {
         const reg = await navigator.serviceWorker.ready
         await reg.update()
       }
-      await updateServiceWorker(true)
     } catch {
-      // If anything goes wrong just do a hard reload — data is in IndexedDB and is safe
-      window.location.reload()
+      // ignore — reload regardless
     }
+    // Reload picks up any newly fetched SW automatically
+    window.location.reload()
   }
   const [clearModalOpen, setClearModalOpen] = useState(false)
   const [clearConfirmText, setClearConfirmText] = useState('')
