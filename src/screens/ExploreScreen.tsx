@@ -18,6 +18,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Grid3X3, Map as MapIcon, Search, Volume2, VolumeX } from 'lucide-react'
+import { useBirdAudioContext } from '../contexts/BirdAudioContext'
 import { PageHeader } from '../components/layout/PageHeader'
 import { SearchBar } from '../components/ui/SearchBar'
 import { Button } from '../components/ui/Button'
@@ -179,6 +180,7 @@ type ExploreTab = 'browse' | 'identify'
 export function ExploreScreen() {
   const [activeTab, setActiveTab] = useState<ExploreTab>('browse')
   const [viewMode, setViewMode] = useState<ExploreViewMode>('grid')
+  const { activeBirdId, activeUrl, isPlaying, play, pause } = useBirdAudioContext()
   const {
     query,
     activeCategory,
@@ -391,21 +393,37 @@ export function ExploreScreen() {
           }
           rightAction={
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setHasSoundOnly(!hasSoundOnly)}
-                aria-pressed={hasSoundOnly}
-                aria-label="Show only birds with sounds"
-                className={[
-                  'w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-150',
-                  hasSoundOnly
-                    ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
-                    : 'text-[var(--t3)] hover:text-[var(--t1)] hover:bg-white/[.06]',
-                ].join(' ')}
-              >
-                {hasSoundOnly
-                  ? <VolumeX size={18} strokeWidth={2} />
-                  : <Volume2 size={18} strokeWidth={2} />}
-              </button>
+              {(() => {
+                // Three audio states:
+                //  nothing loaded  → plain Volume2 (falls back to hasSoundOnly filter)
+                //  playing         → active Volume2 (click = pause)
+                //  paused/muted    → active VolumeX (click = resume)
+                const audioActive = activeBirdId !== null
+                const handleClick = audioActive
+                  ? isPlaying
+                    ? () => pause()
+                    : () => { if (activeBirdId && activeUrl) play(activeBirdId, activeUrl) }
+                  : () => setHasSoundOnly(!hasSoundOnly)
+
+                return (
+                  <button
+                    onClick={handleClick}
+                    aria-label={audioActive ? (isPlaying ? 'Pause' : 'Resume') : 'Show only birds with sounds'}
+                    className={[
+                      'w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-150',
+                      audioActive
+                        ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
+                        : hasSoundOnly
+                          ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
+                          : 'text-[var(--t3)] hover:text-[var(--t1)] hover:bg-white/[.06]',
+                    ].join(' ')}
+                  >
+                    {audioActive && !isPlaying
+                      ? <VolumeX size={18} strokeWidth={2} />
+                      : <Volume2 size={18} strokeWidth={2} />}
+                  </button>
+                )
+              })()}
             </div>
           }
           below={

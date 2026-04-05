@@ -264,6 +264,13 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.1.4',
+    changes: [
+      'Top-right sound button now reflects global audio state: Volume2 (playing, highlighted), VolumeX (paused, highlighted), plain Volume2 (nothing playing)',
+      'Clicking it while audio is active pauses or resumes playback',
+    ],
+  },
+  {
     version: '1.1.3',
     changes: [
       'Fixed sound filter icon showing crossed-out when not muted',
