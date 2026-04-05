@@ -38,6 +38,7 @@ export default defineConfig({
         description: 'Explore, identify, and collect bird sightings',
         theme_color: '#333626',
         background_color: '#4f523f',
+        start_url: '/',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
