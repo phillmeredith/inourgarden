@@ -264,6 +264,12 @@ function ActionRow({
 
 const CHANGELOG: { version: string; label?: string; changes: string[] }[] = [
   {
+    version: '1.1.5',
+    changes: [
+      'Fixed sound button staying highlighted when pausing from within a bird card — only highlights when paused via the top-right button itself',
+    ],
+  },
+  {
     version: '1.1.4',
     changes: [
       'Top-right sound button now reflects global audio state: Volume2 (playing, highlighted), VolumeX (paused, highlighted), plain Volume2 (nothing playing)',

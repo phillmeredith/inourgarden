@@ -181,6 +181,15 @@ export function ExploreScreen() {
   const [activeTab, setActiveTab] = useState<ExploreTab>('browse')
   const [viewMode, setViewMode] = useState<ExploreViewMode>('grid')
   const { activeBirdId, activeUrl, isPlaying, play, pause } = useBirdAudioContext()
+
+  // Track whether the top-right button specifically triggered a pause.
+  // Pausing from within a bird card should NOT keep the button highlighted.
+  const [globallyPaused, setGloballyPaused] = useState(false)
+
+  // Clear globallyPaused whenever audio starts playing from any source,
+  // or when there's no active bird at all.
+  useEffect(() => { if (isPlaying) setGloballyPaused(false) }, [isPlaying])
+  useEffect(() => { if (!activeBirdId) setGloballyPaused(false) }, [activeBirdId])
   const {
     query,
     activeCategory,
@@ -394,31 +403,32 @@ export function ExploreScreen() {
           rightAction={
             <div className="flex items-center gap-2">
               {(() => {
-                // Three audio states:
-                //  nothing loaded  → plain Volume2 (falls back to hasSoundOnly filter)
-                //  playing         → active Volume2 (click = pause)
-                //  paused/muted    → active VolumeX (click = resume)
-                const audioActive = activeBirdId !== null
-                const handleClick = audioActive
-                  ? isPlaying
-                    ? () => pause()
-                    : () => { if (activeBirdId && activeUrl) play(activeBirdId, activeUrl) }
-                  : () => setHasSoundOnly(!hasSoundOnly)
+                // Three states for the top-right button:
+                //  isPlaying                      → highlighted Volume2  (click = pause via global)
+                //  globallyPaused (top-right only) → highlighted VolumeX  (click = resume)
+                //  everything else                → plain Volume2         (click = hasSoundOnly filter)
+                const handleClick = isPlaying
+                  ? () => { pause(); setGloballyPaused(true) }
+                  : globallyPaused
+                    ? () => { if (activeBirdId && activeUrl) play(activeBirdId, activeUrl) }
+                    : () => setHasSoundOnly(!hasSoundOnly)
+
+                const isHighlighted = isPlaying || globallyPaused
 
                 return (
                   <button
                     onClick={handleClick}
-                    aria-label={audioActive ? (isPlaying ? 'Pause' : 'Resume') : 'Show only birds with sounds'}
+                    aria-label={isPlaying ? 'Pause' : globallyPaused ? 'Resume' : 'Show only birds with sounds'}
                     className={[
                       'w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-150',
-                      audioActive
+                      isHighlighted
                         ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
                         : hasSoundOnly
                           ? 'bg-[var(--blue-sub)] text-[var(--blue-t)]'
                           : 'text-[var(--t3)] hover:text-[var(--t1)] hover:bg-white/[.06]',
                     ].join(' ')}
                   >
-                    {audioActive && !isPlaying
+                    {globallyPaused && !isPlaying
                       ? <VolumeX size={18} strokeWidth={2} />
                       : <Volume2 size={18} strokeWidth={2} />}
                   </button>
